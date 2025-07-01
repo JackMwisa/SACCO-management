@@ -1,0 +1,12 @@
+# Database files
+sacco_managment/db.sqlite3
+
+# Media files
+sacco_managment/media/
+
+# Other common ignorable files/directories
+*.pyc
+__pycache__/
+.env
+venv/
+*.log
