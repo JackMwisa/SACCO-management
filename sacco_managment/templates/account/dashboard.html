@@ -1,6 +1,5 @@
-{% extends "partials/dashboard-base.html" %} {% load static %}
-{% load humanize %}
-{% block content %}
+{% extends "partials/dashboard-base.html" %} {% load static %} 
+{% load humanize%} {% block content %}
 
 <!-- Dashboard Section start -->
 <section class="dashboard-section body-collapse">
@@ -23,7 +22,9 @@
                   {% for recent_recieved_transfer in recent_recieved_transfer %}
                   <h5 class="receive">
                     Last Received
-                    <span>UGX {{recent_recieved_transfer.amount|intcomma}}</span>
+                    <span
+                      >UGX {{recent_recieved_transfer.amount|intcomma}}</span
+                    >
                   </h5>
 
                   {% endfor %}
@@ -33,25 +34,41 @@
                     <select>
                       <option value="1">UGX Shillings</option>
                       <option value="2">US Dollar</option>
-
                     </select>
                     <div class="dropdown-area">
-                      <button type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="{% static 'assets1/images/icon/option.png' %}" alt="icon" />
+                      <button
+                        type="button"
+                        id="dropdownMenuButton1"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <img
+                          src="{% static 'assets1/images/icon/option.png' %}"
+                          alt="icon"
+                        />
                       </button>
-                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                      <ul
+                        class="dropdown-menu"
+                        aria-labelledby="dropdownMenuButton1"
+                      >
                         <li>
-                          <a class="dropdown-item" href="#">crypto 1 Currency</a>
+                          <a class="dropdown-item" href="#"
+                            >crypto 1 Currency</a
+                          >
                         </li>
                         <li>
-                          <a class="dropdown-item" href="#">crypto 2 Currency</a>
+                          <a class="dropdown-item" href="#"
+                            >crypto 2 Currency</a
+                          >
                         </li>
                       </ul>
                     </div>
                   </div>
                   <div class="right-bottom">
                     {% for recent_transfer in recent_transfer %}
-                    <h4><small>UGX{{recent_transfer.amount|intcomma}}</small></h4>
+                    <h4>
+                      <small>UGX{{recent_transfer.amount|intcomma}}</small>
+                    </h4>
                     {% endfor %}
                     <h5><small>Recent Transfer</small></h5>
                   </div>
@@ -59,16 +76,35 @@
               </div>
               <div class="bottom-area">
                 <div class="left-side">
-                  <a href="{% url 'core:search-account' %}" class="cmn-btn">Transfer Money</a>
-                  <a href="{% url 'core:request-search-account' %}" class="cmn-btn">Receive Money</a>
-                  <a href="{% url 'account:all-credit-cards' %}" class="cmn-btn">All Cards</a>
+                  <a href="{% url 'core:search-account' %}" class="cmn-btn"
+                    >Transfer Money</a
+                  >
+                  <a
+                    href="{% url 'core:request-search-account' %}"
+                    class="cmn-btn"
+                    >Receive Money</a
+                  >
+                  <a href="{% url 'account:all-credit-cards' %}" class="cmn-btn"
+                    >All Cards</a
+                  >
                 </div>
                 <div class="right-side">
                   <div class="dropdown-area">
-                    <button type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                      <img src="{% static 'assets1/images/icon/option.png' %}" alt="icon" />
+                    <button
+                      type="button"
+                      id="dropdownMenuButton1"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <img
+                        src="{% static 'assets1/images/icon/option.png' %}"
+                        alt="icon"
+                      />
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1"></ul>
+                    <ul
+                      class="dropdown-menu"
+                      aria-labelledby="dropdownMenuButton1"
+                    ></ul>
                   </div>
                 </div>
               </div>
@@ -78,42 +114,82 @@
                 <h5>Transactions</h5>
                 <p>Updated every several minutes</p>
               </div>
-              <div class="top-area d-flex align-items-center justify-content-between">
+              <div
+                class="top-area d-flex align-items-center justify-content-between"
+              >
                 <ul class="nav nav-tabs" role="tablist">
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="latest-tab" data-bs-toggle="tab" data-bs-target="#latest"
-                      type="button" role="tab" aria-controls="latest" aria-selected="true">
+                    <button
+                      class="nav-link active"
+                      id="latest-tab"
+                      data-bs-toggle="tab"
+                      data-bs-target="#latest"
+                      type="button"
+                      role="tab"
+                      aria-controls="latest"
+                      aria-selected="true"
+                    >
                       Sent
                     </button>
                   </li>
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming"
-                      type="button" role="tab" aria-controls="upcoming" aria-selected="false">
+                    <button
+                      class="nav-link"
+                      id="upcoming-tab"
+                      data-bs-toggle="tab"
+                      data-bs-target="#upcoming"
+                      type="button"
+                      role="tab"
+                      aria-controls="upcoming"
+                      aria-selected="false"
+                    >
                       Received
                     </button>
                   </li>
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="sender-request-tab" data-bs-toggle="tab"
-                      data-bs-target="#sender-request" type="button" role="tab" aria-controls="upcoming"
-                      aria-selected="false">
+                    <button
+                      class="nav-link"
+                      id="sender-request-tab"
+                      data-bs-toggle="tab"
+                      data-bs-target="#sender-request"
+                      type="button"
+                      role="tab"
+                      aria-controls="upcoming"
+                      aria-selected="false"
+                    >
                       Sent Requests
                     </button>
                   </li>
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="receiver-request-tab" data-bs-toggle="tab"
-                      data-bs-target="#receiver-request" type="button" role="tab" aria-controls="upcoming"
-                      aria-selected="false">
+                    <button
+                      class="nav-link"
+                      id="receiver-request-tab"
+                      data-bs-toggle="tab"
+                      data-bs-target="#receiver-request"
+                      type="button"
+                      role="tab"
+                      aria-controls="upcoming"
+                      aria-selected="false"
+                    >
                       Received Requests
                     </button>
                   </li>
                 </ul>
                 <div class="view-all d-flex align-items-center">
                   <a href="{% url 'core:transactions' %}">View All</a>
-                  <img src="{% static 'assets1/images/icon/right-arrow.png' %}" alt="icon" />
+                  <img
+                    src="{% static 'assets1/images/icon/right-arrow.png' %}"
+                    alt="icon"
+                  />
                 </div>
               </div>
               <div class="tab-content mt-40">
-                <div class="tab-pane fade show active" id="latest" role="tabpanel" aria-labelledby="latest-tab">
+                <div
+                  class="tab-pane fade show active"
+                  id="latest"
+                  role="tabpanel"
+                  aria-labelledby="latest-tab"
+                >
                   <div class="table-responsive">
                     <table class="table">
                       <thead>
@@ -127,7 +203,10 @@
                       </thead>
                       <tbody>
                         {% for s in sender_transaction %}
-                        <tr data-bs-toggle="modal" data-bs-target="#transactionsMod">
+                        <tr
+                          data-bs-toggle="modal"
+                          data-bs-target="#transactionsMod"
+                        >
                           <th scope="row">
                             <p>{{s.receiver.kyc.full_name|title}}</p>
                             <p class="mdr">{{s.transaction_type|title}}</p>
@@ -151,8 +230,11 @@
                             <p>-UGX{{s.amount|intcomma}}</p>
                           </td>
                           <td>
-                            <a href="{% url 'core:transaction-detail' s.transaction_id %}" class=""><i
-                                class="fas fa-eye"></i></a>
+                            <a
+                              href="{% url 'core:transaction-detail' s.transaction_id %}"
+                              class=""
+                              ><i class="fas fa-eye"></i
+                            ></a>
                           </td>
                         </tr>
                         {% endfor %}
@@ -160,7 +242,12 @@
                     </table>
                   </div>
                 </div>
-                <div class="tab-pane fade" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
+                <div
+                  class="tab-pane fade"
+                  id="upcoming"
+                  role="tabpanel"
+                  aria-labelledby="upcoming-tab"
+                >
                   <div class="table-responsive">
                     <table class="table">
                       <thead>
@@ -174,7 +261,10 @@
                       </thead>
                       <tbody>
                         {% for s in receiver_transaction %}
-                        <tr data-bs-toggle="modal" data-bs-target="#transactionsMod">
+                        <tr
+                          data-bs-toggle="modal"
+                          data-bs-target="#transactionsMod"
+                        >
                           <th scope="row">
                             <p>{{s.sender.kyc.full_name|title}}</p>
                             <p class="mdr">{{s.transaction_type|title}}</p>
@@ -198,8 +288,11 @@
                             <p>+UGX{{s.amount|intcomma}}</p>
                           </td>
                           <td>
-                            <a href="{% url 'core:transaction-detail' s.transaction_id %}" class=""><i
-                                class="fas fa-eye"></i></a>
+                            <a
+                              href="{% url 'core:transaction-detail' s.transaction_id %}"
+                              class=""
+                              ><i class="fas fa-eye"></i
+                            ></a>
                           </td>
                         </tr>
                         {% endfor %}
@@ -207,7 +300,12 @@
                     </table>
                   </div>
                 </div>
-                <div class="tab-pane fade" id="sender-request" role="tabpanel" aria-labelledby="sender-request-tab">
+                <div
+                  class="tab-pane fade"
+                  id="sender-request"
+                  role="tabpanel"
+                  aria-labelledby="sender-request-tab"
+                >
                   <div class="table-responsive">
                     <table class="table">
                       <thead>
@@ -221,7 +319,10 @@
                       </thead>
                       <tbody>
                         {% for s in request_sender_transaction %}
-                        <tr data-bs-toggle="modal" data-bs-target="#transactionsMod">
+                        <tr
+                          data-bs-toggle="modal"
+                          data-bs-target="#transactionsMod"
+                        >
                           <th scope="row">
                             <p>{{s.receiver.kyc.full_name|title}}</p>
                             <p class="mdr">{{s.transaction_type|title}}</p>
@@ -248,33 +349,42 @@
                             {% endif %}
                           </td>
 
-
                           <td>
                             <p>+UGX{{s.amount|intcomma}}</p>
                           </td>
                           <td>
-                            {% if s.status == "request_sent" or s.status == "request_processing" %}
-                            <a href="{% url 'core:transaction-detail' s.transaction_id %}" class="btn btn-primary">
+                            {% if s.status == "request_sent" or s.status ==
+                            "request_processing" %}
+                            <a
+                              href="{% url 'core:transaction-detail' s.transaction_id %}"
+                              class="btn btn-primary"
+                            >
                               <i class="fas fa-eye"></i> View
                             </a>
-                            <a href="{% url 'core:delete-request' s.sender.account.account_number s.transaction_id %}"
-                              class="btn btn-danger">
+                            <a
+                              href="{% url 'core:delete-request' s.sender.account.account_number s.transaction_id %}"
+                              class="btn btn-danger"
+                            >
                               <i class="fas fa-x"></i> Delete
                             </a>
-                            {% elif s.status == "request_settled" %}
+                                  {% elif s.status == "request_settled" %}
                             <a class="btn btn-success">
                               <i class="fas fa-check-circle"></i> Settled
                             </a>
                             {% endif %}
                           </td>
-
                         </tr>
                         {% endfor %}
                       </tbody>
                     </table>
                   </div>
                 </div>
-                <div class="tab-pane fade" id="receiver-request" role="tabpanel" aria-labelledby="receiver-request-tab">
+                <div
+                  class="tab-pane fade"
+                  id="receiver-request"
+                  role="tabpanel"
+                  aria-labelledby="receiver-request-tab"
+                >
                   <div class="table-responsive">
                     <table class="table">
                       <thead>
@@ -288,7 +398,10 @@
                       </thead>
                       <tbody>
                         {% for s in request_receiver_transaction %}
-                        <tr data-bs-toggle="modal" data-bs-target="#transactionsMod">
+                        <tr
+                          data-bs-toggle="modal"
+                          data-bs-target="#transactionsMod"
+                        >
                           <th scope="row">
                             <p>{{s.sender.kyc.full_name|title}}</p>
                             <p class="mdr">{{s.transaction_type|title}}</p>
@@ -298,14 +411,16 @@
                             <p class="mdr">{{s.date|date:"d M, Y"}}</p>
                           </td>
                           <td>
-                            {% if s.status == 'completed' or s.status == 'request_sent' or s.status == 'request_settled' %}
-                              <p class="text-success">{{ s.status|title }}</p>
-                            {% elif s.status == 'pending' or s.status == 'processing' or s.status == 'request_processing' %}
-                              <p class="inprogress">{{ s.status|title }}</p>
+                            {% if s.status == 'completed' or s.status ==
+                            'request_sent' or s.status == 'request_settled' %}
+                            <p class="text-success">{{ s.status|title }}</p>
+                            {% elif s.status == 'pending' or s.status ==
+                            'processing' or s.status == 'request_processing' %}
+                            <p class="inprogress">{{ s.status|title }}</p>
                             {% elif s.status == 'failed' %}
-                              <p class="danger">{{ s.status|title }}</p>
+                            <p class="danger">{{ s.status|title }}</p>
                             {% else %}
-                              <p>{{ s.status|title }}</p>
+                            <p>{{ s.status|title }}</p>
                             {% endif %}
                           </td>
 
@@ -314,12 +429,21 @@
                           </td>
                           <td>
                             {% if s.status == "request_sent" %}
-                            <a href="{% url 'core:settlement-confirmation' s.sender.account.account_number s.transaction_id %}"
-                              class="btn btn-primary"><i class="fas fa-check-circle"></i> Settle</a>
-                            <a href="{% url 'core:transaction-detail' s.transaction_id %}" class="btn btn-danger">
-                              <i class="fas fa-x"></i> Cancel</a>
+                            <a
+                              href="{% url 'core:settlement-confirmation' s.sender.account.account_number s.transaction_id %}"
+                              class="btn btn-primary"
+                              ><i class="fas fa-check-circle"></i> Settle</a
+                            >
+                            <a
+                              href="{% url 'core:transaction-detail' s.transaction_id %}"
+                              class="btn btn-danger"
+                            >
+                              <i class="fas fa-x"></i> Cancel</a
+                            >
                             {% endif %} {% if s.status == "request_settled" %}
-                            <a href="" class="btn btn-success"><i class="fas fa-check-circle"></i> Settled</a>
+                            <a href="" class="btn btn-success"
+                              ><i class="fas fa-check-circle"></i> Settled</a
+                            >
                             {% endif %}
                           </td>
                         </tr>
@@ -337,12 +461,22 @@
         <div class="col-xl-4 col-lg-5">
           <div class="side-items">
             <div class="single-item">
-              <div class="section-text d-flex align-items-center justify-content-between">
+              <div
+                class="section-text d-flex align-items-center justify-content-between"
+              >
                 <h6>Linked Payment system</h6>
                 <div class="right-side">
                   <div class="dropdown-area">
-                    <button type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                      <img src="{% static 'assets1/images/icon/option.png' %}" alt="icon" />
+                    <button
+                      type="button"
+                      id="dropdownMenuButton1"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <img
+                        src="{% static 'assets1/images/icon/option.png' %}"
+                        alt="icon"
+                      />
                     </button>
                   </div>
                 </div>
@@ -353,11 +487,16 @@
                   <div class="col-12">
                     <div class="card__main">
                       <div
-                        class="{% if c.card_type == 'verve' %}Front_card{% endif %} {% if c.card_type == 'master' %}masterCard{% endif %} {% if c.card_type == 'visa' %}visaCard{% endif %}">
+                        class="{% if c.card_type == 'verve' %}Front_card{% endif %} {% if c.card_type == 'master' %}masterCard{% endif %} {% if c.card_type == 'visa' %}visaCard{% endif %}"
+                      >
                         <div class="top_card">
                           <span class="visa">{{c.card_type|upper}}</span>
                           <div class="logo">
-                            <img src="{% static 'assets1/images/logo1.png' %}" class="logo" alt="logo" />
+                            <img
+                              src="{% static 'assets1/images/logo1.png' %}"
+                              class="logo"
+                              alt="logo"
+                            />
                           </div>
                         </div>
                         <div class="middle_card">
@@ -405,15 +544,26 @@
 
                 <div class="col-4">
                   <div class="single-card">
-                    <button type="button" class="reg w-100" data-bs-toggle="modal" data-bs-target="#addcardMod">
-                      <img src="{% static 'assets1/images/add-new.png' %}" alt="image" class="w-100" />
+                    <button
+                      type="button"
+                      class="reg w-100"
+                      data-bs-toggle="modal"
+                      data-bs-target="#addcardMod"
+                    >
+                      <img
+                        src="{% static 'assets1/images/add-new.png' %}"
+                        alt="image"
+                        class="w-100"
+                      />
                     </button>
                   </div>
                 </div>
               </div>
             </div>
             <div class="single-item">
-              <div class="section-text d-flex align-items-center justify-content-between">
+              <div
+                class="section-text d-flex align-items-center justify-content-between"
+              >
                 <h6>Payment Analytics</h6>
                 <div class="select-box">
                   <select>
@@ -427,11 +577,16 @@
               <div id="chart"></div>
             </div>
             <div class="single-item">
-              <div class="section-text d-flex align-items-center justify-content-between">
+              <div
+                class="section-text d-flex align-items-center justify-content-between"
+              >
                 <h6>Notification ({{notifications.count}})</h6>
                 <div class="view-all d-flex align-items-center">
                   <a href="javascript:void(0)">View All</a>
-                  <img src="{% static 'assets1/images/icon/right-arrow.png' %}" alt="icon" />
+                  <img
+                    src="{% static 'assets1/images/icon/right-arrow.png' %}"
+                    alt="icon"
+                  />
                 </div>
               </div>
               <ul class="recipients-item">
@@ -440,17 +595,35 @@
                   <a href="javascript:void(0)" class="d-flex">
                     <div class="text-area">
                       {% if n.notification_type == "Credit Alert" %}
-                      <p class="mdr">You received a payment of <b>UGX{{ n.amount }}</b></p>
+                      <p class="mdr">
+                        You received a payment of <b>UGX{{ n.amount }}</b>
+                      </p>
                       {% elif n.notification_type == "Debit Alert" %}
-                      <p class="mdr">You sent a payment of <b>UGX{{ n.amount }}</b></p>
+                      <p class="mdr">
+                        You sent a payment of <b>UGX{{ n.amount }}</b>
+                      </p>
                       {% elif n.notification_type == "Sent Payment Request" %}
-                      <p class="mdr">You sent a <b>payment request</b> of <b>UGX{{ n.amount }}</b></p>
-                      {% elif n.notification_type == "Recieved Payment Request" %}
-                      <p class="mdr">You received a <b>payment request</b> of <b>UGX{{ n.amount }}</b></p>
+                      <p class="mdr">
+                        You sent a <b>payment request</b> of
+                        <b>UGX{{ n.amount }}</b>
+                      </p>
+                      {% elif n.notification_type == "Recieved Payment Request"
+                      %}
+                      <p class="mdr">
+                        You received a <b>payment request</b> of
+                        <b>UGX{{ n.amount }}</b>
+                      </p>
                       {% elif n.notification_type == "Funded Credit Card" %}
-                      <p class="mdr">You funded your credit card with <b>UGX{{ n.amount }}</b></p>
-                      {% elif n.notification_type == "Withdrew Credit Card Funds" %}
-                      <p class="mdr">You withdrew <b>UGX{{ n.amount }}</b> from your credit card</p>
+                      <p class="mdr">
+                        You funded your credit card with
+                        <b>UGX{{ n.amount }}</b>
+                      </p>
+                      {% elif n.notification_type == "Withdrew Credit Card
+                      Funds" %}
+                      <p class="mdr">
+                        You withdrew <b>UGX{{ n.amount }}</b> from your credit
+                        card
+                      </p>
                       {% elif n.notification_type == "Deleted Credit Card" %}
                       <p class="mdr">You deleted your credit card</p>
                       {% elif n.notification_type == "Added Credit Card" %}
@@ -465,7 +638,6 @@
                 </li>
                 {% endfor %}
               </ul>
-
             </div>
           </div>
         </div>
@@ -484,43 +656,80 @@
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
               <div class="modal-header justify-content-center">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                >
                   <i class="fa-solid fa-xmark"></i>
                 </button>
               </div>
               <div class="main-content">
                 <div class="top-area mb-40 mt-40 text-center">
                   <div class="card-area mb-30">
-                    <img src="{% static 'assets1/images/visa-card-2.png' %}" alt="image" />
+                    <img
+                      src="{% static 'assets1/images/visa-card-2.png' %}"
+                      alt="image"
+                    />
                   </div>
                   <div class="text-area">
                     <h5>Paylio payment Card</h5>
                     <p>Linked: 01 Jun 2021</p>
                   </div>
                 </div>
-                <div class="tab-area d-flex align-items-center justify-content-between">
+                <div
+                  class="tab-area d-flex align-items-center justify-content-between"
+                >
                   <ul class="nav nav-tabs mb-30" role="tablist">
                     <li class="nav-item" role="presentation">
-                      <button class="btn-link" id="cancel-tab" data-bs-toggle="tab" data-bs-target="#cancel"
-                        type="button" role="tab" aria-controls="cancel" aria-selected="false">
-                        <img src="{% static 'assets1/images/icon/limit.png' %}" alt="icon" />
+                      <button
+                        class="btn-link"
+                        id="cancel-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#cancel"
+                        type="button"
+                        role="tab"
+                        aria-controls="cancel"
+                        aria-selected="false"
+                      >
+                        <img
+                          src="{% static 'assets1/images/icon/limit.png' %}"
+                          alt="icon"
+                        />
                         Set transfer limit
                       </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                      <button class="d-none" id="limit-tab" data-bs-toggle="tab" data-bs-target="#limit" type="button"
-                        role="tab" aria-controls="limit" aria-selected="true"></button>
+                      <button
+                        class="d-none"
+                        id="limit-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#limit"
+                        type="button"
+                        role="tab"
+                        aria-controls="limit"
+                        aria-selected="true"
+                      ></button>
                     </li>
                     <li>
                       <button>
-                        <img src="{% static 'assets1/images/icon/remove.png' %}" alt="icon" />
+                        <img
+                          src="{% static 'assets1/images/icon/remove.png' %}"
+                          alt="icon"
+                        />
                         Remove from Linked
                       </button>
                     </li>
                   </ul>
                 </div>
                 <div class="tab-content mt-30">
-                  <div class="tab-pane fade show active" id="limit" role="tabpanel" aria-labelledby="limit-tab">
+                  <div
+                    class="tab-pane fade show active"
+                    id="limit"
+                    role="tabpanel"
+                    aria-labelledby="limit-tab"
+                  >
                     <div class="bottom-area">
                       <p class="history">
                         Transaction History : <span>20</span>
@@ -569,7 +778,12 @@
                       </ul>
                     </div>
                   </div>
-                  <div class="tab-pane fade" id="cancel" role="tabpanel" aria-labelledby="cancel-tab">
+                  <div
+                    class="tab-pane fade"
+                    id="cancel"
+                    role="tabpanel"
+                    aria-labelledby="cancel-tab"
+                  >
                     <div class="main-area">
                       <div class="transfer-area">
                         <p>Set a transfer limit for SACCO payment Card</p>
@@ -577,15 +791,24 @@
                       </div>
                       <form action="#">
                         <div class="input-area">
-                          <input class="xxlr" placeholder="400.00" type="number" />
+                          <input
+                            class="xxlr"
+                            placeholder="400.00"
+                            type="number"
+                          />
                           <select>
                             <option value="1">UGX</option>
-
                           </select>
                         </div>
-                        <div class="bottom-area d-flex align-items-center justify-content-between">
-                          <a href="javascript:void(0)" class="cmn-btn cancel">Cancel and Back</a>
-                          <a href="javascript:void(0)" class="cmn-btn">Confirm Transfer Limit</a>
+                        <div
+                          class="bottom-area d-flex align-items-center justify-content-between"
+                        >
+                          <a href="javascript:void(0)" class="cmn-btn cancel"
+                            >Cancel and Back</a
+                          >
+                          <a href="javascript:void(0)" class="cmn-btn"
+                            >Confirm Transfer Limit</a
+                          >
                         </div>
                       </form>
                     </div>
@@ -611,7 +834,12 @@
             <div class="modal-content">
               <div class="modal-header justify-content-between">
                 <h6>Add Card</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                >
                   <i class="fa-solid fa-xmark"></i>
                 </button>
               </div>
@@ -683,8 +911,12 @@
   <div class="container-fruid">
     <div class="row">
       <div class="col-lg-6">
-
-        <div class="modal fade" id="transactionsMod" tabindex="-1" aria-hidden="true">
+        <div
+          class="modal fade"
+          id="transactionsMod"
+          tabindex="-1"
+          aria-hidden="true"
+        >
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
               <div class="modal-header justify-content-between">
@@ -697,7 +929,10 @@
                 <div class="row">
                   <div class="col-sm-5 text-center">
                     <div class="icon-area">
-                      <img src="{% static 'assets1/images/icon/transaction-details-icon.png' %}" alt="icon" />
+                      <img
+                        src="{% static 'assets1/images/icon/transaction-details-icon.png' %}"
+                        alt="icon"
+                      />
                     </div>
                     <div class="text-area">
                       <h6 id="popup-name">Name</h6>
@@ -710,9 +945,17 @@
                     <div class="right-area">
                       <h6>Transaction Details</h6>
                       <ul class="payment-details">
-                        <li><span>Payment Amount</span><span id="popup-payment-amount">UGX 0</span></li>
-                        <li><span>Fee</span><span id="popup-fee">UGX 0</span></li>
-                        <li><span>Total Amount</span><span id="popup-total">UGX 0</span></li>
+                        <li>
+                          <span>Payment Amount</span
+                          ><span id="popup-payment-amount">UGX 0</span>
+                        </li>
+                        <li>
+                          <span>Fee</span><span id="popup-fee">UGX 0</span>
+                        </li>
+                        <li>
+                          <span>Total Amount</span
+                          ><span id="popup-total">UGX 0</span>
+                        </li>
                       </ul>
                       <ul class="payment-info">
                         <li>
@@ -721,7 +964,9 @@
                         </li>
                         <li>
                           <p>Description</p>
-                          <span id="popup-description" class="mdr">Description</span>
+                          <span id="popup-description" class="mdr"
+                            >Description</span
+                          >
                         </li>
                         <li>
                           <p>Transaction ID:</p>
@@ -739,10 +984,6 @@
             </div>
           </div>
         </div>
-
-
-
-
       </div>
     </div>
   </div>
@@ -750,40 +991,55 @@
 <!-- Transactions Popup start -->
 {% endblock content %}
 
-
-
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-  var transactionModal = document.getElementById('transactionsMod');
-  transactionModal.addEventListener('show.bs.modal', function (event) {
-    var button = event.relatedTarget.closest('tr');
+  document.addEventListener("DOMContentLoaded", function () {
+    var transactionModal = document.getElementById("transactionsMod");
+    transactionModal.addEventListener("show.bs.modal", function (event) {
+      var button = event.relatedTarget.closest("tr");
 
-    document.getElementById('popup-name').textContent = button.getAttribute('data-name');
-    document.getElementById('popup-date').textContent = button.getAttribute('data-date');
-    document.getElementById('popup-time').textContent = button.getAttribute('data-time');
-    document.getElementById('popup-amount').textContent = 'UGX ' + parseFloat(button.getAttribute('data-amount')).toLocaleString();
-    document.getElementById('popup-status').textContent = button.getAttribute('data-status').charAt(0).toUpperCase() + button.getAttribute('data-status').slice(1);
-    document.getElementById('popup-payment-amount').textContent = 'UGX ' + parseFloat(button.getAttribute('data-amount')).toLocaleString();
-    document.getElementById('popup-fee').textContent = 'UGX ' + parseFloat(button.getAttribute('data-fee')).toLocaleString();
-    document.getElementById('popup-total').textContent = 'UGX ' + parseFloat(button.getAttribute('data-total')).toLocaleString();
-    document.getElementById('popup-type').textContent = button.getAttribute('data-type');
-    document.getElementById('popup-description').textContent = button.getAttribute('data-description');
-    document.getElementById('popup-transaction-id').textContent = button.getAttribute('data-transaction-id');
+      document.getElementById("popup-name").textContent =
+        button.getAttribute("data-name");
+      document.getElementById("popup-date").textContent =
+        button.getAttribute("data-date");
+      document.getElementById("popup-time").textContent =
+        button.getAttribute("data-time");
+      document.getElementById("popup-amount").textContent =
+        "UGX " +
+        parseFloat(button.getAttribute("data-amount")).toLocaleString();
+      document.getElementById("popup-status").textContent =
+        button.getAttribute("data-status").charAt(0).toUpperCase() +
+        button.getAttribute("data-status").slice(1);
+      document.getElementById("popup-payment-amount").textContent =
+        "UGX " +
+        parseFloat(button.getAttribute("data-amount")).toLocaleString();
+      document.getElementById("popup-fee").textContent =
+        "UGX " + parseFloat(button.getAttribute("data-fee")).toLocaleString();
+      document.getElementById("popup-total").textContent =
+        "UGX " + parseFloat(button.getAttribute("data-total")).toLocaleString();
+      document.getElementById("popup-type").textContent =
+        button.getAttribute("data-type");
+      document.getElementById("popup-description").textContent =
+        button.getAttribute("data-description");
+      document.getElementById("popup-transaction-id").textContent =
+        button.getAttribute("data-transaction-id");
 
-    // Set status color dynamically
-    var statusEl = document.getElementById('popup-status');
-    var status = button.getAttribute('data-status');
-    statusEl.className = '';
-    if (status === 'completed' || status === 'request_settled') {
-      statusEl.classList.add('text-success');
-    } else if (status === 'pending' || status === 'processing' || status === 'request_processing') {
-      statusEl.classList.add('inprogress');
-    } else if (status === 'failed') {
-      statusEl.classList.add('danger');
-    } else {
-      statusEl.classList.add('text-secondary');
-    }
+      // Set status color dynamically
+      var statusEl = document.getElementById("popup-status");
+      var status = button.getAttribute("data-status");
+      statusEl.className = "";
+      if (status === "completed" || status === "request_settled") {
+        statusEl.classList.add("text-success");
+      } else if (
+        status === "pending" ||
+        status === "processing" ||
+        status === "request_processing"
+      ) {
+        statusEl.classList.add("inprogress");
+      } else if (status === "failed") {
+        statusEl.classList.add("danger");
+      } else {
+        statusEl.classList.add("text-secondary");
+      }
+    });
   });
-});
-
 </script>
