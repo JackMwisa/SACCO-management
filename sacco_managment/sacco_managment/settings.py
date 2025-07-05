@@ -235,6 +235,8 @@ OPENAI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-3.5-turbo')
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+
 # PWA Settings
 PWA_APP_NAME = 'Prime SACCO'
 PWA_APP_DESCRIPTION = "Prime SACCO Management System"

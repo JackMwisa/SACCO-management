@@ -1,25 +1,27 @@
+import os
+import logging
+
 from django.utils.translation import gettext as _
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.conf import settings
 from django.core.cache import cache
-import openai
-import logging
 
+import google.generativeai as genai
 
-# Set OpenAI API key from settings
-openai.api_key = settings.OPENAI_API_KEY
-
-
+# Logger setup
 logger = logging.getLogger(__name__)
 
+# Initialize Gemini with API key from .env or Django settings
+GEMINI_API_KEY = getattr(settings, "GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
+genai.configure(api_key=GEMINI_API_KEY)
 
+# Static page views
 def faq(request):
     return render(request, "faq/faq.html", {
         "breadcrumb": {"parent": "FAQ", "child": "FAQ"}
     })
-
 
 def tutorial(request):
     return render(request, "support/tutorial.html", {
@@ -30,65 +32,211 @@ def tutorial(request):
 @csrf_exempt
 def chatbot(request):
     """
-    Combined view handling:
-    - GET: Renders chat interface (support/chatbot.html)
-    - POST: Processes chat messages with GEMS AI
+    Gemini-powered chatbot with basic multilingual support and rate limiting.
     """
     if request.method == "POST":
-        # Rate limiting (5 requests per minute)
-        ip = request.META.get('REMOTE_ADDR')
+        ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', 'unknown'))
         cache_key = f"chatbot_{ip}"
-        if cache.get(cache_key, 0) >= 20:
+        request_count = cache.get(cache_key, 0)
+
+        if request_count >= 20:
+            logger.warning(f"Rate limit exceeded for IP: {ip}")
             return JsonResponse({
-                'reply': _("Please wait a moment before sending more messages"),
+                'reply': _("Please wait a moment before sending more messages."),
                 'status': 'rate_limited'
             }, status=429)
-        cache.incr(cache_key, timeout=60)
+
+        cache.set(cache_key, request_count + 1, timeout=60)
 
         message = request.POST.get("message", "").strip()
-        lang = request.POST.get("lang", "en")  # New language parameter
+        lang = request.POST.get("lang", "en")
 
         if not message:
             return JsonResponse({
-                'reply': _("Please type a message to continue"),
+                'reply': _("Please type a message to continue."),
                 'status': 'empty_message'
-            })
+            }, status=400)
 
-        try:
-            # Language-specific system prompts
-            system_prompts = {
-                'en': _("You are GEMS AI, Gem SACCO's virtual assistant..."),
-                'lg': _("Oli GEMS AI, omuyambi wa Gem SACCO..."),
-                'fr': _("Vous êtes GEMS AI, l'assistant virtuel..."),
-                'sw': _("Wewe ni GEMS AI, msaidizi wa Gem SACCO...")
-            }
-
-            response = openai.ChatCompletion.create(
-                model=getattr(settings, 'OPENAI_MODEL', "gpt-4"),
-                messages=[
-                    {
-                        "role": "system",
-                        "content": system_prompts.get(lang, 'en')
-                    },
-                    {"role": "user", "content": message}
-                ],
-                temperature=0.7
-            )
-            reply = response.choices[0].message["content"]
-            
+        if not GEMINI_API_KEY:
+            logger.error("Gemini API key missing.")
             return JsonResponse({
-                'reply': reply,
-                'status': 'success'
-            })
-
-        except Exception as e:
-            logger.error(f"Chatbot error: {str(e)}", exc_info=True)
-            return JsonResponse({
-                'reply': _("GEMS AI is not available at the moment. Please try again later."),
+                'reply': _("System configuration error. Please contact support."),
                 'status': 'error'
             }, status=500)
 
-    # GET request - render chat interface
+        # Multilingual system prompt
+        system_prompts = {
+            'en': "You are GEMS AI, Gem SACCO's helpful virtual assistant. Provide concise, professional answers about banking services.",
+            'lg': "Oli GEMS AI, omuyambi wa Gem SACCO. Weereza obuyambi obumanyirivu ku by'ensimbi.",
+            'fr': "Vous êtes GEMS AI, l'assistant virtuel de Gem SACCO. Fournissez des réponses utiles sur les services bancaires.",
+            'sw': "Wewe ni GEMS AI, msaidizi wa Gem SACCO. Toa majibu mafupi kuhusu huduma za kifedha."
+        }
+
+        try:
+            model = genai.GenerativeModel("models/gemini-1.5-flash")
+
+            response = model.generate_content(
+                f"{system_prompts.get(lang, system_prompts['en'])}\n\nUser: {message}",
+                generation_config={"temperature": 0.7},
+                safety_settings=[
+                    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+                ]
+            )
+
+            reply = response.text
+            logger.debug(f"Gemini response: {reply[:100]}...")
+            return JsonResponse({'reply': reply, 'status': 'success'})
+
+        except Exception as e:
+            logger.error(f"Gemini error: {str(e)}", exc_info=True)
+            error_msg = _("GEMS AI is temporarily unavailable. Please try again later.")
+            if "quota" in str(e).lower():
+                error_msg = _("Daily usage quota exceeded. Please try again tomorrow.")
+            elif "safety" in str(e).lower():
+                error_msg = _("Your message was blocked by content filters. Please rephrase.")
+
+            return JsonResponse({'reply': error_msg, 'status': 'error'}, status=500)
+
+    # GET request: Render chat interface
     return render(request, "support/chatbot.html", {
         'default_lang': request.COOKIES.get('gemsai_lang', 'en')
     })
+
+
+# from django.utils.translation import gettext as _
+# from django.shortcuts import render
+# from django.views.decorators.csrf import csrf_exempt
+# from django.http import JsonResponse
+# from django.conf import settings
+# from django.core.cache import cache
+# import openai
+# import logging
+# import os
+
+# # Set OpenAI API key from settings
+# openai.api_key = settings.OPENAI_API_KEY
+
+
+# logger = logging.getLogger(__name__)
+
+
+# def faq(request):
+#     return render(request, "faq/faq.html", {
+#         "breadcrumb": {"parent": "FAQ", "child": "FAQ"}
+#     })
+
+
+# def tutorial(request):
+#     return render(request, "support/tutorial.html", {
+#         "breadcrumb": {"parent": "Support", "child": "Tutorial"}
+#     })
+
+
+# @csrf_exempt
+# def chatbot(request):
+#     """
+#     Enhanced chatbot view with better error handling and debugging
+#     """
+#     if request.method == "POST":
+#         try:
+#             # Debug: Log that we've entered the POST handler
+#             logger.debug("Chatbot POST request received")
+            
+#             # Rate limiting (20 requests per minute per IP)
+#             ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', 'unknown'))
+#             cache_key = f"chatbot_{ip}"
+#             request_count = cache.get(cache_key, 0)
+            
+#             if request_count >= 20:
+#                 logger.warning(f"Rate limit exceeded for IP: {ip}")
+#                 return JsonResponse({
+#                     'reply': _("Please wait a moment before sending more messages"),
+#                     'status': 'rate_limited'
+#                 }, status=429)
+            
+#             cache.set(cache_key, request_count + 1, timeout=60)
+
+#             message = request.POST.get("message", "").strip()
+#             lang = request.POST.get("lang", "en")
+            
+#             if not message:
+#                 return JsonResponse({
+#                     'reply': _("Please type a message to continue"),
+#                     'status': 'empty_message'
+#                 }, status=400)
+
+#             # Debug: Verify OpenAI API key
+#             if not hasattr(settings, 'OPENAI_API_KEY') or not settings.OPENAI_API_KEY:
+#                 logger.error("OpenAI API key not configured")
+#                 return JsonResponse({
+#                     'reply': _("System configuration error. Please contact support."),
+#                     'status': 'error'
+#                 }, status=500)
+
+#             system_prompts = {
+#                 'en': "You are GEMS AI, Gem SACCO's helpful virtual assistant. Provide concise, professional answers about banking services.",
+#                 'lg': "Oli GEMS AI, omuyambi wa Gem SACCO. Waweereza obuyambi ku by'ensimbi.",
+#                 'fr': "Vous êtes GEMS AI, l'assistant virtuel de Gem SACCO. Fournissez des réponses utiles sur les services bancaires.",
+#                 'sw': "Mimi ni GEMS AI, msaidizi wa Gem SACCO. Natoa majibu kuhusu huduma za benki."
+#             }
+
+#             # Debug: Log before API call
+#             logger.debug(f"Sending to OpenAI: {message[:100]}... (lang: {lang})")
+
+#             openai.api_key = settings.OPENAI_API_KEY
+#             response = openai.ChatCompletion.create(
+#                 model=getattr(settings, 'OPENAI_MODEL', "gpt-3.5-turbo"),
+#                 messages=[
+#                     {"role": "system", "content": system_prompts.get(lang, 'en')},
+#                     {"role": "user", "content": message}
+#                 ],
+#                 temperature=0.7,
+#                 max_tokens=500
+#             )
+            
+#             reply = response.choices[0].message["content"]
+            
+#             # Debug: Log successful response
+#             logger.debug(f"Received response from OpenAI: {reply[:100]}...")
+            
+#             return JsonResponse({
+#                 'reply': reply,
+#                 'status': 'success',
+#                 'tokens': response.usage.get('total_tokens', 0)
+#             })
+
+#         except openai.error.AuthenticationError as e:
+#             logger.error(f"OpenAI authentication failed: {str(e)}")
+#             return JsonResponse({
+#                 'reply': _("Authentication error with AI service. Please contact support."),
+#                 'status': 'error'
+#             }, status=500)
+            
+#         except openai.error.RateLimitError as e:
+#             logger.error(f"OpenAI rate limit exceeded: {str(e)}")
+#             return JsonResponse({
+#                 'reply': _("I'm getting too many requests. Please try again shortly."),
+#                 'status': 'rate_limited'
+#             }, status=429)
+            
+#         except openai.error.OpenAIError as e:
+#             logger.error(f"OpenAI API error: {str(e)}")
+#             return JsonResponse({
+#                 'reply': _("I'm having trouble connecting to the AI service. Please try again later."),
+#                 'status': 'error'
+#             }, status=500)
+            
+#         except Exception as e:
+#             logger.error(f"Unexpected error: {str(e)}", exc_info=True)
+#             return JsonResponse({
+#                 'reply': _("An unexpected error occurred. Please try again later."),
+#                 'status': 'error'
+#             }, status=500)
+
+#     # GET request - render chat interface
+#     return render(request, "support/chatbot.html", {
+#         'default_lang': request.COOKIES.get('gemsai_lang', 'en')
+#     })

@@ -2,6 +2,7 @@
 {% load static %}
 {% load humanize%} 
 {% block content %}
+{% load i18n %}
 
 <!-- Dashboard Section start -->
 <section class="dashboard-section body-collapse">
@@ -769,6 +770,15 @@
     </div>
   </div>
 </div>
+
+
+
+<!-- GEMS AI Floating Chat-->
+<!-- {% include "support/chat_widget.html" %}  -->
+
+
+
+
 <!-- Transactions Popup start -->
 {% endblock content %}
 
@@ -824,3 +834,5 @@
     });
   });
 </script>
+
+ 

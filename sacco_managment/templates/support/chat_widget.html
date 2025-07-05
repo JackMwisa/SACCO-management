@@ -1,0 +1,460 @@
+{% load static %}
+{% load i18n %}
+
+<div id="gemsai-chat-container" class="gemsai-chat-container">
+  <div id="gemsai-chat-toggle" class="gemsai-chat-toggle">
+    <img src="{% static './assets1/images/aibot.png' %}" alt="{% trans 'Chat with GEMS AI' %}">
+    <span class="gemsai-notification-badge hidden">1</span>
+  </div>
+  
+  <div id="gemsai-chat-window" class="gemsai-chat-window">
+    <div class="gemsai-chat-header">
+      <div class="gemsai-chat-title">
+        <span>{% trans "Aisha - GEMS AI" %}</span>
+        <div class="gemsai-chat-status">
+          <span class="gemsai-status-dot"></span>
+          <span>{% trans "Online" %}</span>
+        </div>
+      </div>
+      <button id="gemsai-chat-close" class="gemsai-chat-close">&times;</button>
+    </div>
+    
+    <div id="gemsai-chat-messages" class="gemsai-chat-messages">
+      <div class="gemsai-welcome-message">
+        {% trans "Hello! I'm Aisha, your virtual assistant. How can I help you today?" %}
+      </div>
+    </div>
+    
+    <form id="gemsai-chat-form" class="gemsai-chat-form">
+      <input type="text" id="gemsai-chat-input" placeholder="{% trans 'Type your message...' %}" required>
+      <button type="submit" class="gemsai-send-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </form>
+  </div>
+</div>
+
+<style>
+.gemsai-chat-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10000;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+.gemsai-chat-toggle {
+  cursor: pointer;
+  position: relative;
+  text-align: right;
+  transition: transform 0.2s ease;
+}
+
+.gemsai-chat-toggle:hover {
+  transform: scale(1.1);
+}
+
+.gemsai-chat-toggle img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.gemsai-notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #ff4757;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.gemsai-notification-badge.hidden {
+  display: none;
+}
+
+.gemsai-chat-window {
+  display: none;
+  width: 350px;
+  height: 500px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.gemsai-chat-window.active {
+  display: flex;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.gemsai-chat-header {
+  background: #16460d;
+  color: white;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gemsai-chat-title {
+  display: flex;
+  flex-direction: column;
+}
+
+.gemsai-chat-title span {
+  font-weight: 600;
+  font-size: 16px;
+  color: #fff;
+}
+
+.gemsai-chat-status {
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.gemsai-status-dot {
+  width: 8px;
+  height: 8px;
+  background: #4cd137;
+  border-radius: 50%;
+  margin-right: 6px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.gemsai-chat-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+
+.gemsai-chat-close:hover {
+  opacity: 1;
+}
+
+.gemsai-chat-messages {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  background: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+}
+
+.gemsai-message {
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  max-width: 80%;
+  position: relative;
+  word-wrap: break-word;
+  line-height: 1.4;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.user-message {
+  background: #356917;
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.bot-message {
+  background: white;
+  color: #333;
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.gemsai-welcome-message {
+  padding: 12px;
+  background: #e3f2fd;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.gemsai-chat-form {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #eee;
+  background: white;
+}
+
+.gemsai-chat-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 24px;
+  margin-right: 8px;
+  outline: none;
+  transition: border 0.3s;
+  font-size: 14px;
+}
+
+.gemsai-chat-input:focus {
+  border-color: #0b300e;
+}
+
+.gemsai-send-button {
+  background: #074121;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+}
+
+.gemsai-send-button:hover {
+  background: #2c640b;
+}
+
+.gemsai-send-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Typing indicator */
+.gemsai-typing-indicator {
+  display: flex;
+  padding: 10px 14px;
+  background: white;
+  border-radius: 12px;
+  align-self: flex-start;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.gemsai-typing-dot {
+  width: 8px;
+  height: 8px;
+  background: #666;
+  border-radius: 50%;
+  margin-right: 4px;
+  animation: typingAnimation 1.4s infinite ease-in-out both;
+}
+
+.gemsai-typing-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.gemsai-typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.gemsai-typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+  margin-right: 0;
+}
+
+@keyframes typingAnimation {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-5px); }
+}
+
+/* Scrollbar styling */
+.gemsai-chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gemsai-chat-messages::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.gemsai-chat-messages::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.gemsai-chat-messages::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const chatContainer = document.getElementById('gemsai-chat-container');
+  const chatToggle = document.getElementById('gemsai-chat-toggle');
+  const chatWindow = document.getElementById('gemsai-chat-window');
+  const chatClose = document.getElementById('gemsai-chat-close');
+  const chatForm = document.getElementById('gemsai-chat-form');
+  const chatInput = document.getElementById('gemsai-chat-input');
+  const chatMessages = document.getElementById('gemsai-chat-messages');
+  const notificationBadge = document.querySelector('.gemsai-notification-badge');
+
+  let isChatOpen = false;
+  let unreadMessages = 0;
+  let isTyping = false;
+
+  // Utility to get CSRF token from cookie
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  function scrollToBottom() {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function saveChatHistory() {
+    localStorage.setItem('gemsai_chat_history', chatMessages.innerHTML);
+  }
+
+  function showTypingIndicator() {
+    if (isTyping) return;
+    isTyping = true;
+    const typingEl = document.createElement('div');
+    typingEl.className = 'gemsai-typing-indicator';
+    typingEl.innerHTML = `
+      <div class="gemsai-typing-dot"></div>
+      <div class="gemsai-typing-dot"></div>
+      <div class="gemsai-typing-dot"></div>
+    `;
+    chatMessages.appendChild(typingEl);
+    scrollToBottom();
+  }
+
+  function hideTypingIndicator() {
+    isTyping = false;
+    const el = document.querySelector('.gemsai-typing-indicator');
+    if (el) el.remove();
+  }
+
+  function addMessage(text, sender) {
+    const msg = document.createElement('div');
+    msg.className = `gemsai-message ${sender}-message`;
+    msg.textContent = text;
+    chatMessages.appendChild(msg);
+    scrollToBottom();
+    saveChatHistory();
+
+    if (!isChatOpen && sender === 'bot') {
+      unreadMessages++;
+      notificationBadge.textContent = unreadMessages;
+      notificationBadge.classList.remove('hidden');
+    }
+  }
+
+  async function handleChatSubmit(e) {
+    e.preventDefault();
+    const message = chatInput.value.trim();
+    if (!message || isTyping) return;
+
+    addMessage(message, 'user');
+    chatInput.value = '';
+
+    try {
+      showTypingIndicator();
+      const response = await fetch("{% url 'support:chatbot' %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `message=${encodeURIComponent(message)}&lang={{ request.LANGUAGE_CODE|default:'en' }}`
+      });
+
+      hideTypingIndicator();
+      if (response.ok) {
+        const data = await response.json();
+        addMessage(data.reply, 'bot');
+      } else {
+        addMessage("{% trans "Sorry, I'm having trouble responding. Please try again later." %}", 'bot');
+      }
+    } catch (error) {
+      hideTypingIndicator();
+      addMessage("{% trans "Something went wrong. Please try again later." %}", 'bot');
+      console.error('Chat error:', error);
+    }
+  }
+
+  function toggleChatWindow() {
+    isChatOpen = !isChatOpen;
+    chatWindow.classList.toggle('active', isChatOpen);
+    localStorage.setItem('gemsai_chat_open', isChatOpen);
+    if (isChatOpen) {
+      unreadMessages = 0;
+      notificationBadge.classList.add('hidden');
+    }
+  }
+
+  function initChat() {
+    const savedMessages = localStorage.getItem('gemsai_chat_history');
+    if (savedMessages) {
+      chatMessages.innerHTML = savedMessages;
+      scrollToBottom();
+    }
+    if (localStorage.getItem('gemsai_chat_open') === 'true') {
+      toggleChatWindow();
+    }
+  }
+
+  chatToggle.addEventListener('click', toggleChatWindow);
+  chatClose.addEventListener('click', toggleChatWindow);
+  chatForm.addEventListener('submit', handleChatSubmit);
+
+  chatInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      chatForm.dispatchEvent(new Event('submit'));
+    }
+  });
+
+  initChat();
+});
+</script>
