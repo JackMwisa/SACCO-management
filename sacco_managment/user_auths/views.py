@@ -61,3 +61,9 @@ def LogoutView(request):
     logout(request)
     messages.success(request, "You have been logged out.")
     return redirect("user_auths:login")
+
+
+def LogoutViewAdmin(request):
+    logout(request)
+    messages.success(request, "You have been logged out from the admin.")
+    return redirect("/admin/login/")  # or redirect wherever you want

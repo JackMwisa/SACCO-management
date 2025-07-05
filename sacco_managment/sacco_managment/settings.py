@@ -324,7 +324,7 @@ JAZZMIN_SETTINGS = {
     },
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-dot-circle",
-    "logout_url": "/admin/logout/",
+    "logout_url": "/admin/logout2/",
     "logout_redirect_url": "/",
 
     # Top Menu Configuration
@@ -334,10 +334,10 @@ JAZZMIN_SETTINGS = {
         {"app": "sacco"},
         {"model": "sacco.Member"},
         {"model": "sacco.Transaction"},
-        {"name": "Support", "url": "https://support.gemsacco.com", "new_window": True},
+        # {"name": "Support", "url": "https://support.gemsacco.com", "new_window": True},
         {
             "name": "Logout", 
-            "url": "/admin/logout/",
+            "url": "/admin/logout2/",
             "new_window": False,
             "icon": "fas fa-sign-out-alt",
         },
