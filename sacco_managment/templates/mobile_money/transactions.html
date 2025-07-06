@@ -34,7 +34,7 @@
               </thead>
               <tbody>
                 {% for transaction in deposits %}
-                <tr class="deposit-row">
+                <tr class="transaction-row" data-type="deposit">
                   <td>{{ transaction.date|date:"M d, Y H:i" }}</td>
                   <td><span class="badge bg-success">Deposit</span></td>
                   <td>{{ transaction.mobile_money.phone_number }}</td>
@@ -47,9 +47,9 @@
                   <td><small>{{ transaction.mobile_money.transaction_ref }}</small></td>
                 </tr>
                 {% endfor %}
-                
+
                 {% for transaction in withdrawals %}
-                <tr class="withdrawal-row">
+                <tr class="transaction-row" data-type="withdrawal">
                   <td>{{ transaction.date|date:"M d, Y H:i" }}</td>
                   <td><span class="badge bg-primary">Withdrawal</span></td>
                   <td>{{ transaction.mobile_money.phone_number }}</td>
@@ -82,31 +82,23 @@
 </section>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const filter = document.getElementById('type-filter');
-  
-  filter.addEventListener('change', function() {
-    const value = this.value;
-    
-    if (value === 'all') {
-      document.querySelectorAll('.deposit-row, .withdrawal-row').forEach(row => {
-        row.style.display = '';
-      });
-    } else if (value === 'deposit') {
-      document.querySelectorAll('.deposit-row').forEach(row => {
-        row.style.display = '';
-      });
-      document.querySelectorAll('.withdrawal-row').forEach(row => {
-        row.style.display = 'none';
-      });
-    } else if (value === 'withdrawal') {
-      document.querySelectorAll('.deposit-row').forEach(row => {
-        row.style.display = 'none';
-      });
-      document.querySelectorAll('.withdrawal-row').forEach(row => {
-        row.style.display = '';
-      });
-    }
+  const rows = document.querySelectorAll('.transaction-row');
+
+  function applyFilter(value) {
+    rows.forEach(row => {
+      const type = row.getAttribute('data-type');
+      row.style.display = (value === 'all' || value === type) ? '' : 'none';
+    });
+  }
+
+  // Apply filter on page load
+  applyFilter(filter.value);
+
+  // Apply filter when dropdown changes
+  filter.addEventListener('change', function () {
+    applyFilter(this.value);
   });
 });
 </script>

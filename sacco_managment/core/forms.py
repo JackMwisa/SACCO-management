@@ -193,7 +193,7 @@ class MobileMoneyDepositForm(forms.Form):
     PROVIDER_CHOICES = [
         ('MTN', 'MTN Mobile Money'),
         ('AIRTEL', 'Airtel Money'),
-        ('ZAMTEL', 'Zamtel Kwacha'),
+        # ('ZAMTEL', 'Zamtel Kwacha'),
     ]
 
     amount = forms.DecimalField(
