@@ -1,0 +1,397 @@
+/**=====================
+     07. Color CSS Start
+==========================**/
+.colors-palette-section {
+  > .card-body {
+    // margin-bottom: -30px;
+    .card {
+      .card-body {
+        position: relative;
+        padding-bottom: 48px;
+        h5 {
+          margin-bottom: 0;
+        }
+        div.color-name {
+          background-color: $white;
+          position: absolute;
+          bottom: -2px;
+          right: 0;
+          left: 0;
+          text-align: center;
+          border-radius: 8px;
+          h6 {
+            padding: 4px;
+            margin: 0;
+            font-size: 13px;
+            color: $dark;
+          }
+        }
+      }
+    }
+  }
+}
+
+.color-box {
+  margin-bottom: -10px;
+
+  button {
+    margin-bottom: 10px;
+
+    + button {
+      margin-left: 5px;
+    }
+  }
+}
+
+// primary Color
+$m-val: 13;
+$or: $primary-color;
+
+@while $m-val>=1 {
+  .primary-color ul {
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+
+    li {
+      width: 100px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &:nth-child(#{$m-val}) {
+        $or: lighten($or, 1.5%);
+        background-color: $or;
+
+        span:before {
+          content: "#{$or}";
+          display: block;
+          color: $white;
+          text-align: center;
+        }
+
+        $m-val: $m-val - 1;
+      }
+    }
+  }
+}
+
+//primary Color
+
+// secondary Color
+$m-val: 13;
+$or: $secondary-color;
+
+@while $m-val>=1 {
+  .secondary-color ul {
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+
+    li {
+      width: 100px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &:nth-child(#{$m-val}) {
+        $or: lighten($or, 3%);
+        background-color: $or;
+
+        span:before {
+          content: "#{$or}";
+          display: block;
+          color: $white;
+          text-align: center;
+        }
+
+        $m-val: $m-val - 1;
+      }
+    }
+  }
+}
+//secondary Color
+
+//Success Color
+$m-val: 13;
+$or: $success-color;
+
+@while $m-val>=1 {
+  .success-color ul {
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100px;
+      height: 60px;
+      &:nth-child(#{$m-val}) {
+        $or: lighten($or, 0.9%);
+        background-color: $or;
+
+        span:before {
+          content: "#{$or}";
+          display: block;
+          color: $white;
+          text-align: center;
+        }
+
+        $m-val: $m-val - 1;
+      }
+    }
+  }
+}
+
+//Success Color
+
+// Info Color
+$m-val: 13;
+$or: $info-color;
+
+@while $m-val>=1 {
+  .info-color ul {
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100px;
+      height: 60px;
+      &:nth-child(#{$m-val}) {
+        $or: lighten($or, 2.5%);
+        background-color: $or;
+
+        span:before {
+          content: "#{$or}";
+          display: block;
+          color: $white;
+          text-align: center;
+        }
+
+        $m-val: $m-val - 1;
+      }
+    }
+  }
+}
+
+//Info Color
+
+// warning Color
+$m-val: 13;
+$or: $warning-color;
+
+@while $m-val>=1 {
+  .warning-color ul {
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100px;
+      height: 60px;
+      &:nth-child(#{$m-val}) {
+        $or: lighten($or, 3%);
+        background-color: $or;
+
+        span:before {
+          content: "#{$or}";
+          display: block;
+          color: $white;
+          text-align: center;
+        }
+
+        $m-val: $m-val - 1;
+      }
+    }
+  }
+}
+//warning Color
+
+//Danger Color
+$m-val: 13;
+$or: $danger-color;
+
+@while $m-val>=1 {
+  .danger-color ul {
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100px;
+      height: 60px;
+
+      &:nth-child(#{$m-val}) {
+        $or: lighten($or, 2%);
+        background-color: $or;
+
+        span:before {
+          content: "#{$or}";
+          display: block;
+          color: $white;
+          text-align: center;
+        }
+
+        $m-val: $m-val - 1;
+      }
+    }
+  }
+}
+//Danger Color
+
+//Pink Color
+$m-val: 13;
+$or: $light;
+
+@while $m-val>=1 {
+  .light-color ul {
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100px;
+      height: 60px;
+      &:nth-child(#{$m-val}) {
+        $or: lighten($or, 0.5%);
+        background-color: $or;
+
+        span:before {
+          content: "#{$or}";
+          display: block;
+          color: $white;
+          text-align: center;
+        }
+
+        $m-val: $m-val - 1;
+      }
+    }
+  }
+}
+
+//Pink Color
+
+// Gray Color
+$m-val: 13;
+$or: $dark;
+
+@while $m-val>=1 {
+  .dark-color ul {
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100px;
+      height: 60px;
+      &:nth-child(#{$m-val}) {
+        $or: lighten($or, 3%);
+        background-color: $or;
+
+        span:before {
+          content: "#{$or}";
+          display: block;
+          color: $white;
+          text-align: center;
+        }
+
+        $m-val: $m-val - 1;
+      }
+    }
+  }
+}
+
+//gray Color
+
+//Danger Color
+$m-val: 13;
+$or: $light-1;
+
+@while $m-val>=1 {
+  .light-theme-color ul {
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100px;
+      height: 60px;
+      &:nth-child(#{$m-val}) {
+        $or: lighten($or, 2.5%);
+        background-color: $or;
+
+        span:before {
+          content: "#{$or}";
+          display: block;
+          color: $dark;
+          text-align: center;
+        }
+
+        $m-val: $m-val - 1;
+      }
+    }
+  }
+}
+//Danger Color
+
+.light-font {
+  color: $theme-body-sub-title-color;
+}
+
+@media screen and (max-width: 1660px) {
+  .color-shape {
+    ul {
+      display: block;
+      li {
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .colors-palette-section {
+    > .card-body {
+      //  margin-bottom: -20px;
+      .card {
+        .card-body {
+          position: relative;
+          padding-bottom: 42px;
+        }
+      }
+    }
+  }
+}
+
+/**=====================
+      07. Color CSS Ends
+ ==========================**/
