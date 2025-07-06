@@ -85,8 +85,10 @@ urlpatterns = [
     #mobile money
     path('mobile-money/deposit/', views.mobile_money_deposit, name='mobile-money-deposit'),
     path('mobile-money/withdrawal/', views.mobile_money_withdrawal, name='mobile-money-withdrawal'),
+    path('mobile-money/status/<str:ref>/', views.check_payment_status, name='check-payment-status'),
     path('mobile-money/transactions/', views.mobile_money_transactions, name='mobile-money-transactions'),
     path('webhook/mobile-money/', views.mobile_money_webhook, name='mobile-money-webhook'),
     path('admin/reconciliation/', views.reconciliation_dashboard, name='reconciliation-dashboard'),
+    path('mobile-money/callback/', views.mobile_money_callback, name='mobile-money-callback'),
 
 ]

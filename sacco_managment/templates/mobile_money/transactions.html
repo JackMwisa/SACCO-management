@@ -7,8 +7,6 @@
   <div class="overlay pt-120">
     <div class="container-fruid">
       <div class="main-content">
-
-        <!-- Header Section -->
         <div class="head-area d-flex align-items-center justify-content-between">
           <h4>Mobile Money Transactions</h4>
           <div class="filter-options">
@@ -20,32 +18,96 @@
           </div>
         </div>
 
-        <!-- Tab Navigation -->
-        <ul class="nav nav-tabs mt-4" id="transactionTab" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="deposit-tab" data-bs-toggle="tab" data-bs-target="#deposit" type="button" role="tab">Deposits</button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="withdrawal-tab" data-bs-toggle="tab" data-bs-target="#withdrawal" type="button" role="tab">Withdrawals</button>
-          </li>
-        </ul>
-
-        <!-- Tab Content -->
-        <div class="tab-content" id="transactionTabContent">
-
-          <!-- Deposit Tab -->
-          <div class="tab-pane fade show active" id="deposit" role="tabpanel">
-            {% include "partials/transaction-table.html" with transactions=deposits type="deposit" %}
+        <div class="transaction-list">
+          {% if deposits or withdrawals %}
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Phone Number</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Reference</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for transaction in deposits %}
+                <tr class="deposit-row">
+                  <td>{{ transaction.date|date:"M d, Y H:i" }}</td>
+                  <td><span class="badge bg-success">Deposit</span></td>
+                  <td>{{ transaction.mobile_money.phone_number }}</td>
+                  <td class="text-success">+ UGX {{ transaction.amount|intcomma }}</td>
+                  <td>
+                    <span class="badge bg-{% if transaction.status == 'completed' %}success{% elif transaction.status == 'failed' %}danger{% else %}warning{% endif %}">
+                      {{ transaction.get_status_display }}
+                    </span>
+                  </td>
+                  <td><small>{{ transaction.mobile_money.transaction_ref }}</small></td>
+                </tr>
+                {% endfor %}
+                
+                {% for transaction in withdrawals %}
+                <tr class="withdrawal-row">
+                  <td>{{ transaction.date|date:"M d, Y H:i" }}</td>
+                  <td><span class="badge bg-primary">Withdrawal</span></td>
+                  <td>{{ transaction.mobile_money.phone_number }}</td>
+                  <td class="text-danger">- UGX {{ transaction.amount|intcomma }}</td>
+                  <td>
+                    <span class="badge bg-{% if transaction.status == 'completed' %}success{% elif transaction.status == 'failed' %}danger{% else %}warning{% endif %}">
+                      {{ transaction.get_status_display }}
+                    </span>
+                  </td>
+                  <td><small>{{ transaction.mobile_money.transaction_ref }}</small></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
-
-          <!-- Withdrawal Tab -->
-          <div class="tab-pane fade" id="withdrawal" role="tabpanel">
-            {% include "partials/transaction-table.html" with transactions=withdrawals type="withdrawal" %}
+          {% else %}
+          <div class="empty-state text-center py-5">
+            <img src="{% static 'assets1/images/icon/transaction-empty.png' %}" width="120" class="mb-3">
+            <h5>No transactions yet</h5>
+            <p class="text-muted">Your mobile money transactions will appear here</p>
+            <a href="{% url 'core:mobile-money-deposit' %}" class="btn btn-primary mt-3">
+              Make a Deposit
+            </a>
           </div>
-
+          {% endif %}
         </div>
       </div>
     </div>
   </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const filter = document.getElementById('type-filter');
+  
+  filter.addEventListener('change', function() {
+    const value = this.value;
+    
+    if (value === 'all') {
+      document.querySelectorAll('.deposit-row, .withdrawal-row').forEach(row => {
+        row.style.display = '';
+      });
+    } else if (value === 'deposit') {
+      document.querySelectorAll('.deposit-row').forEach(row => {
+        row.style.display = '';
+      });
+      document.querySelectorAll('.withdrawal-row').forEach(row => {
+        row.style.display = 'none';
+      });
+    } else if (value === 'withdrawal') {
+      document.querySelectorAll('.deposit-row').forEach(row => {
+        row.style.display = 'none';
+      });
+      document.querySelectorAll('.withdrawal-row').forEach(row => {
+        row.style.display = '';
+      });
+    }
+  });
+});
+</script>
 {% endblock %}

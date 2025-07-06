@@ -1,21 +1,24 @@
-{% extends "account/base.html" %}
-{% load humanize %}
+{% extends "account/base-admin.html" %}
 
-{% block page_title %}Admin Dashboard{% endblock %}
+{% block admin_title %}Admin Dashboard{% endblock %}
+{% block admin_icon %}fa-tachometer-alt{% endblock %}
 
-{% block content %}
+{% block admin_content %}
 <div class="row">
-    <!-- Stats -->
+    <!-- Stats Cards -->
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-start border-primary border-4">
+        <div class="admin-card h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h6 class="text-uppercase text-muted">Total Staff</h6>
-                        <h2 class="mb-0">{{ total_staff|intcomma }}</h2>
+                        <h6 class="text-uppercase text-muted mb-0">Total Members</h6>
+                        <h2 class="mb-0">{{ total_members|intcomma }}</h2>
+                        <p class="small text-muted mb-0">
+                            <span class="text-success"><i class="fas fa-caret-up"></i> 12.5%</span> this month
+                        </p>
                     </div>
-                    <div class="icon-shape bg-primary text-white rounded-circle">
-                        <i class="fas fa-user-cog"></i>
+                    <div class="icon-circle bg-primary text-white">
+                        <i class="fas fa-users"></i>
                     </div>
                 </div>
             </div>
@@ -23,15 +26,18 @@
     </div>
     
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-start border-success border-4">
+        <div class="admin-card h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h6 class="text-uppercase text-muted">Total Deposits</h6>
-                        <h2 class="mb-0">UGX {{ total_deposits|intcomma }}</h2>
+                        <h6 class="text-uppercase text-muted mb-0">Pending Withdrawals</h6>
+                        <h2 class="mb-0">{{ pending_withdrawals_count|intcomma }}</h2>
+                        <p class="small text-muted mb-0">
+                            UGX {{ pending_withdrawals_amount|intcomma }}
+                        </p>
                     </div>
-                    <div class="icon-shape bg-success text-white rounded-circle">
-                        <i class="fas fa-piggy-bank"></i>
+                    <div class="icon-circle bg-warning text-white">
+                        <i class="fas fa-money-bill-wave"></i>
                     </div>
                 </div>
             </div>
@@ -39,14 +45,17 @@
     </div>
     
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-start border-info border-4">
+        <div class="admin-card h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h6 class="text-uppercase text-muted">Active Loans</h6>
+                        <h6 class="text-uppercase text-muted mb-0">Active Loans</h6>
                         <h2 class="mb-0">{{ active_loans|intcomma }}</h2>
+                        <p class="small text-muted mb-0">
+                            UGX {{ loan_portfolio|intcomma }}
+                        </p>
                     </div>
-                    <div class="icon-shape bg-info text-white rounded-circle">
+                    <div class="icon-circle bg-info text-white">
                         <i class="fas fa-hand-holding-usd"></i>
                     </div>
                 </div>
@@ -55,17 +64,18 @@
     </div>
     
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-start border-warning border-4">
+        <div class="admin-card h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h6 class="text-uppercase text-muted">System Health</h6>
-                        <h2 class="mb-0">
-                            <span class="badge bg-success">Excellent</span>
-                        </h2>
+                        <h6 class="text-uppercase text-muted mb-0">Deposits Today</h6>
+                        <h2 class="mb-0">UGX {{ today_deposits|intcomma }}</h2>
+                        <p class="small text-muted mb-0">
+                            {{ deposit_transactions }} transactions
+                        </p>
                     </div>
-                    <div class="icon-shape bg-warning text-white rounded-circle">
-                        <i class="fas fa-heartbeat"></i>
+                    <div class="icon-circle bg-success text-white">
+                        <i class="fas fa-piggy-bank"></i>
                     </div>
                 </div>
             </div>
@@ -74,51 +84,100 @@
 </div>
 
 <div class="row">
-    <!-- Staff Activity -->
-    <div class="col-lg-7">
-        <div class="card">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Staff Activity</h5>
-                <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+    <!-- Financial Overview -->
+    <div class="col-lg-8 mb-4">
+        <div class="admin-card h-100">
+            <div class="admin-card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-chart-line me-2"></i> Financial Overview
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-secondary active">Monthly</button>
+                    <button class="btn btn-sm btn-outline-secondary">Quarterly</button>
+                    <button class="btn btn-sm btn-outline-secondary">Yearly</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="financialChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="col-lg-4 mb-4">
+        <div class="admin-card h-100">
+            <div class="admin-card-header">
+                <i class="fas fa-bell me-2"></i> Recent Activity
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for activity in recent_activity %}
+                    <div class="list-group-item border-0">
+                        <div class="d-flex align-items-start">
+                            <div class="flex-shrink-0">
+                                <div class="avatar-sm bg-light rounded-circle">
+                                    <i class="fas fa-{{ activity.icon }} text-{{ activity.type }}"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1">{{ activity.title }}</h6>
+                                <p class="small text-muted mb-0">{{ activity.description }}</p>
+                                <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Pending Approvals -->
+    <div class="col-lg-6 mb-4">
+        <div class="admin-card h-100">
+            <div class="admin-card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-clock me-2"></i> Pending Approvals
+                </div>
+                <a href="{% url 'account:pending_withdrawals' %}" class="btn btn-sm btn-admin">
+                    View All
+                </a>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
-                        <thead class="table-light">
+                        <thead>
                             <tr>
-                                <th>Staff Member</th>
-                                <th>Role</th>
-                                <th>Last Activity</th>
-                                <th>Status</th>
+                                <th>Type</th>
+                                <th>Details</th>
+                                <th>Amount</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for staff in staff_activity %}
+                            {% for approval in pending_approvals %}
                             <tr>
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar me-3">
-                                            <i class="fas fa-user-circle fa-2x text-secondary"></i>
-                                        </div>
-                                        <div>
-                                            <strong>{{ staff.user.get_full_name }}</strong>
-                                            <div class="text-muted small">{{ staff.user.email }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge bg-primary">{{ staff.get_role_display }}</span>
-                                </td>
-                                <td>{{ staff.user.last_login|timesince }} ago</td>
-                                <td>
-                                    <span class="badge bg-{% if staff.user.is_active %}success{% else %}danger{% endif %}">
-                                        {% if staff.user.is_active %}Active{% else %}Inactive{% endif %}
+                                    <span class="badge bg-{{ approval.badge_color }}">
+                                        {{ approval.type }}
                                     </span>
+                                </td>
+                                <td>
+                                    <strong>{{ approval.user.get_full_name }}</strong>
+                                    <div class="text-muted small">{{ approval.details }}</div>
+                                </td>
+                                <td class="fw-bold">UGX {{ approval.amount|intcomma }}</td>
+                                <td>
+                                    <a href="{{ approval.link }}" class="btn btn-sm btn-outline-primary">
+                                        Review
+                                    </a>
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="text-center py-4">No staff activity found</td>
+                                <td colspan="4" class="text-center py-4">No pending approvals</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -128,88 +187,138 @@
         </div>
     </div>
     
-    <!-- System Alerts -->
-    <div class="col-lg-5">
-        <div class="card">
-            <div class="card-header bg-white">
-                <h5 class="mb-0">System Alerts</h5>
+    <!-- System Health -->
+    <div class="col-lg-6 mb-4">
+        <div class="admin-card h-100">
+            <div class="admin-card-header">
+                <i class="fas fa-heartbeat me-2"></i> System Health
             </div>
             <div class="card-body">
-                <div class="alert alert-warning d-flex align-items-center mb-3">
-                    <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
-                    <div>
-                        <h6 class="alert-heading">Pending KYC Submissions</h6>
-                        <p class="mb-0">{{ pending_kyc|intcomma }} KYC documents require review</p>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="health-card bg-light p-3 rounded">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="mb-0">Server Load</h6>
+                                    <small class="text-muted">Last 15 mins</small>
+                                </div>
+                                <div class="text-end">
+                                    <h4 class="mb-0 text-success">24%</h4>
+                                    <small class="text-success"><i class="fas fa-caret-down"></i> 2%</small>
+                                </div>
+                            </div>
+                            <div class="progress mt-2" style="height: 6px;">
+                                <div class="progress-bar bg-success" style="width: 24%"></div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="alert alert-info d-flex align-items-center mb-3">
-                    <i class="fas fa-info-circle fa-2x me-3"></i>
-                    <div>
-                        <h6 class="alert-heading">System Update Available</h6>
-                        <p class="mb-0">Version 2.3.1 is ready for installation</p>
+                    <div class="col-md-6 mb-3">
+                        <div class="health-card bg-light p-3 rounded">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="mb-0">Database</h6>
+                                    <small class="text-muted">Size / Capacity</small>
+                                </div>
+                                <div class="text-end">
+                                    <h4 class="mb-0 text-info">1.2GB</h4>
+                                    <small class="text-muted">/ 10GB</small>
+                                </div>
+                            </div>
+                            <div class="progress mt-2" style="height: 6px;">
+                                <div class="progress-bar bg-info" style="width: 12%"></div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="alert alert-success d-flex align-items-center mb-3">
-                    <i class="fas fa-check-circle fa-2x me-3"></i>
-                    <div>
-                        <h6 class="alert-heading">Backup Successful</h6>
-                        <p class="mb-0">Nightly database backup completed at 2:30 AM</p>
+                    <div class="col-md-6 mb-3">
+                        <div class="health-card bg-light p-3 rounded">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="mb-0">Backups</h6>
+                                    <small class="text-muted">Last successful</small>
+                                </div>
+                                <div class="text-end">
+                                    <h4 class="mb-0 text-success">
+                                        <i class="fas fa-check-circle"></i> Today
+                                    </h4>
+                                    <small>2:30 AM</small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="alert alert-danger d-flex align-items-center">
-                    <i class="fas fa-exclamation-circle fa-2x me-3"></i>
-                    <div>
-                        <h6 class="alert-heading">Security Alert</h6>
-                        <p class="mb-0">3 failed login attempts detected</p>
+                    <div class="col-md-6 mb-3">
+                        <div class="health-card bg-light p-3 rounded">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="mb-0">Security</h6>
+                                    <small class="text-muted">Threat level</small>
+                                </div>
+                                <div class="text-end">
+                                    <h4 class="mb-0 text-success">Low</h4>
+                                    <small>No threats detected</small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
-<div class="row mt-4">
-    <!-- Audit Log Summary -->
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Recent Audit Logs</h5>
-                <a href="{% url 'account:audit_logs' %}" class="btn btn-sm btn-outline-primary">View All Logs</a>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Timestamp</th>
-                                <th>User</th>
-                                <th>Action</th>
-                                <th>Details</th>
-                                <th>IP Address</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for log in audit_logs %}
-                            <tr>
-                                <td>{{ log.timestamp|date:"d M Y H:i" }}</td>
-                                <td>{{ log.user.username }}</td>
-                                <td>{{ log.get_action_display }}</td>
-                                <td>{{ log.details|truncatechars:40 }}</td>
-                                <td>{{ log.ip_address }}</td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5" class="text-center py-4">No audit logs found</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{% block admin_extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Financial Chart
+    const ctx = document.getElementById('financialChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            datasets: [
+                {
+                    label: 'Deposits',
+                    data: [12000000, 19000000, 15000000, 20000000, 18000000, 22000000, 25000000],
+                    borderColor: '#2ecc71',
+                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: 'Withdrawals',
+                    data: [8000000, 11000000, 9000000, 12000000, 10000000, 15000000, 18000000],
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': UGX ' + context.raw.toLocaleString();
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return 'UGX ' + (value / 1000000).toLocaleString() + 'M';
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

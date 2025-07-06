@@ -1,8 +1,11 @@
+
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save
+from django.utils import timezone
 from shortuuid.django_fields import ShortUUIDField
 import uuid
+from django.db.models.signals import post_save
+ 
 
 User = get_user_model()
 
@@ -51,6 +54,7 @@ class Account(models.Model):
     account_status = models.CharField(max_length=20, choices=ACCOUNT_STATUS, default="in-active")
     kyc_submitted = models.BooleanField(default=False)
     kyc_confirmed = models.BooleanField(default=False)
+    last_activity = models.DateTimeField(default=timezone.now)
     recommended_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='recommended_accounts')
     review = models.CharField(max_length=100, null=True, blank=True, default="Review")
     date_created = models.DateTimeField(auto_now_add=True)
@@ -102,6 +106,30 @@ class StaffPermission(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.role}"
 
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    phone_verified = models.BooleanField(default=False)
+    # Add other profile fields as needed
+
+    def __str__(self):
+        return f"{self.user.username}'s Profile"
+
+
+class AdminRequest(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    request_type = models.CharField(max_length=100)
+    status = models.CharField(
+        max_length=20,
+        choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')],
+        default='pending'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.status}"
+    
+    
 class AuditLog(models.Model):
     ACTION_CHOICES = (
         ('LOGIN', 'User Login'),

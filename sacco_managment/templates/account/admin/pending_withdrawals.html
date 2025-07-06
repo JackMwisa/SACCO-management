@@ -1,0 +1,170 @@
+{% extends "account/base-admin.html" %}
+
+{% block admin_title %}Withdrawal Approvals{% endblock %}
+{% block admin_icon %}fa-money-bill-wave{% endblock %}
+
+{% block admin_actions %}
+<div class="dropdown me-2">
+    <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+            data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-filter me-1"></i> Filter
+    </button>
+    <ul class="dropdown-menu">
+        <li><h6 class="dropdown-header">Time Period</h6></li>
+        <li><a class="dropdown-item" href="?filter=today">Today</a></li>
+        <li><a class="dropdown-item" href="?filter=week">This Week</a></li>
+        <li><a class="dropdown-item" href="?filter=month">This Month</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><h6 class="dropdown-header">Status</h6></li>
+        <li><a class="dropdown-item" href="?status=pending">Pending Only</a></li>
+        <li><a class="dropdown-item" href="?status=approved">Approved</a></li>
+        <li><a class="dropdown-item" href="?status=rejected">Rejected</a></li>
+    </ul>
+</div>
+<a href="#" class="btn btn-outline-secondary me-2">
+    <i class="fas fa-download me-1"></i> Export
+</a>
+{% endblock %}
+
+{% block admin_content %}
+<div class="admin-card">
+    <div class="admin-card-header d-flex justify-content-between align-items-center">
+        <div>
+            <i class="fas fa-clock me-2"></i> Pending Withdrawals
+            <span class="badge bg-warning ms-2">{{ withdrawals.paginator.count }}</span>
+        </div>
+        <div class="input-group" style="width: 250px;">
+            <input type="text" class="form-control" placeholder="Search...">
+            <button class="btn btn-outline-secondary" type="button">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Member</th>
+                        <th>Details</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for withdrawal in withdrawals %}
+                    <tr>
+                        <td>{{ withdrawal.created_at|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar me-3">
+                                    {% if withdrawal.user.profile_picture %}
+                                    <img src="{{ withdrawal.user.profile_picture.url }}" class="rounded-circle" width="40" height="40">
+                                    {% else %}
+                                    <div class="avatar-circle bg-light text-secondary">
+                                        {{ withdrawal.user.get_initials }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <strong>{{ withdrawal.user.get_full_name }}</strong>
+                                    <div class="text-muted small">{{ withdrawal.user.account.account_number }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <strong>{{ withdrawal.get_provider_display }}</strong>
+                                <div class="text-muted small">{{ withdrawal.phone_number }}</div>
+                            </div>
+                        </td>
+                        <td class="fw-bold">UGX {{ withdrawal.amount|intcomma }}</td>
+                        <td>
+                            <span class="badge bg-{{ withdrawal.status_badge_color }}">
+                                {{ withdrawal.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'account:approve_withdrawal' withdrawal.id %}" 
+                                   class="btn btn-sm btn-success"
+                                   data-bs-toggle="tooltip" title="Approve">
+                                    <i class="fas fa-check"></i>
+                                </a>
+                                <a href="{% url 'account:reject_withdrawal' withdrawal.id %}" 
+                                   class="btn btn-sm btn-danger"
+                                   data-bs-toggle="tooltip" title="Reject">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                                <a href="#" 
+                                   class="btn btn-sm btn-outline-secondary"
+                                   data-bs-toggle="tooltip" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="fas fa-check-circle fa-2x text-success mb-3"></i>
+                            <h5>No pending withdrawals</h5>
+                            <p class="text-muted">All withdrawal requests have been processed</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% if withdrawals.paginator.num_pages > 1 %}
+    <div class="card-footer bg-white">
+        <nav aria-label="Withdrawal pagination">
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+                {% if withdrawals.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">&laquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ withdrawals.previous_page_number }}">&lsaquo;</a>
+                </li>
+                {% endif %}
+                
+                {% for num in withdrawals.paginator.page_range %}
+                {% if withdrawals.number == num %}
+                <li class="page-item active">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% elif num > withdrawals.number|add:'-3' and num < withdrawals.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                
+                {% if withdrawals.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ withdrawals.next_page_number }}">&rsaquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ withdrawals.paginator.num_pages }}">&raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block admin_extra_js %}
+<script>
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+</script>
+{% endblock %}

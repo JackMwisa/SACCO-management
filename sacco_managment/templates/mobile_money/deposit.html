@@ -1,83 +1,159 @@
-{% extends "partials/dashboard-base.html" %} 
-{% load humanize %} 
-{% load static %} 
+{% extends "partials/dashboard-base.html" %}
+{% load humanize %}
+{% load static %}
+
 {% block content %}
-
-<!-- Dashboard Section start -->
-
 <section class="dashboard-section body-collapse pay step step-2">
   <div class="overlay pt-120">
     <div class="container-fruid">
       <div class="main-content">
-        <div
-          class="head-area d-flex align-items-center justify-content-between"
-        >
+        <div class="head-area d-flex align-items-center justify-content-between">
           <h4>Mobile Money Deposit</h4>
+          <a href="{% url 'core:mobile-money-transactions' %}" class="btn btn-sm btn-outline-primary">
+            View Transactions
+          </a>
         </div>
 
-        <form method="post">
-          {% csrf_token %}
+        <div class="row">
+          <div class="col-lg-8">
+            <form method="post" id="depositForm">
+              {% csrf_token %}
+              
+              {% if form.errors %}
+              <div class="alert alert-danger">
+                {% for field, errors in form.errors.items %}
+                  {% for error in errors %}
+                    <p>{{ error }}</p>
+                  {% endfor %}
+                {% endfor %}
+              </div>
+              {% endif %}
 
-          <div class="send-banance">
-            <span class="mdr">Phone Number</span>
+              <div class="card mb-4">
+                <div class="card-body">
+                  <div class="mb-3">
+                    <label class="form-label">{{ form.phone_number.label }}</label>
+                    {{ form.phone_number }}
+                    <div class="form-text">Enter your mobile money number with country code</div>
+                  </div>
 
-            <div class="input-area">
-              <input
-                class="xxlr"
-                type="text"
-                name="phone_number"
-                placeholder="256XXXXXXXXX"
-                required
-              />
+                  <div class="mb-3">
+                    <label class="form-label">{{ form.provider.label }}</label>
+                    <div class="provider-select">
+                      {% for value, name in form.provider.field.choices %}
+                        {% if value %}
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="provider" 
+                                 id="provider{{ forloop.counter }}" value="{{ value }}"
+                                 {% if form.provider.value == value %}checked{% endif %}>
+                          <label class="form-check-label" for="provider{{ forloop.counter }}">
+                            <img src="{% static 'assets1/images/icon/'|add:value|lower|add:'.png' %}" 
+                                 width="30" class="me-1"> {{ name }}
+                          </label>
+                        </div>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">{{ form.amount.label }}</label>
+                    <div class="input-group">
+                      <span class="input-group-text">UGX</span>
+                      {{ form.amount }}
+                    </div>
+                    <div class="form-text">
+                      Limits: UGX 1,000 - UGX 5,000,000 per transaction
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between">
+                <a href="{% url 'account:account' %}" class="btn btn-secondary">
+                  Cancel
+                </a>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                  Initiate Deposit
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Recent Deposits</h5>
+                {% if recent_deposits %}
+                <ul class="list-group list-group-flush">
+                  {% for deposit in recent_deposits|slice:":3" %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                      <img src="{% static 'assets1/images/icon/'|add:deposit.mobile_money.provider|lower|add:'.png' %}" 
+                           width="20" class="me-2">
+                      {{ deposit.mobile_money.phone_number }}
+                    </span>
+                    <span class="badge bg-success rounded-pill">
+                      UGX {{ deposit.amount|intcomma }}
+                    </span>
+                  </li>
+                  {% endfor %}
+                </ul>
+                <a href="{% url 'core:mobile-money-transactions' %}" class="btn btn-sm btn-link mt-2">
+                  View All
+                </a>
+                {% else %}
+                <p class="text-muted">No recent deposits</p>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="card mt-3">
+              <div class="card-body">
+                <h5 class="card-title">Deposit Limits</h5>
+                <ul class="list-unstyled">
+                  <li class="mb-2">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Minimum: UGX 1,000
+                  </li>
+                  <li class="mb-2">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Maximum per transaction: UGX 5,000,000
+                  </li>
+                  <li class="mb-2">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Daily limit: UGX 10,000,000
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
-
-          <div class="send-banance">
-            <span class="mdr">Provider</span>
-
-            <div class="input-area">
-              <select name="provider" required>
-                <option value="">Select Provider</option>
-
-                <option value="MTN">MTN</option>
-
-                <option value="Airtel">Airtel</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="send-banance">
-            <span class="mdr">Amount (UGX)</span>
-
-            <div class="input-area">
-              <input
-                class="xxlr"
-                type="number"
-                name="amount"
-                min="1000"
-                step="100"
-                placeholder="Enter amount"
-                required
-              />
-            </div>
-
-            <p>
-              Available Balance:
-              <b>UGX {{ request.user.account.available_balance|intcomma }}</b>
-            </p>
-          </div>
-
-          <div class="footer-area mt-40">
-            <a href="{% url 'account:account' %}">Cancel</a>
-
-            <button type="submit" class="active">Initiate Deposit</button>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Dashboard Section end -->
-
-{% endblock content %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('depositForm');
+  const amountInput = form.querySelector('input[name="amount"]');
+  const submitBtn = document.getElementById('submitBtn');
+  
+  amountInput.addEventListener('input', function() {
+    const amount = parseFloat(this.value) || 0;
+    
+    if (amount < 1000) {
+      this.setCustomValidity('Minimum deposit is UGX 1,000');
+      submitBtn.disabled = true;
+    } else if (amount > 5000000) {
+      this.setCustomValidity('Maximum deposit is UGX 5,000,000');
+      submitBtn.disabled = true;
+    } else {
+      this.setCustomValidity('');
+      submitBtn.disabled = false;
+    }
+  });
+});
+</script>
+{% endblock %}

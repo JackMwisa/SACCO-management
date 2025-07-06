@@ -18,8 +18,13 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 import json
 from .forms import MobileMoneyDepositForm, MobileMoneyWithdrawalForm
+from core.models import MobileMoneyTransaction
+from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.utils import timezone
+from django import forms
+from django.urls import reverse
+
 
 def index(request):
     if request.user.is_authenticated:
@@ -103,63 +108,154 @@ def repay_loan(request, loan_id):
     loan = get_object_or_404(LoanApplication, id=loan_id, user=request.user)
     account = request.user.account
     
+    if loan.status not in ['approved', 'disbursed']:
+        messages.error(request, "This loan is not currently active for repayment")
+        return redirect('core:loan-detail', loan_id=loan.id)
+    
+    # Calculate repayment details
+    repayments = loan.repayments.all()
+    total_paid = repayments.aggregate(Sum('amount'))['amount__sum'] or 0
+    balance = loan.total_repayment - total_paid
+    
     if request.method == 'POST':
-        amount = Decimal(request.POST.get('amount'))
-        
-        if account.account_balance >= amount:
-            # Deduct from account
-            account.account_balance -= amount
-            account.save()
+        form = LoanRepaymentForm(request.POST)
+        if form.is_valid():
+            payment_method = form.cleaned_data['payment_method']
+            amount = form.cleaned_data['amount']
             
-            # Create repayment record
-            repayment = LoanRepayment.objects.create(
-                loan=loan,
-                amount=amount,
-                is_paid=True
-            )
+            if amount > balance:
+                messages.error(request, f"Amount cannot exceed remaining balance of UGX {balance}")
+                return redirect('core:repay-loan', loan_id=loan.id)
             
-            # Create transaction record
-            transaction = Transaction.objects.create(
-                user=request.user,
-                amount=amount,
-                transaction_type="loan_repayment",
-                status="completed",
-                sender=request.user,
-                receiver=request.user,
-                sender_account=account,
-                receiver_account=account,
-                description=f"Loan repayment for {loan.loan_type}"
-            )
-            
-            repayment.transaction = transaction
-            repayment.save()
-            
-            # Check if loan is fully paid
-            total_paid = loan.repayments.aggregate(Sum('amount'))['amount__sum'] or 0
-            if total_paid >= loan.total_repayment:
-                loan.status = 'completed'
-                loan.is_active = False
-                loan.save()
+            # Handle different payment methods
+            if payment_method == 'wallet':
+                if account.account_balance < amount:
+                    messages.error(request, "Insufficient funds in your wallet")
+                    return redirect('core:repay-loan', loan_id=loan.id)
                 
-                Notification.objects.create(
-                    user=request.user,
-                    notification_type="Loan Completion",
-                    amount=loan.amount,
-                    message=f"Your {loan.loan_type} loan has been fully repaid"
-                )
+                # Deduct from account
+                account.account_balance -= amount
+                account.save()
+                
+                # Create repayment record
+                repayment = process_loan_repayment(loan, amount, account, "wallet")
+                
+                messages.success(request, "Loan repayment from wallet successful!")
+                return redirect('core:loan-detail', loan_id=loan.id)
             
-            messages.success(request, "Loan repayment successful!")
-            return redirect('core:loan-detail', loan_id=loan.id)
-        else:
-            messages.error(request, "Insufficient funds for repayment")
+            elif payment_method == 'mobile_money':
+                # Redirect to mobile money payment
+                return redirect('core:mobile-money-payment', 
+                             loan_id=loan.id,
+                             amount=amount,
+                             payment_type='loan_repayment')
+            
+            elif payment_method == 'card':
+                # Redirect to card payment
+                return redirect('core:card-payment', 
+                             loan_id=loan.id,
+                             amount=amount,
+                             payment_type='loan_repayment')
+    
+    else:
+        # Suggest either the monthly payment or the remaining balance, whichever is smaller
+        suggested_amount = min(loan.monthly_repayment, balance)
+        form = LoanRepaymentForm(initial={'amount': suggested_amount})
     
     context = {
         'loan': loan,
+        'form': form,
+        'total_paid': total_paid,
+        'balance': balance,
         'monthly_repayment': loan.monthly_repayment,
+        'next_payment_due': calculate_next_payment_date(loan),
     }
     return render(request, 'loan/repay.html', context)
 
+def process_loan_repayment(loan, amount, account, payment_method):
+    """
+    Helper function to process loan repayment and create all necessary records
+    """
+    # Create repayment record
+    repayment = LoanRepayment.objects.create(
+        loan=loan,
+        amount=amount,
+        payment_method=payment_method,
+        is_paid=True
+    )
+    
+    # Create transaction record
+    transaction = Transaction.objects.create(
+        user=loan.user,
+        amount=amount,
+        transaction_type="loan_repayment",
+        status="completed",
+        sender=loan.user,
+        receiver=loan.user,  # Or set to system account if you have one
+        sender_account=account,
+        receiver_account=account,  # Or system account
+        description=f"Loan repayment for {loan.loan_type} loan via {payment_method}"
+    )
+    
+    repayment.transaction = transaction
+    repayment.save()
+    
+    # Check if loan is fully paid
+    total_paid = loan.repayments.aggregate(Sum('amount'))['amount__sum'] or 0
+    if total_paid >= loan.total_repayment:
+        loan.status = 'completed'
+        loan.is_active = False
+        loan.save()
+        
+        Notification.objects.create(
+            user=loan.user,
+            notification_type="Loan Completion",
+            amount=loan.amount,
+            message=f"Your {loan.loan_type} loan has been fully repaid"
+        )
+    
+    return repayment
 
+
+
+
+def calculate_next_payment_date(loan):
+    """
+    Calculate the next payment due date based on loan terms
+    """
+    if loan.status != 'disbursed':
+        return None
+        
+    last_payment = loan.repayments.order_by('-payment_date').first()
+    
+    if last_payment:
+        # Next payment is one month after last payment
+        return last_payment.payment_date + relativedelta(months=1)
+    else:
+        # First payment is one month after disbursement
+        return loan.date_disbursed + relativedelta(months=1)
+
+class LoanRepaymentForm(forms.Form):
+    amount = forms.DecimalField(
+        max_digits=12, 
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter amount to pay',
+            'min': '1000',
+            'step': '1000'
+        })
+    )
+    payment_method = forms.ChoiceField(
+        choices=[
+            ('wallet', 'Wallet Balance'),
+            ('mobile_money', 'Mobile Money'),
+            ('card', 'Credit/Debit Card')
+        ],
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    
 
 @login_required
 def loan_history(request):
@@ -194,61 +290,170 @@ def mobile_money_transactions(request):
 
 @login_required
 def mobile_money_deposit(request):
+    account = request.user.account
+    deposit_limit = settings.MOBILE_MONEY_CONFIG['DEPOSIT_LIMITS']['single']
+    
     if request.method == 'POST':
         form = MobileMoneyDepositForm(request.POST)
         if form.is_valid():
-            # Initiate payment via Flutterwave/Yo! API
-            ref = f"MMD-{timezone.now().timestamp()}"
+            amount = form.cleaned_data['amount']
+            provider = form.cleaned_data['provider']
+            phone_number = form.cleaned_data['phone_number']
+            
+            
+            # Validate amount against limits
+            if amount < settings.MOBILE_MONEY_CONFIG['DEPOSIT_LIMITS']['min']:
+                messages.error(request, f"Amount must be at least UGX {settings.MOBILE_MONEY_CONFIG['DEPOSIT_LIMITS']['min']}")
+                return redirect('core:mobile-money-deposit')
+                
+            if amount > deposit_limit:
+                messages.error(request, f"Amount exceeds single deposit limit of UGX {deposit_limit}")
+                return redirect('core:mobile-money-deposit')
+                
+            # Check daily deposit limit
+            today = timezone.now().date()
+            today_deposits = Transaction.objects.filter(
+                user=request.user,
+                transaction_type='mobile_money_deposit',
+                date__date=today,
+                status='completed'
+            ).aggregate(Sum('amount'))['amount__sum'] or 0
+            
+            if today_deposits + amount > settings.MOBILE_MONEY_CONFIG['DEPOSIT_LIMITS']['daily']:
+                messages.error(request, 
+                    f"This deposit would exceed your daily limit of UGX {settings.MOBILE_MONEY_CONFIG['DEPOSIT_LIMITS']['daily']}")
+                return redirect('core:mobile-money-deposit')
+            
+            # Generate unique reference
+            ref = f"MMD-{request.user.id}-{timezone.now().timestamp()}"
             
             # Create pending transaction
             transaction = Transaction.objects.create(
                 user=request.user,
-                amount=form.cleaned_data['amount'],
+                amount=amount,
                 transaction_type="mobile_money_deposit",
                 status="pending",
-                description=f"Mobile Money Deposit to {form.cleaned_data['phone_number']}"
+                description=f"Mobile Money Deposit from {phone_number} ({provider})"
             )
             
             MobileMoneyTransaction.objects.create(
                 transaction=transaction,
-                provider=form.cleaned_data['provider'],
-                phone_number=form.cleaned_data['phone_number'],
+                provider=provider,
+                phone_number=phone_number,
                 transaction_ref=ref
             )
             
-            # Simulate API response
+            # For real implementation, you would call the payment gateway API here
+            # For simulation, we'll redirect to a payment prompt
             return render(request, 'mobile_money/payment_prompt.html', {
-                'phone': form.cleaned_data['phone_number'],
-                'amount': form.cleaned_data['amount'],
-                'ref': ref
+                'phone': phone_number,
+                'amount': amount,
+                'ref': ref,
+                'provider': provider,
+                'callback_url': reverse('core:mobile-money-callback')
             })
     else:
-        form = MobileMoneyDepositForm()
+    # Pre-fill with user's registered phone if available
+        initial = {}
+        phone_number = getattr(request.user, 'phone_number', None)
+        if phone_number:
+            initial['phone_number'] = phone_number
+        form = MobileMoneyDepositForm(initial=initial)
+
     
     return render(request, 'mobile_money/deposit.html', {
         'form': form,
-        'account': request.user.account
+        'account': account,
+        'deposit_limits': settings.MOBILE_MONEY_CONFIG['DEPOSIT_LIMITS']
     })
 
+@csrf_exempt
+def mobile_money_callback(request):
+    """
+    This would be the endpoint that the payment provider calls with payment status
+    """
+    if request.method == 'POST':
+        try:
+            payload = json.loads(request.body)
+            ref = payload.get('tx_ref')
+            status = payload.get('status')
+            
+            if not ref or not status:
+                return JsonResponse({'status': 'error', 'message': 'Invalid payload'}, status=400)
+                
+            mm_transaction = MobileMoneyTransaction.objects.get(transaction_ref=ref)
+            transaction = mm_transaction.transaction
+            
+            if status.lower() == 'successful':
+                # Update transaction status
+                transaction.status = 'completed'
+                transaction.save()
+                
+                # Credit user's account
+                account = transaction.user.account
+                account.account_balance += transaction.amount
+                account.save()
+                
+                # Create notification
+                Notification.objects.create(
+                    user=transaction.user,
+                    notification_type="Mobile Money Deposit",
+                    amount=transaction.amount,
+                    message=f"Mobile Money deposit of UGX {transaction.amount} from {mm_transaction.phone_number} received"
+                )
+                
+                mm_transaction.is_reconciled = True
+                mm_transaction.save()
+                
+                return JsonResponse({'status': 'success'})
+            
+            else:
+                # Payment failed
+                transaction.status = 'failed'
+                transaction.save()
+                
+                Notification.objects.create(
+                    user=transaction.user,
+                    notification_type="Mobile Money Deposit Failed",
+                    amount=transaction.amount,
+                    message=f"Mobile Money deposit of UGX {transaction.amount} failed"
+                )
+                
+                return JsonResponse({'status': 'failed', 'message': 'Payment failed'})
+                
+        except MobileMoneyTransaction.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Transaction not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=405)
+
+ 
 @login_required
 def mobile_money_withdrawal(request):
+    account = request.user.account
+    
     if request.method == 'POST':
-        form = MobileMoneyWithdrawalForm(request.POST)
+        form = MobileMoneyWithdrawalForm(request.POST, user=request.user)
         if form.is_valid():
-            account = request.user.account
             amount = form.cleaned_data['amount']
             
+            # Check available balance (including locked funds)
             if account.available_balance < amount:
-                messages.error(request, "Insufficient funds")
+                messages.error(request, "Insufficient funds for this withdrawal")
                 return redirect('core:mobile-money-withdrawal')
             
-            # Create withdrawal request
+            # Lock the funds immediately
+            account.locked_funds += amount
+            account.save()
+            
+            # Create transaction record
             transaction = Transaction.objects.create(
                 user=request.user,
                 amount=amount,
                 transaction_type="mobile_money_withdrawal",
-                status="pending",
-                description=f"Mobile Money Withdrawal to {form.cleaned_data['phone_number']}"
+                status="pending_approval",  # New status
+                description=f"Withdrawal request to {form.cleaned_data['phone_number']}"
             )
             
             MobileMoneyTransaction.objects.create(
@@ -258,16 +463,24 @@ def mobile_money_withdrawal(request):
                 transaction_ref=f"MMW-{timezone.now().timestamp()}"
             )
             
-            # Lock funds
-            account.locked_funds += amount
-            account.save()
+            # Notify admin
+            Notification.objects.create(
+                user=request.user,
+                notification_type="Withdrawal Request",
+                message=f"New withdrawal request of UGX {amount} needs approval"
+            )
             
-            messages.success(request, "Withdrawal request submitted. Waiting for admin approval.")
-            return redirect('account:account')
+            messages.success(request, "Withdrawal request submitted for admin approval")
+            return redirect('core:mobile-money-transactions')
     else:
-        form = MobileMoneyWithdrawalForm()
+        form = MobileMoneyWithdrawalForm(user=request.user)
     
-    return render(request, 'mobile_money/withdrawal.html', {'form': form})
+    return render(request, 'mobile_money/withdrawal.html', {
+        'form': form,
+        'account': account
+    })
+    
+    
 
 @csrf_exempt
 def mobile_money_webhook(request):
@@ -334,22 +547,58 @@ def reconciliation_dashboard(request):
         'daily_deposits': daily_deposits,
         'deposit_limits': settings.MOBILE_MONEY_CONFIG['DEPOSIT_LIMITS']
     })
-    
+
     
     
 @login_required
-def mobile_money_transactions(request):
-    deposits = Transaction.objects.filter(
-        user=request.user,
-        transaction_type='mobile_money_deposit'
-    ).select_related('mobile_money').order_by('-date')
+def check_payment_status(request, ref):
+    try:
+        mm_tx = MobileMoneyTransaction.objects.get(transaction_ref=ref)
+        transaction = mm_tx.transaction
+        return JsonResponse({'status': transaction.status})
+    except MobileMoneyTransaction.DoesNotExist:
+        return JsonResponse({'status': 'not_found'}, status=404)
+
+@staff_member_required
+def process_withdrawals(request):
+    pending_withdrawals = Transaction.objects.filter(
+        transaction_type='mobile_money_withdrawal',
+        status='pending'
+    ).select_related('user', 'mobile_money')
     
-    withdrawals = Transaction.objects.filter(
-        user=request.user,
-        transaction_type='mobile_money_withdrawal'
-    ).select_related('mobile_money').order_by('-date')
+    if request.method == 'POST':
+        transaction_id = request.POST.get('transaction_id')
+        action = request.POST.get('action')
+        
+        transaction = get_object_or_404(Transaction, id=transaction_id)
+        
+        if action == 'approve':
+            # Process the withdrawal with your mobile money API
+            transaction.status = 'completed'
+            transaction.save()
+            
+            # Unlock funds (they've been sent)
+            account = transaction.user.account
+            account.locked_funds -= transaction.amount
+            account.save()
+            
+            messages.success(request, "Withdrawal processed successfully")
+        elif action == 'reject':
+            # Return funds to available balance
+            account = transaction.user.account
+            account.locked_funds -= transaction.amount
+            account.account_balance += transaction.amount
+            account.save()
+            
+            transaction.status = 'failed'
+            transaction.save()
+            
+            messages.success(request, "Withdrawal rejected and funds returned")
+        
+        return redirect('core:process-withdrawals')
     
-    return render(request, 'mobile_money/transactions.html', {
-        'deposits': deposits,
-        'withdrawals': withdrawals
+    return render(request, 'admin/process_withdrawals.html', {
+        'pending_withdrawals': pending_withdrawals
     })
+    
+    

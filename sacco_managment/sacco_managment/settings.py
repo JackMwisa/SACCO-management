@@ -148,6 +148,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'account.context_processors.admin_pending_count',
             ],
             'libraries': {
                 'custom_filters': 'financial_services.templatetags.custom_filters',
@@ -271,20 +272,24 @@ PWA_APP_LANG = 'en-US'
 PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static', 'serviceworker.js')
 
 
-
-
 # Mobile Money Config
 MOBILE_MONEY_CONFIG = {
-    'FLUTTERWAVE_KEY': os.getenv('FLW_PUBLIC_KEY'),
-    'FLUTTERWAVE_SECRET': os.getenv('FLW_SECRET_KEY'),
-    'CALLBACK_URL': 'https://yoursacco.com/webhook/mobile-money/',
     'DEPOSIT_LIMITS': {
-        'DAILY': 5000000,
-        'WEEKLY': 20000000,
-        'MONTHLY': 50000000
-    }
+        'min': 1000,  # Minimum deposit amount (UGX)
+        'single': 5000000,  # Maximum single transaction (UGX)
+        'daily': 10000000,  # Maximum daily total (UGX)
+    },
+    'WITHDRAWAL_LIMITS': {
+        'min': 1000,
+        'single': 3000000,
+        'daily': 5000000,
+    },
+    'PROVIDERS': ['MTN', 'Airtel', 'Africell', 'UTL']
 }
 
+
+USE_TZ = True
+TIME_ZONE = 'Africa/Kampala'  # Or your local timezone
 
 
 #JAZZMIN SETTINGS

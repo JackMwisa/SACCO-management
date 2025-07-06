@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | {% block admin_title %}{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Admin-specific CSS -->
+    <style>
+        :root {
+            --admin-primary: #2c3e50;
+            --admin-secondary: #34495e;
+            --admin-accent: #3498db;
+            --admin-danger: #e74c3c;
+            --admin-success: #2ecc71;
+            --admin-warning: #f39c12;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Admin Navbar */
+        .admin-navbar {
+            background-color: var(--admin-primary);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: 60px;
+        }
+        
+        .admin-navbar-brand {
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        /* Admin Sidebar */
+        .admin-sidebar {
+            background-color: white;
+            width: 250px;
+            min-height: calc(100vh - 60px);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            position: fixed;
+            z-index: 1000;
+        }
+        
+        .admin-sidebar .nav-link {
+            color: #555;
+            padding: 12px 20px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .admin-sidebar .nav-link:hover,
+        .admin-sidebar .nav-link.active {
+            background-color: #f1f5f9;
+            color: var(--admin-primary);
+            border-left-color: var(--admin-accent);
+        }
+        
+        .admin-sidebar .nav-link i {
+            width: 24px;
+            text-align: center;
+            margin-right: 10px;
+        }
+        
+        .admin-sidebar .nav-divider {
+            border-top: 1px solid #e2e8f0;
+            margin: 15px 0;
+        }
+        
+        /* Main Content */
+        .admin-main {
+            margin-left: 250px;
+            padding: 25px;
+            min-height: calc(100vh - 60px);
+        }
+        
+        /* Admin Cards */
+        .admin-card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+        
+        .admin-card-header {
+            background-color: var(--admin-primary);
+            color: white;
+            border-radius: 8px 8px 0 0 !important;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+        
+        /* Badges */
+        .admin-badge {
+            padding: 5px 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge-admin-primary {
+            background-color: var(--admin-primary);
+        }
+        
+        /* Buttons */
+        .btn-admin {
+            background-color: var(--admin-accent);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            font-weight: 500;
+        }
+        
+        .btn-admin:hover {
+            background-color: #2980b9;
+            color: white;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .admin-sidebar {
+                width: 100%;
+                position: relative;
+            }
+            
+            .admin-main {
+                margin-left: 0;
+            }
+        }
+    </style>
+    {% block admin_extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Admin Navbar -->
+    <nav class="navbar navbar-expand-lg admin-navbar navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand admin-navbar-brand" href="#">
+                <i class="fas fa-shield-alt me-2"></i>
+                Admin Portal
+            </a>
+            
+            <!-- Admin User Menu -->
+            <div class="dropdown ms-auto">
+                <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" 
+                   id="adminUserDropdown" data-bs-toggle="dropdown">
+                    <img src="https://via.placeholder.com/40" alt="Admin" width="32" height="32" class="rounded-circle me-2">
+                    <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-user-cog me-2"></i> My Profile</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form id="adminLogoutForm" method="POST" action="{% url 'account:logout' %}">
+                            {% csrf_token %}
+                        </form>
+                        <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('adminLogoutForm').submit();">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="d-flex">
+        <!-- Admin Sidebar -->
+        <div class="admin-sidebar">
+            <div class="p-3">
+                <ul class="nav flex-column">
+                    <!-- Dashboard -->
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" 
+                           href="{% url 'account:admin_dashboard' %}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+
+                    <!-- User Management -->
+                    <li class="nav-divider"></li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'user_profiles' %}active{% endif %}" 
+                           href="{% url 'account:user_profiles' %}">
+                            <i class="fas fa-users"></i> User Management
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'manage_staff' in request.resolver_match.url_name %}active{% endif %}" 
+                           href="{% url 'account:manage_staff' %}">
+                            <i class="fas fa-user-shield"></i> Staff Management
+                        </a>
+                    </li>
+
+                    <!-- Financial Management -->
+                    <li class="nav-divider"></li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'pending_withdrawals' %}active{% endif %}" 
+                           href="{% url 'account:pending_withdrawals' %}">
+                            <i class="fas fa-money-check-alt"></i> Withdrawals
+                            {% if pending_withdrawal_count > 0 %}
+                            <span class="badge bg-danger rounded-pill float-end">{{ pending_withdrawal_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'loan_approvals' %}active{% endif %}" 
+                           href="#">
+                            <i class="fas fa-hand-holding-usd"></i> Loan Approvals
+                        </a>
+                    </li>
+
+                    <!-- System Management -->
+                    <li class="nav-divider"></li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'audit_logs' %}active{% endif %}" 
+                           href="{% url 'account:audit_logs' %}">
+                            <i class="fas fa-clipboard-list"></i> Audit Logs
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'system_settings' %}active{% endif %}" 
+                           href="#">
+                            <i class="fas fa-sliders-h"></i> System Settings
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Breadcrumbs -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb bg-white p-3 rounded shadow-sm">
+                    <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
+                    {% block admin_breadcrumb %}{% endblock %}
+                </ol>
+            </nav>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">
+                    <i class="fas {% block admin_icon %}fa-cog{% endblock %} me-2"></i>
+                    {% block admin_heading %}{% endblock %}
+                </h2>
+                <div class="admin-actions">
+                    {% block admin_actions %}{% endblock %}
+                </div>
+            </div>
+
+            <!-- Content -->
+            {% block admin_content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Admin-specific JS -->
+    <script>
+        // Admin-specific scripts can go here
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize admin tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+            
+            // Other admin-specific JS initialization
+        });
+    </script>
+    
+    {% block admin_extra_js %}{% endblock %}
+</body>
+</html>

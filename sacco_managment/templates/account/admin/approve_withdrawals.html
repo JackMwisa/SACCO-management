@@ -1,0 +1,56 @@
+{% extends "account/base.html" %}
+
+{% block page_title %}Pending Withdrawal Approvals{% endblock %}
+
+{% block breadcrumb %}
+
+ {% load humanize %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Pending Withdrawal Approvals</h3>
+    </div>
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>User</th>
+                    <th>Phone Number</th>
+                    <th>Amount</th>
+                    <th>Provider</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in pending_withdrawals %}
+                <tr>
+                    <td>{{ tx.date|date:"M d, Y H:i" }}</td>
+                    <td>{{ tx.user.username }}</td>
+                    <td>{{ tx.mobile_money.phone_number }}</td>
+                    <td>UGX {{ tx.amount|intcomma }}</td>
+                    <td>{{ tx.mobile_money.get_provider_display }}</td>
+                    <td>
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="transaction_id" value="{{ tx.id }}">
+                            <button type="submit" name="action" value="approve" class="btn btn-sm btn-success">
+                                Approve
+                            </button>
+                            <button type="submit" name="action" value="reject" class="btn btn-sm btn-danger">
+                                Reject
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">No pending withdrawals</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

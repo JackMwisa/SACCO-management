@@ -20,7 +20,10 @@ from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect
 from django.db.models import Count, Sum
 from datetime import datetime, timedelta
-
+from django.shortcuts import render, redirect, get_object_or_404
+from core.models import Transaction, MobileMoneyTransaction
+from django.contrib import messages
+from django.utils import timezone
 
 @login_required
 def account(request):
@@ -516,3 +519,68 @@ def audit_logs(request):
     return render(request, 'account/admin/audit_logs.html', {
         'logs': logs
     })
+    
+    
+@login_required
+def check_payment_status(request, ref):
+    try:
+        mm_tx = MobileMoneyTransaction.objects.get(transaction_ref=ref)
+        transaction = mm_tx.transaction
+        return JsonResponse({'status': transaction.status})
+    except MobileMoneyTransaction.DoesNotExist:
+        return JsonResponse({'status': 'not_found'}, status=404) 
+    
+
+
+@admin_required
+def pending_withdrawals(request):
+    pending_txs = Transaction.objects.filter(
+        transaction_type='mobile_money_withdrawal',
+        status='pending_approval'
+    ).select_related('user', 'mobile_money')
+    
+    return render(request, 'account/admin/pending_withdrawals.html', {
+        'pending_withdrawals': pending_txs,
+        'section': 'withdrawals'
+    })
+
+@admin_required
+def approve_withdrawal(request, tx_id):
+    tx = get_object_or_404(Transaction, id=tx_id)
+    account = tx.user.account
+    
+    # Process with mobile money API here (pseudo-code)
+    # if api_process_withdrawal(tx.mobile_money.phone_number, tx.amount):
+    
+    # Mark as completed
+    tx.status = 'completed'
+    tx.admin_approved = True
+    tx.admin_processed_by = request.user
+    tx.admin_processed_at = timezone.now()
+    tx.save()
+    
+    # Deduct from account (was previously locked)
+    account.account_balance -= tx.amount
+    account.locked_funds -= tx.amount
+    account.save()
+    
+    messages.success(request, f"Withdrawal of UGX {tx.amount} approved")
+    return redirect('account:pending_withdrawals')
+
+@admin_required
+def reject_withdrawal(request, tx_id):
+    tx = get_object_or_404(Transaction, id=tx_id)
+    account = tx.user.account
+    
+    # Return locked funds
+    account.locked_funds -= tx.amount
+    account.save()
+    
+    # Mark as rejected
+    tx.status = 'rejected'
+    tx.admin_processed_by = request.user
+    tx.admin_processed_at = timezone.now()
+    tx.save()
+    
+    messages.warning(request, f"Withdrawal of UGX {tx.amount} rejected")
+    return redirect('account:pending_withdrawals')

@@ -5,10 +5,10 @@ from django.contrib import messages
 from django.urls import reverse, path
 from django.utils.html import format_html
 from django.http import HttpResponseRedirect
-
+from .models import AdminRequest  # or from account.models if needed
 from .models import Account, KYC, StaffPermission, AuditLog
 from user_auths.models import User
-
+from .models import AdminRequest
 # Unregister User if already registered
 admin.site.unregister(User)
 
@@ -121,3 +121,9 @@ class AuditLogAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'details')
     readonly_fields = ('user', 'action', 'timestamp', 'ip_address')
     date_hierarchy = 'timestamp'
+
+@admin.register(AdminRequest)
+class AdminRequestAdmin(admin.ModelAdmin):
+    list_display = ('user', 'request_type', 'status', 'created_at')
+    list_filter = ('status', 'request_type')
+    search_fields = ('user__username', 'user__email')

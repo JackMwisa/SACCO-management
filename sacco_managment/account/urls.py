@@ -36,4 +36,10 @@ urlpatterns = [
     path('admin/edit-staff/<int:staff_id>/', admin_required(views.edit_staff), name='edit_staff'),
     path('admin/activate-staff/<int:staff_id>/', admin_required(views.activate_staff), name='activate_staff'),
     path('admin/deactivate-staff/<int:staff_id>/', admin_required(views.deactivate_staff), name='deactivate_staff'),
+     #   withdrawal management
+    path('admin/withdrawals/pending/', admin_required(views.pending_withdrawals), name='pending_withdrawals'),
+    path('admin/withdrawals/approve/<int:tx_id>/', admin_required(views.approve_withdrawal), name='approve_withdrawal'),
+    path('admin/withdrawals/reject/<int:tx_id>/', admin_required(views.reject_withdrawal), name='reject_withdrawal'),
+    
+    
 ]

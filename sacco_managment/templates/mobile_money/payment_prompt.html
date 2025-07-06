@@ -3,51 +3,77 @@
 {% load static %} 
 {% block content %}
 
-
-<!-- Dashboard Section start -->
-
 <section class="dashboard-section body-collapse pay step step-2">
   <div class="overlay pt-120">
     <div class="container-fruid">
       <div class="main-content">
-        <div
-          class="head-area d-flex align-items-center justify-content-between"
-        >
+        <div class="payment-confirmation text-center">
+          <div class="icon-area mb-4">
+            <img src="{% static 'assets1/images/icon/mobile-money-large.png' %}" width="120">
+          </div>
+          
           <h4>Complete Payment</h4>
-        </div>
-
-        <div class="payment-prompt">
-          <div class="icon-area text-center mb-40">
-            <img
-              src="{% static 'assets1/images/icon/mobile-money.png' %}"
-              alt="icon"
-              width="100"
-            />
+          
+          <div class="payment-details mt-4">
+            <div class="detail-item">
+              <span>Phone Number:</span>
+              <strong>{{ phone }}</strong>
+            </div>
+            <div class="detail-item">
+              <span>Amount:</span>
+              <strong class="text-success">UGX {{ amount|intcomma }}</strong>
+            </div>
+            <div class="detail-item">
+              <span>Reference:</span>
+              <strong>{{ ref }}</strong>
+            </div>
           </div>
-
-          <p>
-            Check your phone <strong>{{ phone }}</strong> for a payment request
-          </p>
-
-          <p>Amount: <strong>UGX {{ amount|intcomma }}</strong></p>
-
-          <p>Reference: <strong>{{ ref }}</strong></p>
-
-          <div class="qr-code text-center my-40">
-            <img
-              src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ ref }}"
-              alt="Payment QR"
-            />
+          
+          <div class="qr-code my-4">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ ref }}" 
+                 alt="Payment QR Code" class="img-fluid">
+            <p class="text-muted mt-2">Scan to pay</p>
           </div>
-
-          <p class="text-center">
-            Transaction will be processed automatically once confirmed
-          </p>
-
-          <div class="footer-area mt-40 text-center">
-            <a href="{% url 'account:account' %}" class="active"
-              >Back to Account</a
-            >
+          
+          <div class="processing-info mb-4">
+            <div class="spinner-border text-primary mb-2" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>Waiting for payment confirmation...</p>
+            <div class="countdown">
+              <small class="text-muted">This page will automatically update</small>
+            </div>
+          </div>
+          
+          <div class="help-section mt-4">
+            <div class="accordion" id="paymentHelp">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#helpCollapse">
+                    Not seeing the payment request?
+                  </button>
+                </h2>
+                <div id="helpCollapse" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <ul>
+                      <li>Ensure your phone has network connectivity</li>
+                      <li>Check your mobile money PIN is correct</li>
+                      <li>Dial *165# to check pending requests</li>
+                      <li>Wait 2 minutes and try again if needed</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="footer-area mt-4">
+            <a href="{% url 'account:account' %}" class="btn btn-outline-primary me-2">
+              Back to Account
+            </a>
+            <a href="{% url 'core:mobile-money-deposit' %}" class="btn btn-primary">
+              Try Again
+            </a>
           </div>
         </div>
       </div>
@@ -55,6 +81,31 @@
   </div>
 </section>
 
-<!-- Dashboard Section end -->
-
-{% endblock content %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  let attempts = 0;
+  const maxAttempts = 10;
+  const checkInterval = 5000; // 5 seconds
+  
+  const checkPaymentStatus = setInterval(function() {
+    attempts++;
+    fetch(`{% url 'core:check-payment-status' ref %}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'completed') {
+          clearInterval(checkPaymentStatus);
+          window.location.href = "{% url 'core:mobile-money-transactions' %}";
+        } else if (attempts >= maxAttempts) {
+          clearInterval(checkPaymentStatus);
+          document.querySelector('.processing-info').innerHTML = `
+            <div class="alert alert-warning">
+              <p>Payment confirmation taking longer than expected</p>
+              <p>Check your transaction history or try again later</p>
+            </div>
+          `;
+        }
+      });
+  }, checkInterval);
+});
+</script>
+{% endblock %}

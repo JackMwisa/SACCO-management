@@ -1,121 +1,170 @@
-{% extends "account/base.html" %}
+{% extends "account/base-admin.html" %}
 
-{% block page_title %}Add New Staff Member{% endblock %}
+{% block admin_title %}Staff Management{% endblock %}
+{% block admin_icon %}fa-user-shield{% endblock %}
 
-{% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'account:manage_staff' %}">Manage Staff</a></li>
-<li class="breadcrumb-item active" aria-current="page">Add Staff</li>
+{% block admin_actions %}
+<div class="d-flex">
+    <div class="input-group me-3" style="width: 250px;">
+        <input type="text" class="form-control" placeholder="Search staff...">
+        <button class="btn btn-outline-secondary" type="button">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+    <a href="{% url 'account:add_staff' %}" class="btn btn-admin me-2">
+        <i class="fas fa-user-plus me-1"></i> Add Staff
+    </a>
+    <a href="{% url 'account:print_staff_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-print me-1"></i> Print
+    </a>
+</div>
 {% endblock %}
 
-{% block content %}
-<div class="card">
-    <div class="card-header bg-white">
-        <h5 class="mb-0">Add New Staff Member</h5>
+{% block admin_content %}
+<div class="admin-card">
+    <div class="admin-card-header">
+        <i class="fas fa-users-cog me-2"></i> Staff Members
     </div>
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %}
-            
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="{{ form.username.id_for_label }}">Username</label>
-                        {{ form.username }}
-                        <small class="form-text text-muted">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</small>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="{{ form.email.id_for_label }}">Email</label>
-                        {{ form.email }}
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="{{ form.first_name.id_for_label }}">First Name</label>
-                        {{ form.first_name }}
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="{{ form.last_name.id_for_label }}">Last Name</label>
-                        {{ form.last_name }}
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="{{ form.password1.id_for_label }}">Password</label>
-                        {{ form.password1 }}
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="{{ form.password2.id_for_label }}">Password Confirmation</label>
-                        {{ form.password2 }}
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    <h6>Staff Permissions</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="{{ form.role.id_for_label }}">Role</label>
-                                {{ form.role }}
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Staff Member</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Last Active</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for staff in staff_members %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar me-3">
+                                    {% if staff.profile_picture %}
+                                    <img src="{{ staff.profile_picture.url }}" class="rounded-circle" width="40" height="40">
+                                    {% else %}
+                                    <div class="avatar-circle bg-light text-secondary">
+                                        {{ staff.get_initials }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <strong>{{ staff.get_full_name }}</strong>
+                                    <div class="text-muted small">@{{ staff.username }}</div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                        </td>
+                        <td>{{ staff.email }}</td>
+                        <td>
+                            <span class="badge bg-{{ staff.role_badge_color }}">
+                                {{ staff.get_role_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if staff.last_login %}
+                            {{ staff.last_login|timesince }} ago
+                            {% else %}
+                            Never logged in
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-{% if staff.is_active %}success{% else %}secondary{% endif %}">
+                                {% if staff.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                        type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'account:edit_staff' staff.id %}">
+                                            <i class="fas fa-edit me-2"></i> Edit
+                                        </a>
+                                    </li>
+                                    {% if staff.is_active %}
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="{% url 'account:deactivate_staff' staff.id %}">
+                                            <i class="fas fa-user-slash me-2"></i> Deactivate
+                                        </a>
+                                    </li>
+                                    {% else %}
+                                    <li>
+                                        <a class="dropdown-item text-success" href="{% url 'account:activate_staff' staff.id %}">
+                                            <i class="fas fa-user-check me-2"></i> Activate
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    <li>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fas fa-envelope me-2"></i> Send Message
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="fas fa-user-slash fa-2x text-muted mb-3"></i>
+                            <h5>No staff members found</h5>
+                            <p class="text-muted">Add your first staff member to get started</p>
+                            <a href="{% url 'account:add_staff' %}" class="btn btn-admin">
+                                <i class="fas fa-user-plus me-1"></i> Add Staff
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                Showing {{ staff_members.start_index }} to {{ staff_members.end_index }} of {{ staff_members.paginator.count }} entries
+            </div>
+            <nav aria-label="Staff pagination">
+                <ul class="pagination pagination-sm mb-0">
+                    {% if staff_members.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">&laquo; First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ staff_members.previous_page_number }}">Previous</a>
+                    </li>
+                    {% endif %}
                     
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <div class="form-check form-switch">
-                                {{ form.can_view_balances }}
-                                <label class="form-check-label" for="{{ form.can_view_balances.id_for_label }}">
-                                    Can View Balances
-                                </label>
-                            </div>
-                            
-                            <div class="form-check form-switch mt-2">
-                                {{ form.can_reset_passwords }}
-                                <label class="form-check-label" for="{{ form.can_reset_passwords.id_for_label }}">
-                                    Can Reset Passwords
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-check form-switch">
-                                {{ form.can_approve_loans }}
-                                <label class="form-check-label" for="{{ form.can_approve_loans.id_for_label }}">
-                                    Can Approve Loans
-                                </label>
-                            </div>
-                            
-                            <div class="form-check form-switch mt-2">
-                                {{ form.can_edit_kyc }}
-                                <label class="form-check-label" for="{{ form.can_edit_kyc.id_for_label }}">
-                                    Can Edit KYC
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="d-flex justify-content-end">
-                <a href="{% url 'account:manage_staff' %}" class="btn btn-secondary me-2">Cancel</a>
-                <button type="submit" class="btn btn-primary">Add Staff Member</button>
-            </div>
-        </form>
+                    {% for num in staff_members.paginator.page_range %}
+                    {% if staff_members.number == num %}
+                    <li class="page-item active">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% elif num > staff_members.number|add:'-3' and num < staff_members.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if staff_members.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ staff_members.next_page_number }}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ staff_members.paginator.num_pages }}">Last &raquo;</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
     </div>
 </div>
 {% endblock %}
