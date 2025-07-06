@@ -1,0 +1,65 @@
+{% extends "account/base-admin.html" %}
+{% block admin_title %}Delete Staff Member{% endblock %}
+{% block admin_icon %}fa-user-times{% endblock %}
+
+{% block admin_breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'account:manage_staff' %}">Staff Management</a></li>
+<li class="breadcrumb-item active" aria-current="page">Delete Staff</li>
+{% endblock %}
+
+{% block admin_content %}
+<div class="admin-card">
+    <div class="admin-card-header">
+        <i class="fas fa-exclamation-triangle me-2"></i> Confirm Staff Deletion
+    </div>
+    <div class="card-body">
+        <div class="alert alert-danger">
+            <h5><i class="fas fa-exclamation-circle me-2"></i>Warning: This action cannot be undone!</h5>
+            <p class="mb-0">You are about to permanently delete this staff account and all associated data.</p>
+        </div>
+        
+        <div class="d-flex align-items-center mb-4">
+            <div class="avatar avatar-lg me-3">
+                {{ staff.user.get_initials }}
+            </div>
+            <div>
+                <h4 class="mb-1">{{ staff.user.get_full_name }}</h4>
+                <p class="text-muted mb-1">@{{ staff.user.username }}</p>
+                <p class="mb-0">
+                    <span class="badge bg-{{ staff.user.is_active|yesno:'success,danger' }}">
+                        {{ staff.user.is_active|yesno:'Active,Inactive' }}
+                    </span>
+                    <span class="badge bg-primary ms-2">{{ staff.get_role_display }}</span>
+                </p>
+            </div>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="confirmText" class="form-label">
+                    Type <strong>"DELETE"</strong> to confirm:
+                </label>
+                <input type="text" class="form-control" id="confirmText" name="confirm_text" 
+                       placeholder="Enter DELETE to confirm" required>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+                <a href="{% url 'account:manage_staff' %}" class="btn btn-secondary me-2">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-danger" id="deleteButton" disabled>
+                    <i class="fas fa-trash-alt me-1"></i> Permanently Delete
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('confirmText').addEventListener('input', function() {
+        const deleteButton = document.getElementById('deleteButton');
+        deleteButton.disabled = this.value.toUpperCase() !== 'DELETE';
+    });
+</script>
+{% endblock %}
