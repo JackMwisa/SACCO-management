@@ -1,0 +1,19 @@
+{% extends "partials/dashboard-base.html" %}
+{% load static %}
+{% block content %}
+<section class="dashboard-section body-collapse">
+    <div class="overlay pt-120">
+        <div class="container-fruid">
+            <div class="row justify-content-center">
+                <div class="col-xl-8">
+                    <div class="section-content text-center">
+                        <h2 class="text-danger mb-3">403 - Access Denied</h2>
+                        <p>You don’t have permission to view this page.</p>
+                        <a href="{% url 'account:dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

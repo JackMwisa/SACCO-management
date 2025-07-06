@@ -91,4 +91,7 @@ urlpatterns = [
     path('admin/reconciliation/', views.reconciliation_dashboard, name='reconciliation-dashboard'),
     path('mobile-money/callback/', views.mobile_money_callback, name='mobile-money-callback'),
 
+
+     path('coming-soon/', views.coming_soon, name='coming_soon'),
+
 ]
