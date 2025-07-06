@@ -1,0 +1,141 @@
+{% extends "account/base-admin.html" %}
+{% block admin_title %}Staff Activity Logs{% endblock %}
+{% block admin_icon %}fa-user-clock{% endblock %}
+
+{% block admin_actions %}
+<div class="d-flex">
+    <div class="input-group me-3" style="width: 250px;">
+        <input type="text" class="form-control" placeholder="Search activities..." id="activitySearch">
+        <button class="btn btn-outline-secondary" type="button">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+    <div class="dropdown me-2">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-filter me-1"></i> Filter
+        </button>
+        <ul class="dropdown-menu">
+            <li><h6 class="dropdown-header">Action Type</h6></li>
+            <li><a class="dropdown-item" href="?type=all">All Actions</a></li>
+            <li><a class="dropdown-item" href="?type=login">Logins</a></li>
+            <li><a class="dropdown-item" href="?type=modification">Data Modifications</a></li>
+            <li><a class="dropdown-item" href="?type=approval">Approvals</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><h6 class="dropdown-header">Time Period</h6></li>
+            <li><a class="dropdown-item" href="?period=today">Today</a></li>
+            <li><a class="dropdown-item" href="?period=week">This Week</a></li>
+            <li><a class="dropdown-item" href="?period=month">This Month</a></li>
+        </ul>
+    </div>
+    <a href="#" class="btn btn-outline-secondary">
+        <i class="fas fa-download me-1"></i> Export
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="admin-card">
+    <div class="admin-card-header">
+        <i class="fas fa-user-clock me-2"></i> Staff Activity Logs
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" id="activityTable">
+                <thead>
+                    <tr>
+                        <th>Staff Member</th>
+                        <th>Activity</th>
+                        <th>Details</th>
+                        <th>IP Address</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activity in staff_activities %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-sm me-2">
+                                    {{ activity.staff.user.get_initials }}
+                                </div>
+                                <div>
+                                    {{ activity.staff.user.get_full_name }}
+                                    <div class="text-muted small">{{ activity.staff.get_role_display }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ activity.get_badge_color }}">
+                                {{ activity.get_action_type_display }}
+                            </span>
+                        </td>
+                        <td>{{ activity.description|truncatechars:50 }}</td>
+                        <td>{{ activity.ip_address|default:"-" }}</td>
+                        <td>{{ activity.timestamp|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <i class="fas fa-info-circle fa-2x text-muted mb-3"></i>
+                            <h5>No activity logs found</h5>
+                            <p class="text-muted">Staff activities will appear here</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% if staff_activities.has_other_pages %}
+    <div class="card-footer bg-white">
+        <nav aria-label="Activity pagination">
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+                {% if staff_activities.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">&laquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ staff_activities.previous_page_number }}">&lsaquo;</a>
+                </li>
+                {% endif %}
+                
+                {% for num in staff_activities.paginator.page_range %}
+                {% if staff_activities.number == num %}
+                <li class="page-item active">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% elif num > staff_activities.number|add:'-3' and num < staff_activities.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                
+                {% if staff_activities.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ staff_activities.next_page_number }}">&rsaquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ staff_activities.paginator.num_pages }}">&raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Client-side search for activities
+    document.getElementById('activitySearch').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#activityTable tbody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}

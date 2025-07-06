@@ -1,0 +1,231 @@
+{% extends "account/base-admin.html" %}
+{% block admin_title %}Staff Action Logs{% endblock %}
+{% block admin_icon %}fa-history{% endblock %}
+
+{% block admin_actions %}
+<div class="d-flex">
+    <div class="input-group me-3" style="width: 250px;">
+        <input type="text" class="form-control" placeholder="Search actions..." id="actionSearch">
+        <button class="btn btn-outline-secondary" type="button">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+    <div class="dropdown me-2">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-filter me-1"></i> Staff
+        </button>
+        <ul class="dropdown-menu">
+            <li><h6 class="dropdown-header">Filter by Staff</h6></li>
+            <li><a class="dropdown-item" href="?staff=all">All Staff</a></li>
+            {% for staff in all_staff %}
+            <li><a class="dropdown-item" href="?staff={{ staff.id }}">{{ staff.user.get_full_name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="dropdown me-2">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-calendar me-1"></i> Date Range
+        </button>
+        <ul class="dropdown-menu">
+            <li><h6 class="dropdown-header">Quick Filters</h6></li>
+            <li><a class="dropdown-item" href="?range=today">Today</a></li>
+            <li><a class="dropdown-item" href="?range=week">This Week</a></li>
+            <li><a class="dropdown-item" href="?range=month">This Month</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#dateRangeModal">
+                Custom Range...
+            </a></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="admin-card">
+    <div class="admin-card-header">
+        <i class="fas fa-history me-2"></i> Staff Action Logs
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" id="actionLogsTable">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Staff Member</th>
+                        <th>Action</th>
+                        <th>Affected User</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in action_logs %}
+                    <tr>
+                        <td>{{ log.timestamp|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-sm me-2">
+                                    {{ log.staff.user.get_initials }}
+                                </div>
+                                <div>
+                                    {{ log.staff.user.get_full_name }}
+                                    <div class="text-muted small">{{ log.staff.get_role_display }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ log.get_badge_color }}">
+                                {{ log.get_action_type_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if log.affected_user %}
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-sm me-2">
+                                    {{ log.affected_user.get_initials }}
+                                </div>
+                                <div>
+                                    {{ log.affected_user.get_full_name }}
+                                </div>
+                            </div>
+                            {% else %}
+                            <span class="text-muted">System</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" 
+                                    data-bs-target="#detailModal" data-details="{{ log.details }}">
+                                View Details
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <i class="fas fa-database fa-2x text-muted mb-3"></i>
+                            <h5>No action logs found</h5>
+                            <p class="text-muted">Staff actions will appear here</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% if action_logs.has_other_pages %}
+    <div class="card-footer bg-white">
+        <nav aria-label="Action logs pagination">
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+                {% if action_logs.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">&laquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ action_logs.previous_page_number }}">&lsaquo;</a>
+                </li>
+                {% endif %}
+                
+                {% for num in action_logs.paginator.page_range %}
+                {% if action_logs.number == num %}
+                <li class="page-item active">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% elif num > action_logs.number|add:'-3' and num < action_logs.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                
+                {% if action_logs.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ action_logs.next_page_number }}">&rsaquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ action_logs.paginator.num_pages }}">&raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Detail Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailModalLabel">Action Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="detailModalBody">
+                Loading details...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Date Range Modal -->
+<div class="modal fade" id="dateRangeModal" tabindex="-1" aria-labelledby="dateRangeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dateRangeModalLabel">Select Date Range</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="dateRangeForm">
+                    <div class="mb-3">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="applyDateRange">Apply Filter</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Detail modal handler
+    const detailModal = document.getElementById('detailModal');
+    detailModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const details = button.getAttribute('data-details');
+        document.getElementById('detailModalBody').textContent = details;
+    });
+
+    // Client-side search for actions
+    document.getElementById('actionSearch').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#actionLogsTable tbody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    // Date range form handler
+    document.getElementById('applyDateRange').addEventListener('click', function() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        
+        if (startDate && endDate) {
+            window.location.href = `?start_date=${startDate}&end_date=${endDate}`;
+        }
+    });
+</script>
+{% endblock %}

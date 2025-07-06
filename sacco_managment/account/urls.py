@@ -42,4 +42,19 @@ urlpatterns = [
     path('admin/withdrawals/reject/<int:tx_id>/', admin_required(views.reject_withdrawal), name='reject_withdrawal'),
     
     
+     # Staff Management URLs
+    path('admin/manage-staff/', admin_required(views.manage_staff), name='manage_staff'),
+    path('admin/add-staff/', admin_required(views.add_staff), name='add_staff'),
+    path('admin/edit-staff/<int:staff_id>/', admin_required(views.edit_staff), name='edit_staff'),
+    path('admin/activate-staff/<int:staff_id>/', admin_required(views.activate_staff), name='activate_staff'),
+    path('admin/deactivate-staff/<int:staff_id>/', admin_required(views.deactivate_staff), name='deactivate_staff'),
+    path('admin/delete-staff/<int:staff_id>/', admin_required(views.delete_staff), name='delete_staff'),
+    path('admin/staff-activity/', admin_required(views.staff_activity), name='staff_activity'),
+    path('admin/staff-action-logs/', admin_required(views.staff_action_logs), name='staff_action_logs'),
+    
+    # User Activity URLs
+    path('admin/user-login-history/', admin_required(views.user_login_history), name='user_login_history'),
+    path('admin/daily-logins/', admin_required(views.daily_logins), name='daily_logins'),
+    
+    
 ]

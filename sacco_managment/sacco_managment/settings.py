@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     "reports",
     "support",
     "api",
+    # "account.apps.AccountConfig",
     
     # PWA
     "pwa",

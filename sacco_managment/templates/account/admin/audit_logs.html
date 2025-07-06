@@ -1,345 +1,227 @@
 {% extends "account/base-admin.html" %}
-{% load humanize %}
-{% block admin_title %}Admin Dashboard{% endblock %}
-{% block admin_icon %}fa-tachometer-alt{% endblock %}
+{% block admin_title %}Audit Logs{% endblock %}
+{% block admin_icon %}fa-clipboard-list{% endblock %}
+
+{% block admin_actions %}
+<div class="d-flex">
+    <div class="input-group me-3" style="width: 250px;">
+        <input type="text" class="form-control" placeholder="Search logs..." id="auditSearch">
+        <button class="btn btn-outline-secondary" type="button">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+    <div class="dropdown me-2">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-filter me-1"></i> Action Type
+        </button>
+        <ul class="dropdown-menu">
+            <li><h6 class="dropdown-header">Filter by Action</h6></li>
+            <li><a class="dropdown-item" href="?action_type=all">All Actions</a></li>
+            <li><a class="dropdown-item" href="?action_type=create">Creations</a></li>
+            <li><a class="dropdown-item" href="?action_type=update">Updates</a></li>
+            <li><a class="dropdown-item" href="?action_type=delete">Deletions</a></li>
+            <li><a class="dropdown-item" href="?action_type=login">Logins</a></li>
+            <li><a class="dropdown-item" href="?action_type=system">System Events</a></li>
+        </ul>
+    </div>
+    <div class="dropdown me-2">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user me-1"></i> User
+        </button>
+        <ul class="dropdown-menu">
+            <li><h6 class="dropdown-header">Filter by User</h6></li>
+            <li><a class="dropdown-item" href="?user=all">All Users</a></li>
+            {% for user in user_list %}
+            <li><a class="dropdown-item" href="?user={{ user.id }}">{{ user.get_full_name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <a href="#" class="btn btn-outline-secondary" onclick="window.print()">
+        <i class="fas fa-print me-1"></i> Print
+    </a>
+</div>
+{% endblock %}
 
 {% block admin_breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'account:admin_dashboard' %}">Admin</a></li>
-<li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+<li class="breadcrumb-item"><a href="{% url 'account:admin_dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item active" aria-current="page">Audit Logs</li>
 {% endblock %}
 
 {% block admin_content %}
-<div class="row g-4">
-    <!-- Stats Cards -->
-    <div class="col-xl-3 col-md-6">
-        <div class="admin-card h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="text-uppercase text-muted mb-0">Total Members</h6>
-                        <h2 class="mb-0">{{ total_members|intcomma }}</h2>
-                        <p class="small text-muted mb-0">
-                            <span class="text-success"><i class="fas fa-caret-up"></i> 12.5%</span> this month
-                        </p>
-                    </div>
-                    <div class="icon-circle bg-primary text-white">
-                        <i class="fas fa-users"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="admin-card">
+    <div class="admin-card-header">
+        <i class="fas fa-clipboard-list me-2"></i> System Audit Logs
     </div>
-    
-    <div class="col-xl-3 col-md-6">
-        <div class="admin-card h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="text-uppercase text-muted mb-0">Pending Withdrawals</h6>
-                        <h2 class="mb-0">{{ pending_withdrawals_count|intcomma }}</h2>
-                        <p class="small text-muted mb-0">
-                            UGX {{ pending_withdrawals_amount|intcomma }}
-                        </p>
-                    </div>
-                    <div class="icon-circle bg-warning text-white">
-                        <i class="fas fa-money-bill-wave"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-xl-3 col-md-6">
-        <div class="admin-card h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="text-uppercase text-muted mb-0">Active Loans</h6>
-                        <h2 class="mb-0">{{ active_loans|intcomma }}</h2>
-                        <p class="small text-muted mb-0">
-                            UGX {{ loan_portfolio|intcomma }}
-                        </p>
-                    </div>
-                    <div class="icon-circle bg-info text-white">
-                        <i class="fas fa-hand-holding-usd"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-xl-3 col-md-6">
-        <div class="admin-card h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="text-uppercase text-muted mb-0">Deposits Today</h6>
-                        <h2 class="mb-0">UGX {{ today_deposits|intcomma }}</h2>
-                        <p class="small text-muted mb-0">
-                            {{ deposit_transactions }} transactions
-                        </p>
-                    </div>
-                    <div class="icon-circle bg-success text-white">
-                        <i class="fas fa-piggy-bank"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row g-4 mt-2">
-    <!-- Financial Overview -->
-    <div class="col-lg-8">
-        <div class="admin-card h-100">
-            <div class="admin-card-header d-flex justify-content-between align-items-center">
-                <div>
-                    <i class="fas fa-chart-line me-2"></i> Financial Overview
-                </div>
-                <div class="btn-group">
-                    <button class="btn btn-sm btn-outline-secondary active">Monthly</button>
-                    <button class="btn btn-sm btn-outline-secondary">Quarterly</button>
-                    <button class="btn btn-sm btn-outline-secondary">Yearly</button>
-                </div>
-            </div>
-            <div class="card-body">
-                <canvas id="financialChart" height="250"></canvas>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Recent Activity -->
-    <div class="col-lg-4">
-        <div class="admin-card h-100">
-            <div class="admin-card-header">
-                <i class="fas fa-bell me-2"></i> Recent Activity
-            </div>
-            <div class="card-body p-0">
-                <div class="list-group list-group-flush">
-                    {% for activity in recent_activity %}
-                    <div class="list-group-item border-0">
-                        <div class="d-flex align-items-start">
-                            <div class="flex-shrink-0">
-                                <div class="avatar-sm bg-light rounded-circle">
-                                    <i class="fas fa-{{ activity.icon }} text-{{ activity.type }}"></i>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" id="auditLogsTable">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Object</th>
+                        <th>Details</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in audit_logs %}
+                    <tr>
+                        <td>{{ log.timestamp|date:"M d, Y H:i" }}</td>
+                        <td>
+                            {% if log.user %}
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-sm me-2">
+                                    {{ log.user.get_initials }}
+                                </div>
+                                <div>
+                                    {{ log.user.get_full_name }}
+                                    <div class="text-muted small">@{{ log.user.username }}</div>
                                 </div>
                             </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-1">{{ activity.title }}</h6>
-                                <p class="small text-muted mb-0">{{ activity.description }}</p>
-                                <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
-                            </div>
-                        </div>
-                    </div>
+                            {% else %}
+                            <span class="text-muted">System</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ log.get_badge_color }}">
+                                {{ log.get_action_type_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if log.content_type %}
+                            <span class="badge bg-secondary">
+                                {{ log.content_type|capfirst }}
+                            </span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" 
+                                    data-bs-target="#detailModal" data-details="{{ log.details }}">
+                                View Details
+                            </button>
+                        </td>
+                        <td>{{ log.ip_address|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="fas fa-database fa-2x text-muted mb-3"></i>
+                            <h5>No audit logs found</h5>
+                            <p class="text-muted">System activities will appear here</p>
+                        </td>
+                    </tr>
                     {% endfor %}
-                </div>
-            </div>
+                </tbody>
+            </table>
         </div>
     </div>
+    {% if audit_logs.has_other_pages %}
+    <div class="card-footer bg-white">
+        <nav aria-label="Audit logs pagination">
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+                {% if audit_logs.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">&laquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ audit_logs.previous_page_number }}">&lsaquo;</a>
+                </li>
+                {% endif %}
+                
+                {% for num in audit_logs.paginator.page_range %}
+                {% if audit_logs.number == num %}
+                <li class="page-item active">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% elif num > audit_logs.number|add:'-3' and num < audit_logs.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                
+                {% if audit_logs.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ audit_logs.next_page_number }}">&rsaquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ audit_logs.paginator.num_pages }}">&raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
 </div>
 
-<div class="row g-4 mt-2">
-    <!-- Pending Approvals -->
-    <div class="col-lg-6">
-        <div class="admin-card h-100">
-            <div class="admin-card-header d-flex justify-content-between align-items-center">
-                <div>
-                    <i class="fas fa-clock me-2"></i> Pending Approvals
-                </div>
-                <a href="{% url 'account:pending_withdrawals' %}" class="btn btn-sm btn-admin">
-                    View All
-                </a>
+<!-- Detail Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailModalLabel">Audit Log Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>Type</th>
-                                <th>Details</th>
-                                <th>Amount</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for approval in pending_approvals %}
-                            <tr>
-                                <td>
-                                    <span class="badge bg-{{ approval.badge_color }}">
-                                        {{ approval.type }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <strong>{{ approval.user.get_full_name }}</strong>
-                                    <div class="text-muted small">{{ approval.details }}</div>
-                                </td>
-                                <td class="fw-bold">UGX {{ approval.amount|intcomma }}</td>
-                                <td>
-                                    <a href="{{ approval.link }}" class="btn btn-sm btn-outline-primary">
-                                        Review
-                                    </a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center py-4">No pending approvals</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+            <div class="modal-body" id="detailModalBody">
+                <pre class="bg-light p-3 rounded" id="detailsContent">Loading details...</pre>
             </div>
-        </div>
-    </div>
-    
-    <!-- System Health -->
-    <div class="col-lg-6">
-        <div class="admin-card h-100">
-            <div class="admin-card-header">
-                <i class="fas fa-heartbeat me-2"></i> System Health
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="health-card bg-light p-3 rounded">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="mb-0">Server Load</h6>
-                                    <small class="text-muted">Last 15 mins</small>
-                                </div>
-                                <div class="text-end">
-                                    <h4 class="mb-0 text-success">24%</h4>
-                                    <small class="text-success"><i class="fas fa-caret-down"></i> 2%</small>
-                                </div>
-                            </div>
-                            <div class="progress mt-2" style="height: 6px;">
-                                <div class="progress-bar bg-success" style="width: 24%"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="health-card bg-light p-3 rounded">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="mb-0">Database</h6>
-                                    <small class="text-muted">Size / Capacity</small>
-                                </div>
-                                <div class="text-end">
-                                    <h4 class="mb-0 text-info">1.2GB</h4>
-                                    <small class="text-muted">/ 10GB</small>
-                                </div>
-                            </div>
-                            <div class="progress mt-2" style="height: 6px;">
-                                <div class="progress-bar bg-info" style="width: 12%"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="health-card bg-light p-3 rounded">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="mb-0">Backups</h6>
-                                    <small class="text-muted">Last successful</small>
-                                </div>
-                                <div class="text-end">
-                                    <h4 class="mb-0 text-success">
-                                        <i class="fas fa-check-circle"></i> Today
-                                    </h4>
-                                    <small>2:30 AM</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="health-card bg-light p-3 rounded">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="mb-0">Security</h6>
-                                    <small class="text-muted">Threat level</small>
-                                </div>
-                                <div class="text-end">
-                                    <h4 class="mb-0 text-success">Low</h4>
-                                    <small>No threats detected</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="copyDetails()">
+                    <i class="fas fa-copy me-1"></i> Copy Details
+                </button>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
 {% block admin_extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Financial Chart
-    const ctx = document.getElementById('financialChart').getContext('2d');
-    const financialChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-            datasets: [
-                {
-                    label: 'Deposits',
-                    data: [12000000, 19000000, 15000000, 20000000, 18000000, 22000000, 25000000],
-                    borderColor: '#2ecc71',
-                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
-                    tension: 0.3,
-                    fill: true,
-                    borderWidth: 2
-                },
-                {
-                    label: 'Withdrawals',
-                    data: [8000000, 11000000, 9000000, 12000000, 10000000, 15000000, 18000000],
-                    borderColor: '#e74c3c',
-                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                    tension: 0.3,
-                    fill: true,
-                    borderWidth: 2
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    labels: {
-                        boxWidth: 12,
-                        padding: 20,
-                        usePointStyle: true
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': UGX ' + context.raw.toLocaleString();
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return 'UGX ' + (value / 1000000).toLocaleString() + 'M';
-                        }
-                    },
-                    grid: {
-                        drawBorder: false
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
-            }
+    // Detail modal handler
+    const detailModal = document.getElementById('detailModal');
+    detailModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const details = button.getAttribute('data-details');
+        try {
+            // Try to pretty-print JSON if possible
+            const parsedDetails = JSON.parse(details);
+            document.getElementById('detailsContent').textContent = 
+                JSON.stringify(parsedDetails, null, 2);
+        } catch (e) {
+            // If not JSON, display as-is
+            document.getElementById('detailsContent').textContent = details;
         }
     });
+
+    // Copy details function
+    function copyDetails() {
+        const detailsContent = document.getElementById('detailsContent').textContent;
+        navigator.clipboard.writeText(detailsContent).then(() => {
+            const copyBtn = document.querySelector('#detailModal .btn-primary');
+            const originalHtml = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i class="fas fa-check me-1"></i> Copied!';
+            setTimeout(() => {
+                copyBtn.innerHTML = originalHtml;
+            }, 2000);
+        });
+    }
+
+    // Client-side search for audit logs
+    document.getElementById('auditSearch').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#auditLogsTable tbody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
 </script>
+{% endblock %}
 {% endblock %}

@@ -95,16 +95,46 @@ class KYC(models.Model):
     def __str__(self):
         return f"KYC for {self.user.username}"
 
+# class StaffPermission(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)
+#     role = models.CharField(max_length=20, choices=STAFF_ROLES)
+#     can_view_balances = models.BooleanField(default=False)
+#     can_reset_passwords = models.BooleanField(default=False)
+#     can_approve_loans = models.BooleanField(default=False)
+#     can_edit_kyc = models.BooleanField(default=False)
+
+#     def __str__(self):
+#         return f"{self.user.username} - {self.role}"
+
 class StaffPermission(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    role = models.CharField(max_length=20, choices=STAFF_ROLES)
+    ROLE_CHOICES = (
+        ('SUPPORT', 'Support Staff'),
+        ('LOAN_OFFICER', 'Loan Officer'),
+        ('ACCOUNT_MANAGER', 'Account Manager'),
+        ('ADMIN', 'System Admin'),
+    )
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='staff_permissions')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='SUPPORT')
+    date_added = models.DateTimeField(default=timezone.now)
+    
+    # Permissions
     can_view_balances = models.BooleanField(default=False)
     can_reset_passwords = models.BooleanField(default=False)
     can_approve_loans = models.BooleanField(default=False)
+    can_approve_withdrawals = models.BooleanField(default=False)
     can_edit_kyc = models.BooleanField(default=False)
-
+    can_manage_staff = models.BooleanField(default=False)
+    
+    # Activity tracking
+    last_active = models.DateTimeField(auto_now=True)
+    
     def __str__(self):
-        return f"{self.user.username} - {self.role}"
+        return f"{self.user.username} - {self.get_role_display()}"
+    
+    class Meta:
+        verbose_name = "Staff Permission"
+        verbose_name_plural = "Staff Permissions"
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -165,3 +195,27 @@ def create_staff_permission(sender, instance, created, **kwargs):
 post_save.connect(create_account, sender=User)
 post_save.connect(save_account, sender=User)
 post_save.connect(create_staff_permission, sender=User)
+
+
+class LoginHistory(models.Model):
+    ACTION_CHOICES = (
+        ('LOGIN', 'Login'),
+        ('LOGOUT', 'Logout'),
+        ('LOGIN_FAILED', 'Login Failed'),
+    )
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES, default='LOGIN')
+    timestamp = models.DateTimeField(auto_now_add=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(max_length=255, blank=True, null=True)
+    successful = models.BooleanField(default=True)
+    location = models.CharField(max_length=100, blank=True, null=True)
+    details = models.TextField(blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "Login Histories"
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.user.username if self.user else 'Anonymous'} - {self.get_action_display()} at {self.timestamp}"

@@ -18,12 +18,17 @@ from django.urls import reverse_lazy
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 from datetime import datetime, timedelta
 from django.shortcuts import render, redirect, get_object_or_404
 from core.models import Transaction, MobileMoneyTransaction
 from django.contrib import messages
 from django.utils import timezone
+from .models import LoginHistory  # Add this import
+from django.core.paginator import Paginator
+# from django.db.models import Count, Q 
+from django.db import models
+
 
 @login_required
 def account(request):
@@ -503,8 +508,204 @@ def admin_dashboard(request):
 def manage_staff(request):
     staff_members = StaffPermission.objects.select_related('user').all()
     return render(request, 'account/admin/manage_staff.html', {
-        'staff_members': staff_members
+        'staff_members': staff_members,
+        'section': 'staff_management'
     })
+    
+@admin_required
+def add_staff(request):
+    if request.method == 'POST':
+        form = StaffCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            
+            # Log the action
+            AuditLog.objects.create(
+                user=request.user,
+                action='STAFF_CREATE',
+                details=f"Created staff account for {user.username}",
+                ip_address=request.META.get('REMOTE_ADDR')
+            )
+            
+            messages.success(request, f"Staff account for {user.get_full_name()} created successfully!")
+            return redirect('account:manage_staff')
+    else:
+        form = StaffCreationForm()
+    
+    return render(request, 'account/admin/add_staff.html', {
+        'form': form,
+        'section': 'staff_management'
+    })
+
+
+
+
+@admin_required
+def edit_staff(request, staff_id):
+    staff_permission = get_object_or_404(StaffPermission, id=staff_id)
+    
+    if request.method == 'POST':
+        form = StaffEditForm(request.POST, instance=staff_permission.user)
+        if form.is_valid():
+            form.save()
+            
+            # Update StaffPermission
+            staff_permission.role = form.cleaned_data['role']
+            staff_permission.can_view_balances = form.cleaned_data['can_view_balances']
+            staff_permission.can_reset_passwords = form.cleaned_data['can_reset_passwords']
+            staff_permission.can_approve_loans = form.cleaned_data['can_approve_loans']
+            staff_permission.can_approve_withdrawals = form.cleaned_data['can_approve_withdrawals']
+            staff_permission.can_edit_kyc = form.cleaned_data['can_edit_kyc']
+            staff_permission.can_manage_staff = form.cleaned_data['can_manage_staff']
+            staff_permission.save()
+            
+            # Log the action
+            AuditLog.objects.create(
+                user=request.user,
+                action='STAFF_EDIT',
+                details=f"Edited staff account {staff_permission.user.username}",
+                ip_address=request.META.get('REMOTE_ADDR')
+            )
+            
+            messages.success(request, "Staff member updated successfully!")
+            return redirect('account:manage_staff')
+    else:
+        # Initialize form with existing data
+        initial_data = {
+            'role': staff_permission.role,
+            'can_view_balances': staff_permission.can_view_balances,
+            'can_reset_passwords': staff_permission.can_reset_passwords,
+            'can_approve_loans': staff_permission.can_approve_loans,
+            'can_approve_withdrawals': staff_permission.can_approve_withdrawals,
+            'can_edit_kyc': staff_permission.can_edit_kyc,
+            'can_manage_staff': staff_permission.can_manage_staff,
+        }
+        form = StaffEditForm(instance=staff_permission.user, initial=initial_data)
+    
+    return render(request, 'account/admin/edit_staff.html', {
+        'form': form,
+        'staff': staff_permission,
+        'section': 'staff_management'
+    })
+
+
+@admin_required
+def activate_staff(request, staff_id):
+    staff_permission = get_object_or_404(StaffPermission, id=staff_id)
+    staff_permission.user.is_active = True
+    staff_permission.user.save()
+    
+    # Log the action
+    AuditLog.objects.create(
+        user=request.user,
+        action='STAFF_ACTIVATE',
+        details=f"Activated staff account {staff_permission.user.username}",
+        ip_address=request.META.get('REMOTE_ADDR')
+    )
+    
+    messages.success(request, f"{staff_permission.user.get_full_name()} has been activated")
+    return redirect('account:manage_staff')
+
+@admin_required
+def deactivate_staff(request, staff_id):
+    staff_permission = get_object_or_404(StaffPermission, id=staff_id)
+    staff_permission.user.is_active = False
+    staff_permission.user.save()
+    
+    # Log the action
+    AuditLog.objects.create(
+        user=request.user,
+        action='STAFF_DEACTIVATE',
+        details=f"Deactivated staff account {staff_permission.user.username}",
+        ip_address=request.META.get('REMOTE_ADDR')
+    )
+    
+    messages.warning(request, f"{staff_permission.user.get_full_name()} has been deactivated")
+    return redirect('account:manage_staff')
+
+@admin_required
+def delete_staff(request, staff_id):
+    staff_permission = get_object_or_404(StaffPermission, id=staff_id)
+    username = staff_permission.user.username
+    
+    if request.method == 'POST':
+        if request.POST.get('confirmation') == 'DELETE':
+            staff_permission.user.delete()
+            
+            # Log the action
+            AuditLog.objects.create(
+                user=request.user,
+                action='STAFF_DELETE',
+                details=f"Deleted staff account {username}",
+                ip_address=request.META.get('REMOTE_ADDR')
+            )
+            
+            messages.success(request, f"Staff account {username} has been permanently deleted")
+            return redirect('account:manage_staff')
+    
+    return render(request, 'account/admin/delete_staff.html', {
+        'staff': staff_permission,
+        'section': 'staff_management'
+    })
+
+@admin_required
+def staff_activity(request):
+    active_staff = StaffPermission.objects.filter(
+        user__is_active=True
+    ).order_by('-last_active')
+    
+    return render(request, 'account/admin/staff_activity.html', {
+        'active_staff': active_staff,
+        'section': 'staff_monitoring'
+    })
+
+@admin_required
+def staff_action_logs(request):
+    action_logs = AuditLog.objects.filter(
+        user__staff_permissions__isnull=False
+    ).order_by('-timestamp')
+    
+    return render(request, 'account/admin/staff_action_logs.html', {
+        'action_logs': action_logs,
+        'section': 'staff_monitoring'
+    })
+
+@admin_required
+def user_login_history(request):
+    login_history = LoginHistory.objects.select_related('user').order_by('-login_time')
+    
+    return render(request, 'account/admin/user_login_history.html', {
+        'login_history': login_history,
+        'section': 'user_monitoring'
+    })
+
+@admin_required
+def daily_logins(request):
+    today = timezone.now().date()
+    week_ago = today - timedelta(days=7)
+    
+    daily_counts = LoginHistory.objects.filter(
+        timestamp__gte=week_ago
+    ).extra({
+        'date': "date(timestamp)"
+    }).values('date').annotate(
+        count=Count('id'),
+        success=Count('id', filter=Q(successful=True)),
+        failed=Count('id', filter=Q(successful=False))
+    ).order_by('date')
+
+    # Calculate login_change with absolute value
+    login_change = -5  # Example negative value - replace with your actual calculation
+    abs_login_change = abs(login_change)  # Calculate absolute value in Python
+
+    context = {
+        'daily_counts': daily_counts,
+        'section': 'user_monitoring',
+        'login_change': login_change,
+        'abs_login_change': abs_login_change,  # Send both original and absolute values
+        'total_logins': sum(item['count'] for item in daily_counts),
+    }
+    return render(request, 'account/admin/daily_logins.html', context)
 
 @admin_required
 def financial_reports(request):
@@ -584,3 +785,60 @@ def reject_withdrawal(request, tx_id):
     
     messages.warning(request, f"Withdrawal of UGX {tx.amount} rejected")
     return redirect('account:pending_withdrawals')
+
+@admin_required
+def user_login_history(request):
+    # Get filter parameters from request
+    status = request.GET.get('status', 'all')
+    period = request.GET.get('period', None)
+    
+    # Base queryset
+    login_history = LoginHistory.objects.select_related('user').order_by('-timestamp')
+    
+    # Apply filters
+    if status == 'success':
+        login_history = login_history.filter(successful=True)
+    elif status == 'failed':
+        login_history = login_history.filter(successful=False)
+    
+    if period == 'today':
+        today = timezone.now().date()
+        login_history = login_history.filter(timestamp__date=today)
+    elif period == 'week':
+        week_ago = timezone.now() - timedelta(days=7)
+        login_history = login_history.filter(timestamp__gte=week_ago)
+    elif period == 'month':
+        month_ago = timezone.now() - timedelta(days=30)
+        login_history = login_history.filter(timestamp__gte=month_ago)
+    
+    # Pagination
+    paginator = Paginator(login_history, 25)  # Show 25 logins per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'login_history': page_obj,
+        'section': 'user_monitoring'
+    }
+    return render(request, 'account/admin/user_login_history.html', context)
+
+@admin_required
+def daily_logins(request):
+    today = timezone.now().date()
+    week_ago = today - timedelta(days=7)
+    
+    daily_counts = LoginHistory.objects.filter(
+        timestamp__gte=week_ago
+    ).extra({
+        'date': "date(timestamp)"
+    }).values('date').annotate(
+        count=Count('id'),
+        success=Count('id', filter=models.Q(successful=True)),
+        failed=Count('id', filter=models.Q(successful=False))
+    ).order_by('date')
+    
+    context = {
+        'daily_counts': daily_counts,
+        'section': 'user_monitoring'
+    }
+    return render(request, 'account/admin/daily_logins.html', context)

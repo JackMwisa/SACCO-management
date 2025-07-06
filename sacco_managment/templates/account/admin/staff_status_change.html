@@ -1,0 +1,65 @@
+{% extends "account/base-admin.html" %}
+{% block admin_title %}{% if action == 'deactivate' %}Deactivate{% else %}Activate{% endif %} Staff Member{% endblock %}
+{% block admin_icon %}{% if action == 'deactivate' %}fa-user-slash{% else %}fa-user-check{% endif %}{% endblock %}
+
+{% block admin_breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'account:manage_staff' %}">Staff Management</a></li>
+<li class="breadcrumb-item active" aria-current="page">{% if action == 'deactivate' %}Deactivate{% else %}Activate{% endif %} Staff</li>
+{% endblock %}
+
+{% block admin_content %}
+<div class="admin-card">
+    <div class="admin-card-header">
+        <i class="fas {% if action == 'deactivate' %}fa-exclamation-triangle{% else %}fa-check-circle{% endif %} me-2"></i> 
+        Confirm Staff {% if action == 'deactivate' %}Deactivation{% else %}Activation{% endif %}
+    </div>
+    <div class="card-body">
+        <div class="alert alert-{% if action == 'deactivate' %}warning{% else %}success{% endif %}">
+            <h5>
+                <i class="fas {% if action == 'deactivate' %}fa-lock{% else %}fa-lock-open{% endif %} me-2"></i>
+                {% if action == 'deactivate' %}
+                This will prevent this staff member from accessing the system
+                {% else %}
+                This will restore this staff member's access to the system
+                {% endif %}
+            </h5>
+        </div>
+        
+        <div class="d-flex align-items-center mb-4">
+            <div class="avatar avatar-lg me-3">
+                {{ staff.user.get_initials }}
+            </div>
+            <div>
+                <h4 class="mb-1">{{ staff.user.get_full_name }}</h4>
+                <p class="text-muted mb-1">@{{ staff.user.username }}</p>
+                <p class="mb-0">
+                    <span class="badge bg-{{ staff.user.is_active|yesno:'success,danger' }}">
+                        Current Status: {{ staff.user.is_active|yesno:'Active,Inactive' }}
+                    </span>
+                    <span class="badge bg-primary ms-2">{{ staff.get_role_display }}</span>
+                </p>
+            </div>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="reason" class="form-label">
+                    Reason for {% if action == 'deactivate' %}deactivation{% else %}activation{% endif %}:
+                </label>
+                <textarea class="form-control" id="reason" name="reason" rows="3" required></textarea>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+                <a href="{% url 'account:manage_staff' %}" class="btn btn-secondary me-2">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-{% if action == 'deactivate' %}danger{% else %}success{% endif %}">
+                    <i class="fas {% if action == 'deactivate' %}fa-user-slash{% else %}fa-user-check{% endif %} me-1"></i> 
+                    {% if action == 'deactivate' %}Deactivate{% else %}Activate{% endif %} Staff
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

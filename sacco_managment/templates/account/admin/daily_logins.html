@@ -1,0 +1,338 @@
+{% extends "account/base-admin.html" %}
+{% load humanize %}
+{% block admin_title %}Daily Logins Report{% endblock %}
+{% block admin_icon %}fa-calendar-day{% endblock %}
+
+{% block admin_actions %}
+<div class="d-flex">
+    <div class="dropdown me-2">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-calendar me-1"></i> 
+            {% if days == 7 %}Last 7 Days
+            {% elif days == 30 %}Last 30 Days
+            {% else %}Last 90 Days{% endif %}
+        </button>
+        <ul class="dropdown-menu">
+            <li><h6 class="dropdown-header">Time Period</h6></li>
+            <li><a class="dropdown-item {% if days == 7 %}active{% endif %}" 
+                  href="?days=7">Last 7 Days</a></li>
+            <li><a class="dropdown-item {% if days == 30 %}active{% endif %}" 
+                  href="?days=30">Last 30 Days</a></li>
+            <li><a class="dropdown-item {% if days == 90 %}active{% endif %}" 
+                  href="?days=90">Last 90 Days</a></li>
+        </ul>
+    </div>
+    <a href="#" class="btn btn-outline-secondary me-2" onclick="window.print()">
+        <i class="fas fa-print me-1"></i> Print
+    </a>
+    <a href="#" class="btn btn-outline-secondary">
+        <i class="fas fa-download me-1"></i> Export
+    </a>
+</div>
+{% endblock admin_actions %}
+
+{% block admin_content %}
+<div class="row g-4">
+    <!-- Summary Cards -->
+    <div class="col-md-4">
+        <div class="admin-card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-uppercase text-muted mb-0">Total Logins</h6>
+                        <h2 class="mb-0">{{ total_logins|intcomma }}</h2>
+                        <p class="small text-muted mb-0">
+                            {% if login_change > 0 %}
+                            <span class="text-success"><i class="fas fa-caret-up"></i> {{ login_change }}%</span>
+                            {% else %}
+                            <span class="text-danger"><i class="fas fa-caret-down"></i> {{ abs_login_change }}%</span>
+                            {% endif %} vs previous period
+                        </p>
+                    </div>
+                    <div class="icon-circle bg-primary text-white">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="admin-card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-uppercase text-muted mb-0">Unique Users</h6>
+                        <h2 class="mb-0">{{ unique_users|intcomma }}</h2>
+                        <p class="small text-muted mb-0">
+                            {{ unique_percentage }}% of total users
+                        </p>
+                    </div>
+                    <div class="icon-circle bg-success text-white">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="admin-card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-uppercase text-muted mb-0">Failed Attempts</h6>
+                        <h2 class="mb-0">{{ failed_logins|intcomma }}</h2>
+                        <p class="small text-muted mb-0">
+                            {{ failure_rate }}% failure rate
+                        </p>
+                    </div>
+                    <div class="icon-circle bg-danger text-white">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-2">
+    <!-- Login Trends Chart -->
+    <div class="col-lg-8">
+        <div class="admin-card h-100">
+            <div class="admin-card-header">
+                <i class="fas fa-chart-line me-2"></i> Daily Login Trends
+            </div>
+            <div class="card-body">
+                <canvas id="loginTrendsChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Login Distribution -->
+    <div class="col-lg-4">
+        <div class="admin-card h-100">
+            <div class="admin-card-header">
+                <i class="fas fa-chart-pie me-2"></i> Login Distribution
+            </div>
+            <div class="card-body">
+                <canvas id="loginDistributionChart" height="300"></canvas>
+                <div class="mt-3" id="distributionLegend"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-2">
+    <!-- Peak Login Times -->
+    <div class="col-lg-6">
+        <div class="admin-card h-100">
+            <div class="admin-card-header">
+                <i class="fas fa-clock me-2"></i> Peak Login Times
+            </div>
+            <div class="card-body">
+                <canvas id="peakTimesChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Most Active Users -->
+    <div class="col-lg-6">
+        <div class="admin-card h-100">
+            <div class="admin-card-header">
+                <i class="fas fa-user-clock me-2"></i> Most Active Users
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Logins</th>
+                                <th>Last Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in active_users %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-sm me-2">
+                                            {{ user.user.get_initials }}
+                                        </div>
+                                        <div>
+                                            {{ user.user.get_full_name }}
+                                            <div class="text-muted small">@{{ user.user.username }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ user.login_count }}</td>
+                                <td>{{ user.last_login|timesince }} ago</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block admin_extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Login Trends Chart
+    const trendsCtx = document.getElementById('loginTrendsChart').getContext('2d');
+    const loginTrendsChart = new Chart(trendsCtx, {
+        type: 'line',
+        data: {
+            labels: {{ date_labels|safe }},
+            datasets: [
+                {
+                    label: 'Successful Logins',
+                    data: {{ success_data|safe }},
+                    borderColor: '#2ecc71',
+                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                    tension: 0.3,
+                    fill: true,
+                    borderWidth: 2
+                },
+                {
+                    label: 'Failed Logins',
+                    data: {{ fail_data|safe }},
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    tension: 0.3,
+                    fill: true,
+                    borderWidth: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        drawBorder: false
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+
+    // Login Distribution Chart
+    const distributionCtx = document.getElementById('loginDistributionChart').getContext('2d');
+    const loginDistributionChart = new Chart(distributionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Mobile', 'Desktop', 'Tablet', 'Unknown'],
+            datasets: [{
+                data: [
+                    {{ device_data.mobile }},
+                    {{ device_data.desktop }},
+                    {{ device_data.tablet }},
+                    {{ device_data.unknown }}
+                ],
+                backgroundColor: [
+                    '#3498db',
+                    '#2ecc71',
+                    '#f39c12',
+                    '#95a5a6'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            cutout: '70%'
+        }
+    });
+
+    // Generate distribution legend
+    const legendContainer = document.getElementById('distributionLegend');
+    const legendItems = [
+        { label: 'Mobile', color: '#3498db', value: '{{ device_data.mobile }} logins' },
+        { label: 'Desktop', color: '#2ecc71', value: '{{ device_data.desktop }} logins' },
+        { label: 'Tablet', color: '#f39c12', value: '{{ device_data.tablet }} logins' },
+        { label: 'Unknown', color: '#95a5a6', value: '{{ device_data.unknown }} logins' }
+    ];
+
+    legendItems.forEach(item => {
+        const legendItem = document.createElement('div');
+        legendItem.className = 'd-flex align-items-center mb-2';
+        
+        legendItem.innerHTML = `
+            <div class="legend-color me-2" style="width: 12px; height: 12px; background-color: ${item.color}; border-radius: 2px;"></div>
+            <div class="flex-grow-1">
+                <span class="small">${item.label}</span>
+            </div>
+            <div class="text-muted small">${item.value}</div>
+        `;
+        
+        legendContainer.appendChild(legendItem);
+    });
+
+    // Peak Times Chart
+    const peakCtx = document.getElementById('peakTimesChart').getContext('2d');
+    const peakTimesChart = new Chart(peakCtx, {
+        type: 'bar',
+        data: {
+            labels: ['12AM', '2AM', '4AM', '6AM', '8AM', '10AM', '12PM', '2PM', '4PM', '6PM', '8PM', '10PM'],
+            datasets: [{
+                label: 'Logins by Hour',
+                data: {{ hourly_data|safe }},
+                backgroundColor: '#3498db',
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        drawBorder: false
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock admin_extra_js %}
+
+{% endblock admin_content %}

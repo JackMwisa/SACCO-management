@@ -264,19 +264,45 @@
                     </a>
                 </li>
                 <li class="nav-divider"></li>
+                
+                <!-- User Management Section -->
+               
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'user_profiles' %}active{% endif %}" 
-                       href="{% url 'account:user_profiles' %}">
-                        <i class="fas fa-users"></i> User Management
+                    <a class="nav-link {% if request.resolver_match.url_name == 'user_login_history' %}active{% endif %}" 
+                       href="{% url 'account:user_login_history' %}">
+                        <i class="fas fa-sign-in-alt"></i> Login History
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'daily_logins' %}active{% endif %}" 
+                       href="{% url 'account:daily_logins' %}">
+                        <i class="fas fa-calendar-day"></i> Daily Logins
+                    </a>
+                </li>
+                <li class="nav-divider"></li>
+                
+                <!-- Staff Management Section -->
                 <li class="nav-item">
                     <a class="nav-link {% if 'manage_staff' in request.resolver_match.url_name %}active{% endif %}" 
                        href="{% url 'account:manage_staff' %}">
                         <i class="fas fa-user-shield"></i> Staff Management
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'staff_activity' %}active{% endif %}" 
+                       href="{% url 'account:staff_activity' %}">
+                        <i class="fas fa-user-clock"></i> Staff Activity
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'staff_action_logs' %}active{% endif %}" 
+                       href="{% url 'account:staff_action_logs' %}">
+                        <i class="fas fa-history"></i> Action Logs
+                    </a>
+                </li>
                 <li class="nav-divider"></li>
+                
+                <!-- Financial Section -->
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'pending_withdrawals' %}active{% endif %}" 
                        href="{% url 'account:pending_withdrawals' %}">
@@ -293,6 +319,8 @@
                     </a>
                 </li>
                 <li class="nav-divider"></li>
+                
+                <!-- System Section -->
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'audit_logs' %}active{% endif %}" 
                        href="{% url 'account:audit_logs' %}">
