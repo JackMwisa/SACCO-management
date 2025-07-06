@@ -69,12 +69,17 @@ def create_staff_permission(sender, instance, created, **kwargs):
 # -----------------------------------------------------------------------------
 # Login history signals
 def get_client_ip(request):
+    if request is None or not hasattr(request, 'META'):
+        return "0.0.0.0"
+
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
         ip = x_forwarded_for.split(',')[0]
     else:
-        ip = request.META.get('REMOTE_ADDR')
+        ip = request.META.get('REMOTE_ADDR', '0.0.0.0')
     return ip
+
+
 
 @receiver(user_logged_in, dispatch_uid="log_user_login")
 def log_user_login(sender, request, user, **kwargs):
@@ -98,11 +103,14 @@ def log_user_logout(sender, request, user, **kwargs):
 
 @receiver(user_login_failed, dispatch_uid="log_user_login_failed")
 def log_user_login_failed(sender, credentials, request, **kwargs):
+    ip = get_client_ip(request)
+    user_agent = request.META.get('HTTP_USER_AGENT', '') if request else ''
+
     LoginHistory.objects.create(
         user=None,
         action='LOGIN_FAILED',
-        ip_address=get_client_ip(request),
-        user_agent=request.META.get('HTTP_USER_AGENT', ''),
+        ip_address=ip,
+        user_agent=user_agent,
         successful=False,
         details=f"Failed login attempt for username: {credentials.get('username')}"
     )
