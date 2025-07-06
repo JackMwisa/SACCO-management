@@ -8,12 +8,10 @@
 <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
 {% endblock %}
 
-
-
 {% block admin_content %}
-<div class="row">
+<div class="row g-4">
     <!-- Stats Cards -->
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-3 col-md-6">
         <div class="admin-card h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
@@ -32,7 +30,7 @@
         </div>
     </div>
     
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-3 col-md-6">
         <div class="admin-card h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
@@ -51,7 +49,7 @@
         </div>
     </div>
     
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-3 col-md-6">
         <div class="admin-card h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
@@ -70,7 +68,7 @@
         </div>
     </div>
     
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-3 col-md-6">
         <div class="admin-card h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
@@ -90,9 +88,9 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row g-4 mt-2">
     <!-- Financial Overview -->
-    <div class="col-lg-8 mb-4">
+    <div class="col-lg-8">
         <div class="admin-card h-100">
             <div class="admin-card-header d-flex justify-content-between align-items-center">
                 <div>
@@ -111,7 +109,7 @@
     </div>
     
     <!-- Recent Activity -->
-    <div class="col-lg-4 mb-4">
+    <div class="col-lg-4">
         <div class="admin-card h-100">
             <div class="admin-card-header">
                 <i class="fas fa-bell me-2"></i> Recent Activity
@@ -140,9 +138,9 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row g-4 mt-2">
     <!-- Pending Approvals -->
-    <div class="col-lg-6 mb-4">
+    <div class="col-lg-6">
         <div class="admin-card h-100">
             <div class="admin-card-header d-flex justify-content-between align-items-center">
                 <div>
@@ -195,14 +193,14 @@
     </div>
     
     <!-- System Health -->
-    <div class="col-lg-6 mb-4">
+    <div class="col-lg-6">
         <div class="admin-card h-100">
             <div class="admin-card-header">
                 <i class="fas fa-heartbeat me-2"></i> System Health
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
+                <div class="row g-3">
+                    <div class="col-md-6">
                         <div class="health-card bg-light p-3 rounded">
                             <div class="d-flex justify-content-between">
                                 <div>
@@ -219,7 +217,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <div class="health-card bg-light p-3 rounded">
                             <div class="d-flex justify-content-between">
                                 <div>
@@ -236,7 +234,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <div class="health-card bg-light p-3 rounded">
                             <div class="d-flex justify-content-between">
                                 <div>
@@ -252,7 +250,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <div class="health-card bg-light p-3 rounded">
                             <div class="d-flex justify-content-between">
                                 <div>
@@ -278,7 +276,7 @@
 <script>
     // Financial Chart
     const ctx = document.getElementById('financialChart').getContext('2d');
-    new Chart(ctx, {
+    const financialChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
@@ -289,7 +287,8 @@
                     borderColor: '#2ecc71',
                     backgroundColor: 'rgba(46, 204, 113, 0.1)',
                     tension: 0.3,
-                    fill: true
+                    fill: true,
+                    borderWidth: 2
                 },
                 {
                     label: 'Withdrawals',
@@ -297,15 +296,22 @@
                     borderColor: '#e74c3c',
                     backgroundColor: 'rgba(231, 76, 60, 0.1)',
                     tension: 0.3,
-                    fill: true
+                    fill: true,
+                    borderWidth: 2
                 }
             ]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     position: 'top',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 20,
+                        usePointStyle: true
+                    }
                 },
                 tooltip: {
                     callbacks: {
@@ -322,6 +328,14 @@
                         callback: function(value) {
                             return 'UGX ' + (value / 1000000).toLocaleString() + 'M';
                         }
+                    },
+                    grid: {
+                        drawBorder: false
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
                     }
                 }
             }

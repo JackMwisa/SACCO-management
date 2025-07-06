@@ -8,61 +8,67 @@
 {% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header bg-white">
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-bottom-0">
         <h5 class="mb-0">Edit Staff Member: {{ staff.user.get_full_name }}</h5>
     </div>
     <div class="card-body">
-        <form method="post">
+        <form method="post" class="needs-validation" novalidate>
             {% csrf_token %}
             
-            <div class="row mb-3">
+            <div class="row g-3 mb-4">
                 <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="{{ form.username.id_for_label }}">Username</label>
+                    <div class="form-floating">
                         {{ form.username }}
+                        <label for="{{ form.username.id_for_label }}">Username</label>
+                        <div class="invalid-feedback">
+                            Please provide a valid username.
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="{{ form.email.id_for_label }}">Email</label>
+                    <div class="form-floating">
                         {{ form.email }}
+                        <label for="{{ form.email.id_for_label }}">Email</label>
+                        <div class="invalid-feedback">
+                            Please provide a valid email.
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="row mb-3">
+            <div class="row g-3 mb-4">
                 <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                    <div class="form-floating">
                         {{ form.first_name }}
+                        <label for="{{ form.first_name.id_for_label }}">First Name</label>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+                    <div class="form-floating">
                         {{ form.last_name }}
+                        <label for="{{ form.last_name.id_for_label }}">Last Name</label>
                     </div>
                 </div>
             </div>
             
-            <div class="form-check form-switch mb-3">
+            <div class="form-check form-switch mb-4">
                 {{ form.is_active }}
                 <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
                     Account Active
                 </label>
             </div>
             
-            <div class="card mb-4">
+            <div class="card mb-4 border-0 shadow-sm">
                 <div class="card-header bg-light">
-                    <h6>Staff Permissions</h6>
+                    <h6 class="mb-0">Staff Permissions</h6>
                 </div>
                 <div class="card-body">
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="{{ form.role.id_for_label }}">Role</label>
+                            <div class="form-floating">
                                 {{ form.role }}
+                                <label for="{{ form.role.id_for_label }}">Role</label>
                             </div>
                         </div>
                     </div>
@@ -109,4 +115,26 @@
         </form>
     </div>
 </div>
+
+<script>
+    // Example form validation
+    (function () {
+        'use strict'
+        
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        const forms = document.querySelectorAll('.needs-validation')
+        
+        // Loop over them and prevent submission
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>
 {% endblock %}

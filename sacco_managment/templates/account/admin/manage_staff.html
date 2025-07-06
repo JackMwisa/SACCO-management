@@ -4,100 +4,128 @@
 {% block admin_heading %}Manage Staff{% endblock %}
 
 {% block admin_actions %}
-<a href="{% url 'account:add_staff' %}" class="btn btn-admin">
-  <i class="fas fa-plus me-1"></i> Add New Staff
-</a>
+<div class="d-flex">
+    <div class="input-group me-3" style="width: 250px;">
+        <input type="text" class="form-control" placeholder="Search staff..." id="staffSearch">
+        <button class="btn btn-outline-secondary" type="button">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+    <a href="{% url 'account:add_staff' %}" class="btn btn-admin me-2">
+        <i class="fas fa-plus me-1"></i> Add Staff
+    </a>
+    <a href="{% url 'account:print_staff_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-print me-1"></i> Print
+    </a>
+</div>
 {% endblock %}
 
 {% block admin_content %}
 <div class="admin-card">
-  <div class="admin-card-header d-flex justify-content-between align-items-center">
-    <div>
-      <i class="fas fa-users-cog me-2"></i> Staff Accounts
-    </div>
-  </div>
-  <div class="card-body p-0">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="table-light">
-          <tr>
-            <th>Name</th>
-            <th>Role</th>
-            <th>Permissions</th>
-            <th>Last Login</th>
-            <th>Status</th>
-            <th class="text-end">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-  {% for staff in staff_members %}
-    {% if not staff.user.is_superuser %}
-    <tr>
-      <td>
-        <div class="d-flex align-items-center">
-          <div class="me-3">
-            <i class="fas fa-user-circle fa-2x text-secondary"></i>
-          </div>
-          <div>
-            <strong>{{ staff.user.get_full_name }}</strong><br>
-            <span class="text-muted small">{{ staff.user.email }}</span>
-          </div>
+    <div class="admin-card-header d-flex justify-content-between align-items-center">
+        <div>
+            <i class="fas fa-users-cog me-2"></i> Staff Accounts
         </div>
-      </td>
-      <td>
-        <span class="badge bg-primary">{{ staff.get_role_display }}</span>
-      </td>
-      <td>
-        {% if staff.can_view_balances %}
-          <span class="badge bg-info text-dark me-1">View Balances</span>
-        {% endif %}
-        {% if staff.can_reset_passwords %}
-          <span class="badge bg-info text-dark me-1">Reset Passwords</span>
-        {% endif %}
-        {% if staff.can_approve_loans %}
-          <span class="badge bg-info text-dark me-1">Approve Loans</span>
-        {% endif %}
-      </td>
-      <td>
-        {{ staff.user.last_login|default:"Never" | timesince }} ago
-      </td>
-      <td>
-        <span class="badge bg-{{ staff.user.is_active|yesno:'success,danger' }}">
-          {{ staff.user.is_active|yesno:'Active,Inactive' }}
-        </span>
-      </td>
-      <td class="text-end">
-        <div class="btn-group">
-          <a href="{% url 'account:edit_staff' staff.id %}" class="btn btn-sm btn-outline-secondary" title="Edit">
-            <i class="fas fa-edit"></i>
-          </a>
-          {% if staff.user.is_active %}
-          <a href="{% url 'account:deactivate_staff' staff.id %}" class="btn btn-sm btn-outline-danger" title="Deactivate">
-            <i class="fas fa-ban"></i>
-          </a>
-          {% else %}
-          <a href="{% url 'account:activate_staff' staff.id %}" class="btn btn-sm btn-outline-success" title="Activate">
-            <i class="fas fa-check-circle"></i>
-          </a>
-          {% endif %}
-          <a href="#" class="btn btn-sm btn-outline-dark" title="Permissions">
-            <i class="fas fa-lock"></i>
-          </a>
+        <div class="text-muted small">
+            Showing {{ staff_members|length }} staff members
         </div>
-      </td>
-    </tr>
-    {% endif %}
-  {% empty %}
-    <tr>
-      <td colspan="6" class="text-center py-4 text-muted">
-        <i class="fas fa-info-circle fa-lg me-1"></i> No staff members found.
-      </td>
-    </tr>
-  {% endfor %}
-</tbody>
-
-      </table>
     </div>
-  </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="staffTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Permissions</th>
+                        <th>Last Login</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for staff in staff_members %}
+                    {% if not staff.user.is_superuser %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-sm me-3">
+                                    {{ staff.user.get_initials }}
+                                </div>
+                                <div>
+                                    <strong>{{ staff.user.get_full_name }}</strong><br>
+                                    <span class="text-muted small">{{ staff.user.email }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary">{{ staff.get_role_display }}</span>
+                        </td>
+                        <td>
+                            {% if staff.can_view_balances %}
+                            <span class="badge bg-info text-dark me-1">View Balances</span>
+                            {% endif %}
+                            {% if staff.can_reset_passwords %}
+                            <span class="badge bg-info text-dark me-1">Reset Passwords</span>
+                            {% endif %}
+                            {% if staff.can_approve_loans %}
+                            <span class="badge bg-info text-dark me-1">Approve Loans</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ staff.user.last_login|default:"Never" | timesince }} ago
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ staff.user.is_active|yesno:'success,danger' }}">
+                                {{ staff.user.is_active|yesno:'Active,Inactive' }}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group">
+                                <a href="{% url 'account:edit_staff' staff.id %}" class="btn btn-sm btn-outline-secondary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% if staff.user.is_active %}
+                                <a href="{% url 'account:deactivate_staff' staff.id %}" class="btn btn-sm btn-outline-danger" title="Deactivate">
+                                    <i class="fas fa-ban"></i>
+                                </a>
+                                {% else %}
+                                <a href="{% url 'account:activate_staff' staff.id %}" class="btn btn-sm btn-outline-success" title="Activate">
+                                    <i class="fas fa-check-circle"></i>
+                                </a>
+                                {% endif %}
+                                <a href="#" class="btn btn-sm btn-outline-dark" title="Permissions">
+                                    <i class="fas fa-lock"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            <i class="fas fa-info-circle fa-lg me-1"></i> No staff members found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+{% block admin_extra_js %}
+<script>
+    // Simple client-side search functionality
+    document.getElementById('staffSearch').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#staffTable tbody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}
 {% endblock %}

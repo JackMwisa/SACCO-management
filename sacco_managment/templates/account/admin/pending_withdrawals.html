@@ -3,6 +3,14 @@
 {% block admin_title %}Withdrawal Approvals{% endblock %}
 {% block admin_icon %}fa-money-bill-wave{% endblock %}
 
+{% block admin_breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'account:admin_dashboard' %}">Admin</a></li>
+<li class="breadcrumb-item active" aria-current="page">Withdrawal Approvals</li>
+{% endblock %}
+
+
+
+
 {% block admin_actions %}
 <div class="dropdown me-2">
     <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
