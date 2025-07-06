@@ -1,7 +1,14 @@
 {% extends "account/base-admin.html" %}
-
+{% load humanize %}
 {% block admin_title %}Admin Dashboard{% endblock %}
 {% block admin_icon %}fa-tachometer-alt{% endblock %}
+
+{% block admin_breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'account:admin_dashboard' %}">Admin</a></li>
+<li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+{% endblock %}
+
+
 
 {% block admin_content %}
 <div class="row">
