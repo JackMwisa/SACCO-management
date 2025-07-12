@@ -24,9 +24,6 @@ from django.conf import settings
 from django.utils import timezone
 from django import forms
 from django.urls import reverse
-from django.core.exceptions import ValidationError
-from dateutil.relativedelta import relativedelta
-from django.db import transaction as db_transaction
 
 
 def index(request):
@@ -44,73 +41,50 @@ def about(request):
 def apply_for_loan(request):
     account = request.user.account
     
-    # Check eligibility
-    eligibility = {
-        'has_min_savings': account.account_balance >= 50000,
-        'is_member_long_enough': (timezone.now() - request.user.date_joined).days > 90,
-        'has_no_defaulted_loans': not LoanApplication.objects.filter(
-            user=request.user, status='defaulted').exists(),
-        'active_loans': LoanApplication.objects.filter(
-            user=request.user, status__in=['approved', 'disbursed']).count()
-    }
-    
     if request.method == 'POST':
         form = LoanApplicationForm(request.POST)
         if form.is_valid():
-            try:
-                with transaction.atomic():
-                    loan = form.save(commit=False)
-                    loan.user = request.user
-                    loan.account = account
-                    loan.interest_rate = 10.0  # Flat 10% interest
-                    loan.calculate_repayments()
-                    
-                    # Auto-approve small loans (up to 3x savings)
-                    if loan.amount <= account.account_balance * 3 and all(eligibility.values()):
-                        loan.status = 'approved'
-                        loan.date_approved = timezone.now()
-                        messages.success(request, "Loan pre-approved pending final review!")
-                    else:
-                        loan.status = 'pending'
-                        messages.success(request, "Loan application submitted for review!")
-                    
-                    loan.save()
-                    
-                    # Notify admin
-                    Notification.objects.create(
-                        user=request.user,
-                        notification_type="Loan Application",
-                        amount=loan.amount,
-                        message=f"New loan application for UGX {loan.amount:,}"
-                    )
-                    
-                    return redirect('core:loan-status')
-            except Exception as e:
-                messages.error(request, f"Error submitting application: {str(e)}")
+            loan = form.save(commit=False)
+            loan.user = request.user
+            loan.account = account
+            
+            # Set interest rate based on loan type
+            if loan.loan_type == 'personal':
+                loan.interest_rate = 12.0  # 12% for personal loans
+            elif loan.loan_type == 'business':
+                loan.interest_rate = 10.0  # 10% for business loans
+            elif loan.loan_type == 'emergency':
+                loan.interest_rate = 15.0  # 15% for emergency loans
+            else:  # education
+                loan.interest_rate = 8.0   # 8% for education loans
+                
+            loan.save()
+            
+            # Create notification for admin
+            Notification.objects.create(
+                user=request.user,
+                notification_type="Loan Application",
+                amount=loan.amount,
+                message=f"New loan application for {loan.amount}"
+            )
+            
+            messages.success(request, "Loan application submitted successfully!")
+            return redirect('core:loan-status')
     else:
         form = LoanApplicationForm()
     
     context = {
         'form': form,
-        'eligibility': eligibility,
-        'savings_balance': account.account_balance,
-        'max_auto_approval': account.account_balance * 3,
+        'active_loans': LoanApplication.objects.filter(user=request.user, is_active=True).count(),
+        'total_loans': LoanApplication.objects.filter(user=request.user).count(),
     }
     return render(request, 'loan/apply.html', context)
 
 @login_required
 def loan_status(request):
     loans = LoanApplication.objects.filter(user=request.user).order_by('-date_applied')
-    
-    # Calculate repayment progress for each loan
-    for loan in loans:
-        loan.total_paid = loan.repayments.aggregate(Sum('amount'))['amount__sum'] or 0
-        loan.remaining_balance = loan.total_repayment - loan.total_paid
-        loan.progress = min(100, (loan.total_paid / loan.total_repayment * 100)) if loan.total_repayment else 0
-    
     context = {
-        'loans': loans,
-        'active_loan': loans.filter(status__in=['approved', 'disbursed']).first()
+        'loans': loans
     }
     return render(request, 'loan/status.html', context)
 
@@ -132,75 +106,69 @@ def loan_detail(request, loan_id):
 @login_required
 def repay_loan(request, loan_id):
     loan = get_object_or_404(LoanApplication, id=loan_id, user=request.user)
+    account = request.user.account
     
     if loan.status not in ['approved', 'disbursed']:
         messages.error(request, "This loan is not currently active for repayment")
-        return redirect('core:loan-status')
+        return redirect('core:loan-detail', loan_id=loan.id)
     
-    total_paid = loan.repayments.aggregate(Sum('amount'))['amount__sum'] or 0
-    remaining_balance = loan.total_repayment - total_paid
+    # Calculate repayment details
+    repayments = loan.repayments.all()
+    total_paid = repayments.aggregate(Sum('amount'))['amount__sum'] or 0
+    balance = loan.total_repayment - total_paid
     
     if request.method == 'POST':
         form = LoanRepaymentForm(request.POST)
         if form.is_valid():
-            amount = form.cleaned_data['amount']
             payment_method = form.cleaned_data['payment_method']
+            amount = form.cleaned_data['amount']
             
-            if amount > remaining_balance:
-                messages.error(request, f"Amount cannot exceed remaining balance of UGX {remaining_balance:,.0f}")
+            if amount > balance:
+                messages.error(request, f"Amount cannot exceed remaining balance of UGX {balance}")
                 return redirect('core:repay-loan', loan_id=loan.id)
             
-            try:
-                with transaction.atomic():
-                    # Process payment based on method
-                    if payment_method == 'wallet':
-                        if request.user.account.account_balance < amount:
-                            raise ValidationError("Insufficient funds in your wallet")
-                        request.user.account.account_balance -= amount
-                        request.user.account.save()
-                    
-                    # Create repayment record
-                    repayment = LoanRepayment.objects.create(
-                        loan=loan,
-                        amount=amount,
-                        payment_method=payment_method
-                    )
-                    
-                    # Create transaction record
-                    transaction = Transaction.objects.create(
-                        user=request.user,
-                        amount=amount,
-                        transaction_type="loan_repayment",
-                        status="completed",
-                        description=f"Loan repayment via {payment_method}"
-                    )
-                    repayment.transaction = transaction
-                    repayment.save()
-                    
-                    # Check if loan is fully paid
-                    new_total_paid = loan.repayments.aggregate(Sum('amount'))['amount__sum'] or 0
-                    if new_total_paid >= loan.total_repayment:
-                        loan.status = 'completed'
-                        loan.date_completed = timezone.now()
-                        loan.save()
-                        messages.success(request, "Congratulations! Your loan has been fully repaid!")
-                    else:
-                        messages.success(request, f"Payment of UGX {amount:,.0f} received successfully")
-                    
-                    return redirect('core:loan-detail', loan_id=loan.id)
-            except Exception as e:
-                messages.error(request, f"Payment failed: {str(e)}")
+            # Handle different payment methods
+            if payment_method == 'wallet':
+                if account.account_balance < amount:
+                    messages.error(request, "Insufficient funds in your wallet")
+                    return redirect('core:repay-loan', loan_id=loan.id)
+                
+                # Deduct from account
+                account.account_balance -= amount
+                account.save()
+                
+                # Create repayment record
+                repayment = process_loan_repayment(loan, amount, account, "wallet")
+                
+                messages.success(request, "Loan repayment from wallet successful!")
+                return redirect('core:loan-detail', loan_id=loan.id)
+            
+            elif payment_method == 'mobile_money':
+                # Redirect to mobile money payment
+                return redirect('core:mobile-money-payment', 
+                             loan_id=loan.id,
+                             amount=amount,
+                             payment_type='loan_repayment')
+            
+            elif payment_method == 'card':
+                # Redirect to card payment
+                return redirect('core:card-payment', 
+                             loan_id=loan.id,
+                             amount=amount,
+                             payment_type='loan_repayment')
+    
     else:
-        # Suggest either monthly payment or remaining balance
-        suggested_amount = min(loan.monthly_repayment, remaining_balance)
+        # Suggest either the monthly payment or the remaining balance, whichever is smaller
+        suggested_amount = min(loan.monthly_repayment, balance)
         form = LoanRepaymentForm(initial={'amount': suggested_amount})
     
     context = {
         'loan': loan,
         'form': form,
         'total_paid': total_paid,
-        'remaining_balance': remaining_balance,
+        'balance': balance,
         'monthly_repayment': loan.monthly_repayment,
+        'next_payment_due': calculate_next_payment_date(loan),
     }
     return render(request, 'loan/repay.html', context)
 
