@@ -6,182 +6,121 @@
     <div class="overlay pt-120">
         <div class="container-fruid">
             <div class="row">
-                <div class="col-xl-12">
+                <div class="col-xl-8">
                     <div class="section-content">
                         <div class="transactions-area">
                             <div class="section-text">
-                                <div class="d-flex justify-content-between align-items-center">
+                                <h5>Repay Loan #{{ loan.id }}</h5>
+                                <p>{{ loan.get_loan_type_display }} - {{ loan.get_status_display }}</p>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <div class="d-flex justify-content-between">
                                     <div>
-                                        <h5>Loan Repayment</h5>
-                                        <p class="mdr">Repay your loan #{{ loan.id }}</p>
+                                        <strong>Total Repayment:</strong> UGX {{ loan.total_repayment|intcomma }}
                                     </div>
-                                    <span class="badge bg-{% if loan.status == 'active' %}success{% else %}secondary{% endif %}">
-                                        {{ loan.get_status_display }}
-                                    </span>
+                                    <div>
+                                        <strong>Remaining:</strong> UGX {{ remaining_balance|intcomma }}
+                                    </div>
                                 </div>
                             </div>
                             
-                            <div class="row mt-4">
-                                <div class="col-lg-8">
-                                    <div class="card repayment-card">
-                                        <div class="card-body">
-                                            <h6 class="card-title">Make Payment</h6>
-                                            <form method="POST" action="{% url 'core:repay-loan' loan.id %}">
-                                                {% csrf_token %}
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label>Loan Amount</label>
-                                                            <input type="text" class="form-control" value="UGX {{ loan.amount|intcomma }}" readonly>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label>Interest Rate</label>
-                                                            <input type="text" class="form-control" value="{{ loan.interest_rate }}%" readonly>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label>Amount Due</label>
-                                                            <input type="text" class="form-control" value="UGX {{ loan.total_repayment|intcomma }}" readonly>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label>Amount Paid</label>
-                                                            <input type="text" class="form-control text-success" value="UGX {{ total_paid|intcomma }}" readonly>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-12 mt-3">
-                                                        <div class="form-group">
-                                                            <label for="repayment_amount">Payment Amount (UGX)</label>
-                                                            <input type="number" name="amount" id="repayment_amount" 
-                                                                   class="form-control" required 
-                                                                   min="1000" max="{{ balance }}"
-                                                                   placeholder="Enter amount to pay">
-                                                            <small class="form-text text-muted">
-                                                                Minimum payment: UGX 1,000 | Remaining balance: UGX {{ balance|intcomma }}
-                                                            </small>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-12 mt-3">
-                                                        <div class="form-group">
-                                                            <label for="payment_method">Payment Method</label>
-                                                            <select name="payment_method" id="payment_method" class="form-control" required>
-                                                                <option value="">Select payment method</option>
-                                                                <option value="mobile_money">Mobile Money</option>
-                                                                <option value="bank_transfer">Bank Transfer</option>
-                                                                <option value="card">Credit/Debit Card</option>
-                                                                <option value="wallet">Wallet Balance</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-12 mt-4">
-                                                        <button type="submit" class="cmn-btn w-100" {% if loan.status != 'active' %}disabled{% endif %}>
-                                                            <i class="fas fa-money-bill-wave me-2"></i> Make Payment
-                                                        </button>
-                                                    </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">Make Payment</h6>
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <label>Amount (UGX)</label>
+                                                    {{ form.amount }}
+                                                    <small class="form-text text-muted">
+                                                        Minimum: UGX 1,000 | Suggested: UGX {{ loan.monthly_repayment|intcomma }}
+                                                    </small>
                                                 </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-4">
-                                    <div class="card summary-card">
-                                        <div class="card-body">
-                                            <h6 class="card-title">Loan Summary</h6>
-                                            <ul class="list-group list-group-flush">
-                                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <span>Loan Type:</span>
-                                                    <strong>{{ loan.get_loan_type_display }}</strong>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <span>Applied On:</span>
-                                                    <strong>{{ loan.date_applied|date:"M d, Y" }}</strong>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <span>Duration:</span>
-                                                    <strong>{{ loan.duration_months }} months</strong>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <span>Total Repayment:</span>
-                                                    <strong>UGX {{ loan.total_repayment|intcomma }}</strong>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <span>Amount Paid:</span>
-                                                    <strong class="text-success">UGX {{ total_paid|intcomma }}</strong>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <span>Remaining Balance:</span>
-                                                    <strong class="text-danger">UGX {{ balance|intcomma }}</strong>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="card mt-4">
-                                        <div class="card-body">
-                                            <h6 class="card-title">Next Payment Due</h6>
-                                            {% if next_payment %}
-                                            <div class="alert alert-info">
-                                                <p class="mb-1"><strong>Amount:</strong> UGX {{ next_payment.amount|intcomma }}</p>
-                                                <p class="mb-0"><strong>Due Date:</strong> {{ next_payment.due_date|date:"M d, Y" }}</p>
                                             </div>
-                                            {% else %}
-                                            <div class="alert alert-success">
-                                                No upcoming payments
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <label>Payment Method</label>
+                                                    {{ form.payment_method }}
+                                                </div>
                                             </div>
-                                            {% endif %}
+                                            <div class="col-12">
+                                                <button type="submit" class="cmn-btn w-100">
+                                                    <i class="fas fa-money-bill-wave me-2"></i> Confirm Payment
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </form>
                                 </div>
                             </div>
                             
-                            <div class="row mt-4">
-                                <div class="col-12">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h6 class="card-title">Recent Payments</h6>
-                                            {% if repayments %}
-                                            <div class="table-responsive">
-                                                <table class="table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Date</th>
-                                                            <th>Amount</th>
-                                                            <th>Method</th>
-                                                            <th>Status</th>
-                                                            <th>Reference</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {% for payment in repayments %}
-                                                        <tr>
-                                                            <td>{{ payment.payment_date|date:"M d, Y" }}</td>
-                                                            <td>UGX {{ payment.amount|intcomma }}</td>
-                                                            <td>{{ payment.get_payment_method_display }}</td>
-                                                            <td>
-                                                                <span class="badge bg-{% if payment.is_paid %}success{% else %}warning{% endif %}">
-                                                                    {% if payment.is_paid %}Paid{% else %}Pending{% endif %}
-                                                                </span>
-                                                            </td>
-                                                            <td><small>{{ payment.transaction.transaction_id|default:"—" }}</small></td>
-                                                        </tr>
-                                                        {% endfor %}
-                                                    </tbody>
-                                                </table>
+                            {% if next_payment %}
+                            <div class="card mt-4">
+                                <div class="card-body">
+                                    <h6 class="card-title">Next Payment Due</h6>
+                                    <div class="alert alert-warning">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <strong>Amount:</strong> UGX {{ next_payment.amount|intcomma }}
                                             </div>
-                                            {% else %}
-                                            <div class="empty-state text-center py-4">
-                                                <i class="fas fa-money-bill-wave fa-3x text-muted mb-3"></i>
-                                                <p class="text-muted">No payments made yet</p>
+                                            <div>
+                                                <strong>Due Date:</strong> {{ next_payment.due_date|date:"M d, Y" }}
                                             </div>
-                                            {% endif %}
                                         </div>
                                     </div>
+                                    <button class="btn btn-sm btn-outline-primary w-100" 
+                                            onclick="document.getElementById('id_amount').value='{{ next_payment.amount|floatformat:0 }}'">
+                                        Pay Full Amount Due
+                                    </button>
                                 </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-4">
+                    <div class="sidebar-right">
+                        <div class="transactions-sidebar">
+                            <div class="section-text">
+                                <h5>Payment History</h5>
+                                <p>Last 5 payments</p>
+                            </div>
+                            <div class="sidebar-content">
+                                {% if repayments %}
+                                <ul class="payment-history">
+                                    {% for payment in repayments %}
+                                    <li>
+                                        <div class="d-flex justify-content-between">
+                                            <span>{{ payment.payment_date|date:"M d" }}</span>
+                                            <span class="text-success">UGX {{ payment.amount|intcomma }}</span>
+                                        </div>
+                                        <small class="text-muted">{{ payment.get_payment_method_display }}</small>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                                {% else %}
+                                <div class="empty-state">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    <p>No payments made yet</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="transactions-sidebar mt-4">
+                            <div class="section-text">
+                                <h5>Quick Actions</h5>
+                            </div>
+                            <div class="sidebar-content">
+                                <a href="{% url 'core:loan-detail' loan.id %}" class="btn btn-outline-secondary w-100 mb-2">
+                                    <i class="fas fa-info-circle me-2"></i> View Loan Details
+                                </a>
+                                <a href="{% url 'core:repayment-history' %}" class="btn btn-outline-secondary w-100">
+                                    <i class="fas fa-history me-2"></i> Full Payment History
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -195,91 +134,28 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Validate payment amount
-    const amountInput = document.getElementById('repayment_amount');
-    const maxAmount = parseFloat("{{ balance }}");
+    // Auto-fill amount field with suggested payment
+    document.getElementById('suggest-full').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('id_amount').value = '{{ loan.monthly_repayment|floatformat:0 }}';
+    });
     
-    amountInput.addEventListener('input', function() {
-        const amount = parseFloat(this.value);
+    document.getElementById('suggest-balance').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('id_amount').value = '{{ remaining_balance|floatformat:0 }}';
+    });
+    
+    // Validate amount before submission
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const amount = parseFloat(document.getElementById('id_amount').value);
+        const remaining = parseFloat('{{ remaining_balance }}');
         
-        if (amount > maxAmount) {
-            this.setCustomValidity(`Amount cannot exceed UGX ${maxAmount.toLocaleString()}`);
-        } else if (amount < 1000) {
-            this.setCustomValidity('Minimum payment is UGX 1,000');
-        } else {
-            this.setCustomValidity('');
+        if (amount > remaining) {
+            e.preventDefault();
+            alert('Payment amount cannot exceed remaining balance of UGX ' + remaining.toLocaleString());
         }
     });
-    
-    // Show payment method details based on selection
-    const paymentMethod = document.getElementById('payment_method');
-    paymentMethod.addEventListener('change', function() {
-        // You could add additional logic here to show/hide fields based on payment method
-        console.log('Selected payment method:', this.value);
-    });
-    
-    // Disable form if loan is not active
-    {% if loan.status != 'active' %}
-    document.querySelector('form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        alert('This loan is not currently active and cannot be repaid.');
-    });
-    {% endif %}
 });
 </script>
 {% endblock %}
-
-
-
-
-<!-- 
-<section class="dashboard-section body-collapse">
-    <div class="overlay pt-120">
-        <div class="container-fruid">
-            <div class="row justify-content-center">
-                <div class="col-xl-6">
-                    <div class="section-content">
-                        <div class="transactions-area">
-                            <div class="section-text text-center">
-                                <h5>Loan Repayment</h5>
-                                <p>Payment for {{ loan.get_loan_type_display }}</p>
-                            </div>
-                            <div class="payment-details">
-                                <div class="detail-item">
-                                    <span>Monthly Payment:</span>
-                                    <span>UGX {{ monthly_repayment|intcomma }}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span>Remaining Balance:</span>
-                                    <span class="text-danger">UGX {{ loan.total_repayment|intcomma }}</span>
-                                </div>
-                            </div>
-                            <form method="POST" class="repay-form">
-                                {% csrf_token %}
-                                <div class="single-input">
-                                    <label>Enter Amount (UGX)</label>
-                                    <input type="number" 
-                                           name="amount" 
-                                           class="form-control"
-                                           required
-                                           min="1000" 
-                                           max="{{ loan.total_repayment }}"
-                                           step="1000">
-                                </div>
-                                <div class="button-group">
-                                    <button type="submit" class="cmn-btn w-100">Confirm Payment</button>
-                                    <button type="button" 
-                                            class="cmn-btn outline-btn w-100 mt-3"
-                                            onclick="document.querySelector('[name=amount]').value = '{{ monthly_repayment|floatformat:0 }}'">
-                                        Pay Full Monthly Amount
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
--->

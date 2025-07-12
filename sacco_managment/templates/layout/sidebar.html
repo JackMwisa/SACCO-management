@@ -224,7 +224,11 @@
                             <li><a href="{% url 'core:loan-history' %}">Loan History</a></li>
                             <li><a href="{% url 'core:repayment-history' %}">Repayment History</a></li>
                             {% if active_loan %}
-                            <li><a href="{% url 'core:repay-loan' active_loan.id %}">Make Repayment</a></li>
+                            <li>
+                                <a href="{% url 'core:repay-loan' active_loan.id %}">
+                                    Make Repayment
+                                </a>
+                            </li>
                             {% endif %}
                         </ul>
                     </li>

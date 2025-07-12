@@ -1,9 +1,10 @@
 from django import forms
 from django.core.validators import MinValueValidator, MaxValueValidator
-from core.models import CreditCard, LoanApplication, PROVIDER_CHOICES, LoanRepayment
+from core.models import CreditCard, LoanApplication, LoanRepayment, Transaction
 from account.models import Account
 from django.utils import timezone
 from datetime import datetime
+from django.db.models import Sum
 import re
 
 
@@ -58,8 +59,7 @@ class CreditCardForm(forms.ModelForm):
     def clean_number(self):
         number = self.cleaned_data['number'].replace(" ", "")
         if not number.isdigit():
-            raise forms.ValidationError(
-                "Card number should contain only digits")
+            raise forms.ValidationError("Card number should contain only digits")
         if len(number) < 13 or len(number) > 19:
             raise forms.ValidationError("Invalid card number length")
         return number
@@ -87,6 +87,24 @@ class CreditCardForm(forms.ModelForm):
 
 
 class LoanApplicationForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Add real-time calculation attributes
+        self.fields['amount'].widget.attrs.update({
+            'oninput': 'calculateLoan()',
+            'id': 'loan-amount'
+        })
+        self.fields['duration_months'].widget.attrs.update({
+            'oninput': 'calculateLoan()',
+            'id': 'loan-duration'
+        })
+        self.fields['loan_type'].widget.attrs.update({
+            'onchange': 'calculateLoan()',
+            'id': 'loan-type'
+        })
+
     class Meta:
         model = LoanApplication
         fields = ['loan_type', 'amount', 'duration_months', 'purpose']
@@ -105,7 +123,8 @@ class LoanApplicationForm(forms.ModelForm):
             'purpose': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
-                'placeholder': 'Briefly explain the purpose of this loan'
+                'placeholder': 'Briefly explain the purpose of this loan (minimum 20 characters)',
+                'minlength': '20'
             }),
         }
 
@@ -114,16 +133,20 @@ class LoanApplicationForm(forms.ModelForm):
         if amount < 10000:  # Minimum loan amount
             raise forms.ValidationError("Minimum loan amount is UGX 10,000")
         if amount > 10000000:  # Maximum loan amount
-            raise forms.ValidationError(
-                "Maximum loan amount is UGX 10,000,000")
+            raise forms.ValidationError("Maximum loan amount is UGX 10,000,000")
         return amount
 
     def clean_duration_months(self):
         duration = self.cleaned_data.get('duration_months')
         if duration < 1 or duration > 24:  # Max 2 years
-            raise forms.ValidationError(
-                "Loan duration must be between 1 and 24 months")
+            raise forms.ValidationError("Loan duration must be between 1 and 24 months")
         return duration
+
+    def clean_purpose(self):
+        purpose = self.cleaned_data.get('purpose')
+        if len(purpose.strip()) < 20:
+            raise forms.ValidationError("Please provide a meaningful purpose (at least 20 characters)")
+        return purpose
 
 
 class LoanRepaymentForm(forms.Form):
@@ -141,7 +164,8 @@ class LoanRepaymentForm(forms.Form):
         widget=forms.NumberInput(attrs={
             'class': 'form-control',
             'placeholder': 'Enter amount to pay',
-            'step': '1000'
+            'step': '1000',
+            'id': 'repayment-amount'
         })
     )
     payment_method = forms.ChoiceField(
@@ -156,10 +180,11 @@ class LoanRepaymentForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         if self.loan:
-            # Set max amount to remaining balance
+            # Calculate remaining balance
             remaining_balance = self.loan.total_repayment - \
-                (self.loan.repayments.aggregate(
-                    Sum('amount'))['amount__sum'] or 0)
+                (self.loan.repayments.aggregate(Sum('amount'))['amount__sum'] or 0)
+            
+            # Set max amount to remaining balance
             self.fields['amount'].widget.attrs['max'] = remaining_balance
             self.fields['amount'].initial = min(
                 self.loan.monthly_repayment, remaining_balance)
@@ -181,10 +206,9 @@ class LoanRepaymentForm(forms.Form):
             raise forms.ValidationError("Amount must be greater than zero")
         if amount > remaining_balance:
             raise forms.ValidationError(
-                f"Amount cannot exceed remaining balance of UGX {remaining_balance:,.2f}")
+                f"Amount cannot exceed remaining balance of UGX {remaining_balance:,.0f}")
         if amount < 1000:
-            raise forms.ValidationError(
-                "Minimum repayment amount is UGX 1,000")
+            raise forms.ValidationError("Minimum repayment amount is UGX 1,000")
 
         return amount
 
@@ -193,7 +217,6 @@ class MobileMoneyDepositForm(forms.Form):
     PROVIDER_CHOICES = [
         ('MTN', 'MTN Mobile Money'),
         ('AIRTEL', 'Airtel Money'),
-        # ('ZAMTEL', 'Zamtel Kwacha'),
     ]
 
     amount = forms.DecimalField(
@@ -225,14 +248,18 @@ class MobileMoneyDepositForm(forms.Form):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
-        if self.user and hasattr(self.user, 'phone_number'):
-            self.fields['phone_number'].initial = self.user.phone_number
+        if self.user:
+            # Try to get phone number from user profile
+            phone_number = getattr(self.user, 'phone_number', None)
+            if not phone_number and hasattr(self.user, 'userprofile'):
+                phone_number = self.user.userprofile.phone_number
+            
+            if phone_number:
+                self.fields['phone_number'].initial = phone_number
 
     def clean_phone_number(self):
         phone = self.cleaned_data['phone_number'].strip()
-
-        # Remove any non-digit characters
-        phone = re.sub(r'[^0-9]', '', phone)
+        phone = re.sub(r'[^0-9]', '', phone)  # Remove non-digit characters
 
         # Validate Uganda phone numbers
         if not phone.startswith(('25677', '25678', '25676', '25675', '25670', '25671')):
@@ -252,8 +279,7 @@ class MobileMoneyDepositForm(forms.Form):
         if amount < 1000:
             raise forms.ValidationError("Minimum deposit amount is UGX 1,000")
         if amount > 5000000:
-            raise forms.ValidationError(
-                "Maximum single deposit is UGX 5,000,000")
+            raise forms.ValidationError("Maximum single deposit is UGX 5,000,000")
 
         # Check daily limit if user is provided
         if self.user:
@@ -268,17 +294,10 @@ class MobileMoneyDepositForm(forms.Form):
             if today_deposits + amount > 10000000:  # UGX 10M daily limit
                 remaining = 10000000 - today_deposits
                 raise forms.ValidationError(
-                    f"This deposit would exceed your daily limit. You can deposit up to UGX {remaining:,.2f} today"
+                    f"This deposit would exceed your daily limit. You can deposit up to UGX {remaining:,.0f} today"
                 )
 
         return amount
-    
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-        
-        if self.user and hasattr(self.user, 'userprofile'):
-            self.fields['phone_number'].initial = self.user.userprofile.phone_number
 
 
 class MobileMoneyWithdrawalForm(forms.Form):
@@ -312,8 +331,14 @@ class MobileMoneyWithdrawalForm(forms.Form):
         self.account = kwargs.pop('account', None)
         super().__init__(*args, **kwargs)
 
-        if self.user and hasattr(self.user, 'phone_number'):
-            self.fields['phone_number'].initial = self.user.phone_number
+        if self.user:
+            # Try to get phone number from user profile
+            phone_number = getattr(self.user, 'phone_number', None)
+            if not phone_number and hasattr(self.user, 'userprofile'):
+                phone_number = self.user.userprofile.phone_number
+            
+            if phone_number:
+                self.fields['phone_number'].initial = phone_number
 
     def clean_amount(self):
         amount = self.cleaned_data.get('amount')
@@ -322,14 +347,11 @@ class MobileMoneyWithdrawalForm(forms.Form):
             return amount
 
         if amount < 1000:
-            raise forms.ValidationError(
-                "Minimum withdrawal amount is UGX 1,000")
+            raise forms.ValidationError("Minimum withdrawal amount is UGX 1,000")
         if amount > 3000000:
-            raise forms.ValidationError(
-                "Maximum single withdrawal is UGX 3,000,000")
+            raise forms.ValidationError("Maximum single withdrawal is UGX 3,000,000")
         if amount > self.account.available_balance:
-            raise forms.ValidationError(
-                "Insufficient funds for this withdrawal")
+            raise forms.ValidationError("Insufficient funds for this withdrawal")
 
         # Check daily withdrawal limit
         today = timezone.now().date()
@@ -343,11 +365,10 @@ class MobileMoneyWithdrawalForm(forms.Form):
         if today_withdrawals + amount > 5000000:  # UGX 5M daily limit
             remaining = 5000000 - today_withdrawals
             raise forms.ValidationError(
-                f"This withdrawal would exceed your daily limit. You can withdraw up to UGX {remaining:,.2f} today"
+                f"This withdrawal would exceed your daily limit. You can withdraw up to UGX {remaining:,.0f} today"
             )
 
         return amount
 
     def clean_phone_number(self):
-        # Reuse the same validation as deposit form
         return MobileMoneyDepositForm.clean_phone_number(self)

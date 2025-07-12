@@ -108,67 +108,68 @@ def repay_loan(request, loan_id):
     loan = get_object_or_404(LoanApplication, id=loan_id, user=request.user)
     account = request.user.account
     
-    if loan.status not in ['approved', 'disbursed']:
+    if loan.status != 'approved':
         messages.error(request, "This loan is not currently active for repayment")
         return redirect('core:loan-detail', loan_id=loan.id)
     
     # Calculate repayment details
     repayments = loan.repayments.all()
     total_paid = repayments.aggregate(Sum('amount'))['amount__sum'] or 0
-    balance = loan.total_repayment - total_paid
+    remaining_balance = loan.total_repayment - total_paid
+    
+    # Get next payment due (if any)
+    next_payment = None
+    if loan.repayment_schedule.exists():
+        next_payment = loan.repayment_schedule.filter(paid=False).order_by('due_date').first()
     
     if request.method == 'POST':
-        form = LoanRepaymentForm(request.POST)
+        form = LoanRepaymentForm(request.POST, loan=loan, user=request.user)
         if form.is_valid():
+            amount = Decimal(form.cleaned_data['amount'])
             payment_method = form.cleaned_data['payment_method']
-            amount = form.cleaned_data['amount']
             
-            if amount > balance:
-                messages.error(request, f"Amount cannot exceed remaining balance of UGX {balance}")
+            if amount > remaining_balance:
+                messages.error(request, f"Amount cannot exceed remaining balance of UGX {remaining_balance:,.0f}")
                 return redirect('core:repay-loan', loan_id=loan.id)
             
-            # Handle different payment methods
             if payment_method == 'wallet':
                 if account.account_balance < amount:
                     messages.error(request, "Insufficient funds in your wallet")
                     return redirect('core:repay-loan', loan_id=loan.id)
                 
-                # Deduct from account
-                account.account_balance -= amount
-                account.save()
-                
-                # Create repayment record
-                repayment = process_loan_repayment(loan, amount, account, "wallet")
-                
-                messages.success(request, "Loan repayment from wallet successful!")
-                return redirect('core:loan-detail', loan_id=loan.id)
+                try:
+                    # Process repayment
+                    repayment = process_loan_repayment(loan, amount, account, "wallet")
+                    
+                    messages.success(request, f"Successfully paid UGX {amount:,.0f} from your wallet")
+                    return redirect('core:loan-detail', loan_id=loan.id)
+                except Exception as e:
+                    messages.error(request, f"Error processing payment: {str(e)}")
             
             elif payment_method == 'mobile_money':
-                # Redirect to mobile money payment
                 return redirect('core:mobile-money-payment', 
                              loan_id=loan.id,
-                             amount=amount,
+                             amount=float(amount),
                              payment_type='loan_repayment')
             
             elif payment_method == 'card':
-                # Redirect to card payment
                 return redirect('core:card-payment', 
                              loan_id=loan.id,
-                             amount=amount,
+                             amount=float(amount),
                              payment_type='loan_repayment')
-    
     else:
         # Suggest either the monthly payment or the remaining balance, whichever is smaller
-        suggested_amount = min(loan.monthly_repayment, balance)
-        form = LoanRepaymentForm(initial={'amount': suggested_amount})
+        suggested_amount = min(loan.monthly_repayment, remaining_balance)
+        form = LoanRepaymentForm(initial={'amount': suggested_amount}, loan=loan, user=request.user)
     
     context = {
         'loan': loan,
         'form': form,
         'total_paid': total_paid,
-        'balance': balance,
+        'remaining_balance': remaining_balance,
         'monthly_repayment': loan.monthly_repayment,
-        'next_payment_due': calculate_next_payment_date(loan),
+        'next_payment': next_payment,
+        'repayments': repayments.order_by('-payment_date')[:5]  # Show last 5 payments
     }
     return render(request, 'loan/repay.html', context)
 

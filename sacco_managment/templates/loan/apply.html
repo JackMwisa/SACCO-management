@@ -14,31 +14,45 @@
                                 <p>Fill in the details below to apply for a loan</p>
                             </div>
                             <div class="form-area">
-                                <form method="POST" class="needs-validation" novalidate>
+                                <form method="POST" id="loanApplicationForm" class="needs-validation" novalidate>
                                     {% csrf_token %}
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="single-input">
-                                                <label>Loan Type</label>
-                                                {{ form.loan_type }}
+                                                <label for="id_loan_type">Loan Type</label>
+                                                <select name="loan_type" id="id_loan_type" class="form-control" required>
+                                                    <option value="" selected disabled>Select loan type</option>
+                                                    <option value="personal">Personal Loan</option>
+                                                    <option value="business">Business Loan</option>
+                                                    <option value="emergency">Emergency Loan</option>
+                                                    <option value="education">Education Loan</option>
+                                                </select>
+                                                <div class="invalid-feedback">Please select a loan type</div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="single-input">
-                                                <label>Amount (UGX)</label>
-                                                {{ form.amount }}
+                                                <label for="id_amount">Amount (UGX)</label>
+                                                <input type="number" name="amount" id="id_amount" class="form-control" 
+                                                       placeholder="Amount in UGX" min="10000" max="10000000" required>
+                                                <div class="invalid-feedback">Amount must be between UGX 10,000 and 10,000,000</div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="single-input">
-                                                <label>Duration (Months)</label>
-                                                {{ form.duration_months }}
+                                                <label for="id_duration_months">Duration (Months)</label>
+                                                <input type="number" name="duration_months" id="id_duration_months" 
+                                                       class="form-control" min="1" max="24" required>
+                                                <div class="invalid-feedback">Duration must be 1-24 months</div>
                                             </div>
                                         </div>
                                         <div class="col-12">
                                             <div class="single-input">
-                                                <label>Loan Purpose</label>
-                                                {{ form.purpose }}
+                                                <label for="id_purpose">Loan Purpose (Minimum 20 characters)</label>
+                                                <textarea name="purpose" id="id_purpose" class="form-control" 
+                                                          rows="3" minlength="20" required></textarea>
+                                                <div class="invalid-feedback">Please provide a meaningful purpose (at least 20 characters)</div>
+                                                <small class="form-text text-muted">Explain how you'll use the funds</small>
                                             </div>
                                         </div>
                                         <div class="col-12">
@@ -63,18 +77,25 @@
                                 <ul class="loan-details">
                                     <li>
                                         <span>Monthly Payment:</span>
-                                        <strong id="monthly-payment">UGX 0.00</strong>
+                                        <strong id="monthly-payment">UGX 0</strong>
                                     </li>
                                     <li>
                                         <span>Total Repayment:</span>
-                                        <strong id="total-repayment">UGX 0.00</strong>
+                                        <strong id="total-repayment">UGX 0</strong>
                                     </li>
                                     <li>
                                         <span>Total Interest:</span>
-                                        <strong id="total-interest">UGX 0.00</strong>
+                                        <strong id="total-interest">UGX 0</strong>
+                                    </li>
+                                    <li>
+                                        <span>Interest Rate:</span>
+                                        <strong id="interest-rate">0%</strong>
                                     </li>
                                 </ul>
-                                <div class="rates-table">
+                                <div class="alert alert-info mt-3" id="calculation-note">
+                                    Enter loan details to see calculations
+                                </div>
+                                <div class="rates-table mt-3">
                                     <h6>Interest Rates</h6>
                                     <table class="table">
                                         <tbody>
@@ -105,61 +126,139 @@
         </div>
     </div>
 </section>
-
-<!-- Include the same JavaScript calculator from previous answer -->
 {% endblock %}
 
 {% block scripts %}
-<script src="{% static 'js/jquery.min.js' %}"></script>
-
 <script>
-    // Add real-time loan calculation
-    document.addEventListener('DOMContentLoaded', function() {
-        const amountInput = document.getElementById('id_amount');
-        const durationInput = document.getElementById('id_duration_months');
-        const loanTypeSelect = document.getElementById('id_loan_type');
-        
-        function calculateRepayment() {
-            const amount = parseFloat(amountInput.value) || 0;
-            const duration = parseInt(durationInput.value) || 1;
-            const rate = {
-                'personal': 12,
-                'business': 10,
-                'emergency': 15,
-                'education': 8
-            }[loanTypeSelect.value] || 12;
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('loanApplicationForm');
+    const amountInput = document.getElementById('id_amount');
+    const durationInput = document.getElementById('id_duration_months');
+    const loanTypeSelect = document.getElementById('id_loan_type');
+    const purposeInput = document.getElementById('id_purpose');
+    const calculationNote = document.getElementById('calculation-note');
     
+    // Format currency without decimal places
+    function formatCurrency(amount) {
+        return 'UGX ' + Math.round(amount).toLocaleString();
+    }
+    
+    function calculateRepayment() {
+        const amount = parseFloat(amountInput.value) || 0;
+        const duration = parseInt(durationInput.value) || 0;
+        const loanType = loanTypeSelect.value;
+        
+        const rates = {
+            'personal': 12,
+            'business': 10,
+            'emergency': 15,
+            'education': 8
+        };
+        
+        const rate = loanType ? rates[loanType] : 0;
+        
+        // Update interest rate display
+        document.getElementById('interest-rate').textContent = rate + '%';
+
+        // Validate inputs before calculation
+        const isValidAmount = amount >= 10000 && amount <= 10000000;
+        const isValidDuration = duration >= 1 && duration <= 24;
+        
+        if (isValidAmount && isValidDuration && rate > 0) {
             // Monthly interest rate
             const monthlyRate = rate / 100 / 12;
-    
+            
             // Calculate the monthly payment using the formula
             const numerator = monthlyRate * Math.pow(1 + monthlyRate, duration);
             const denominator = Math.pow(1 + monthlyRate, duration) - 1;
             const monthlyPayment = amount * (numerator / denominator);
-    
-            // If monthlyPayment is NaN or less than or equal to zero, default to 0
-            if (isNaN(monthlyPayment) || monthlyPayment <= 0) {
+            
+            if (!isNaN(monthlyPayment)) {
+                const totalRepayment = monthlyPayment * duration;
+                const totalInterest = totalRepayment - amount;
+                
+                // Update the UI with the calculated values
+                document.getElementById('monthly-payment').textContent = formatCurrency(monthlyPayment);
+                document.getElementById('total-repayment').textContent = formatCurrency(totalRepayment);
+                document.getElementById('total-interest').textContent = formatCurrency(totalInterest);
+                calculationNote.textContent = `You will pay ${formatCurrency(monthlyPayment)} monthly for ${duration} months`;
                 return;
             }
-    
-            const totalRepayment = monthlyPayment * duration; // Total repayment over the loan period
-            const totalInterest = totalRepayment - amount; // Total interest is the total repayment minus the principal amount
-    
-            // Update the UI with the calculated values
-            document.getElementById('monthly-payment').textContent = `UGX ${monthlyPayment.toFixed(2)}`;
-            document.getElementById('total-repayment').textContent = `UGX ${totalRepayment.toFixed(2)}`;
-            document.getElementById('total-interest').textContent = `UGX ${totalInterest.toFixed(2)}`;
         }
-    
-        // Listen for changes in the loan type, amount, or duration and recalculate
-        [amountInput, durationInput, loanTypeSelect].forEach(el => {
-            el.addEventListener('input', calculateRepayment);
-        });
         
-        // Initial calculation when the page is loaded
+        // Reset values if inputs are invalid
+        document.getElementById('monthly-payment').textContent = 'UGX 0';
+        document.getElementById('total-repayment').textContent = 'UGX 0';
+        document.getElementById('total-interest').textContent = 'UGX 0';
+        
+        if (!loanType) {
+            calculationNote.textContent = 'Select a loan type to see calculations';
+        } else if (!isValidAmount || !isValidDuration) {
+            calculationNote.textContent = 'Enter valid amount (10,000-10,000,000) and duration (1-24)';
+        } else {
+            calculationNote.textContent = 'Enter loan details to see calculations';
+        }
+    }
+    
+    // Validate purpose field
+    function validatePurpose() {
+        if (purposeInput.value.length < 20) {
+            purposeInput.classList.add('is-invalid');
+            return false;
+        }
+        purposeInput.classList.remove('is-invalid');
+        return true;
+    }
+    
+    // Event listeners for real-time calculation
+    amountInput.addEventListener('input', calculateRepayment);
+    durationInput.addEventListener('input', calculateRepayment);
+    loanTypeSelect.addEventListener('change', calculateRepayment);
+    purposeInput.addEventListener('input', validatePurpose);
+    
+    // Form submission handler
+    form.addEventListener('submit', function(event) {
+        // Validate all fields
+        if (!form.checkValidity() || !validatePurpose()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
+        form.classList.add('was-validated');
+        
+        // Ensure calculation is done before submitting
         calculateRepayment();
+        
+        // Check if values are still zero when trying to submit
+        const monthlyPayment = document.getElementById('monthly-payment').textContent;
+        if (monthlyPayment === 'UGX 0') {
+            event.preventDefault();
+            calculationNote.textContent = 'Please complete all fields correctly before submitting';
+            calculationNote.classList.add('alert-danger');
+        }
     });
-    </script>
-<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>    
+    
+    // Initial calculation when the page is loaded
+    calculateRepayment();
+});
+</script>
 
+<style>
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+.invalid-feedback {
+    display: none;
+    color: #dc3545;
+    font-size: 0.875em;
+}
+.is-invalid ~ .invalid-feedback {
+    display: block;
+}
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+</style>
 {% endblock %}
