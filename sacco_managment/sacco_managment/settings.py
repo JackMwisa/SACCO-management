@@ -150,6 +150,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'account.context_processors.admin_pending_count',
+              #  'core.context_processors.loan_context',
             ],
             'libraries': {
                 'custom_filters': 'financial_services.templatetags.custom_filters',
