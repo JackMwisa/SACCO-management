@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 import dj_database_url
 from dotenv import load_dotenv
+from datetime import timedelta
 
 
 load_dotenv() 
@@ -203,12 +204,25 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_TZ = True
+
+# SACCO Loan Settings
+MIN_LOAN_AMOUNT = 10000  # 10,000 UGX
+MAX_LOAN_DURATION = 24  # 24 months
+SACCO_INTEREST_RATE = 10.0  # 10% flat rate
+MIN_SAVINGS_FOR_LOAN = 50000  # 50,000 UGX
+MIN_MEMBERSHIP_DAYS = 90  # 3 months
+AUTO_APPROVAL_MULTIPLIER = 3  # Can borrow up to 3x savings balance automatically
+
+# Celery configuration for reminders
+CELERY_BEAT_SCHEDULE = {
+    'send-scheduled-notifications': {
+        'task': 'core.tasks.send_scheduled_notifications',
+        'schedule': timedelta(hours=3),
+    },
+}
 
 
 # Static files (CSS, JavaScript, Images)
