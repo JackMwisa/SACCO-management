@@ -2,6 +2,8 @@
 {% load static %}
 {% load humanize %}
 {% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
 <section class="dashboard-section body-collapse">
     <div class="overlay pt-120">
         <div class="container-fruid">
@@ -34,31 +36,89 @@
                                             <div class="single-input">
                                                 <label for="id_amount">Amount (UGX)</label>
                                                 <input type="number" name="amount" id="id_amount" class="form-control" 
-                                                       placeholder="Amount in UGX" min="10000" max="10000000" required>
-                                                <div class="invalid-feedback">Amount must be between UGX 10,000 and 10,000,000</div>
+                                                       placeholder="Amount in UGX" required>
+                                                <div class="invalid-feedback" id="amount-feedback">Please enter a valid amount</div>
+                                                <small class="form-text text-muted" id="amount-suggestion"></small>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="single-input">
                                                 <label for="id_duration_months">Duration (Months)</label>
-                                                <input type="number" name="duration_months" id="id_duration_months" 
-                                                       class="form-control" min="1" max="24" required>
-                                                <div class="invalid-feedback">Duration must be 1-24 months</div>
+                                                <select name="duration_months" id="id_duration_months" class="form-control" required>
+                                                    <option value="" selected disabled>Select duration</option>
+                                                    <option value="3">3 Months</option>
+                                                    <option value="6">6 Months</option>
+                                                    <option value="9">9 Months</option>
+                                                    <option value="12">12 Months</option>
+                                                    <option value="18">18 Months</option>
+                                                    <option value="24">24 Months</option>
+                                                </select>
+                                                <div class="invalid-feedback">Please select a duration</div>
                                             </div>
                                         </div>
                                         <div class="col-12">
                                             <div class="single-input">
-                                                <label for="id_purpose">Loan Purpose (Minimum 20 characters)</label>
+                                                <label for="id_purpose">Loan Purpose</label>
                                                 <textarea name="purpose" id="id_purpose" class="form-control" 
-                                                          rows="3" minlength="20" required></textarea>
-                                                <div class="invalid-feedback">Please provide a meaningful purpose (at least 20 characters)</div>
-                                                <small class="form-text text-muted">Explain how you'll use the funds</small>
+                                                          rows="3" minlength="30" required></textarea>
+                                                <div class="invalid-feedback">Please provide a meaningful purpose (at least 30 characters)</div>
+                                                <small class="form-text text-muted">Explain how you'll use the funds (minimum 30 characters)</small>
                                             </div>
                                         </div>
                                         <div class="col-12">
-                                            <button type="submit" class="cmn-btn w-100 mt-40">
-                                                Submit Application
+                                            <button type="button" id="previewBtn" class="cmn-btn w-100 mt-40" disabled>
+                                                Preview Loan Terms
                                             </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Confirmation Modal -->
+                                    <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="confirmationModalLabel">Confirm Loan Application</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="loan-summary-card">
+                                                        <div class="summary-header">
+                                                            <h6 id="modal-loan-type">Personal Loan</h6>
+                                                            <span class="badge bg-primary" id="modal-loan-duration">12 Months</span>
+                                                        </div>
+                                                        <div class="summary-body">
+                                                            <div class="summary-item">
+                                                                <span>Loan Amount:</span>
+                                                                <strong id="modal-loan-amount">UGX 1,000,000</strong>
+                                                            </div>
+                                                            <div class="summary-item">
+                                                                <span>Monthly Payment:</span>
+                                                                <strong id="modal-monthly-payment">UGX 88,849</strong>
+                                                            </div>
+                                                            <div class="summary-item">
+                                                                <span>Total Repayment:</span>
+                                                                <strong id="modal-total-repayment">UGX 1,066,188</strong>
+                                                            </div>
+                                                            <div class="summary-item">
+                                                                <span>Total Interest:</span>
+                                                                <strong id="modal-total-interest">UGX 66,188</strong>
+                                                            </div>
+                                                            <div class="summary-item">
+                                                                <span>Interest Rate:</span>
+                                                                <strong id="modal-interest-rate">12%</strong>
+                                                            </div>
+                                                        </div>
+                                                        <div class="alert alert-info mt-3">
+                                                            <i class="fas fa-info-circle me-2"></i>
+                                                            By submitting, you agree to repay this loan according to the terms above.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="button" id="confirmSubmitBtn" class="btn btn-primary">Submit Application</button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </form>
@@ -70,50 +130,60 @@
                     <div class="sidebar-right">
                         <div class="transactions-sidebar">
                             <div class="section-text">
-                                <h5>Loan Details</h5>
-                                <p>Calculation preview</p>
+                                <h5>Loan Calculation</h5>
+                                <p>Real-time preview</p>
                             </div>
                             <div class="sidebar-content">
-                                <ul class="loan-details">
-                                    <li>
-                                        <span>Monthly Payment:</span>
-                                        <strong id="monthly-payment">UGX 0</strong>
-                                    </li>
-                                    <li>
-                                        <span>Total Repayment:</span>
-                                        <strong id="total-repayment">UGX 0</strong>
-                                    </li>
-                                    <li>
-                                        <span>Total Interest:</span>
-                                        <strong id="total-interest">UGX 0</strong>
-                                    </li>
-                                    <li>
+                                <div class="calculation-card">
+                                    <div class="calculation-item">
+                                        <span>Loan Amount:</span>
+                                        <strong id="calc-amount">UGX 0</strong>
+                                    </div>
+                                    <div class="calculation-item">
+                                        <span>Duration:</span>
+                                        <strong id="calc-duration">0 Months</strong>
+                                    </div>
+                                    <div class="calculation-item">
                                         <span>Interest Rate:</span>
-                                        <strong id="interest-rate">0%</strong>
-                                    </li>
-                                </ul>
-                                <div class="alert alert-info mt-3" id="calculation-note">
-                                    Enter loan details to see calculations
+                                        <strong id="calc-rate">0%</strong>
+                                    </div>
+                                    <div class="calculation-divider"></div>
+                                    <div class="calculation-item highlight">
+                                        <span>Monthly Payment:</span>
+                                        <strong id="calc-monthly">UGX 0</strong>
+                                    </div>
+                                    <div class="calculation-item">
+                                        <span>Total Repayment:</span>
+                                        <strong id="calc-total">UGX 0</strong>
+                                    </div>
+                                    <div class="calculation-item">
+                                        <span>Total Interest:</span>
+                                        <strong id="calc-interest">UGX 0</strong>
+                                    </div>
+                                </div>
+                                <div class="alert alert-warning mt-3" id="calculation-note">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    Complete all fields to see calculation
                                 </div>
                                 <div class="rates-table mt-3">
-                                    <h6>Interest Rates</h6>
+                                    <h6>Loan Type Limits</h6>
                                     <table class="table">
                                         <tbody>
                                             <tr>
                                                 <td>Personal Loan</td>
-                                                <td class="text-end">12%</td>
+                                                <td class="text-end">UGX 100,000 - 5,000,000</td>
                                             </tr>
                                             <tr>
                                                 <td>Business Loan</td>
-                                                <td class="text-end">10%</td>
+                                                <td class="text-end">UGX 500,000 - 10,000,000</td>
                                             </tr>
                                             <tr>
                                                 <td>Emergency Loan</td>
-                                                <td class="text-end">15%</td>
+                                                <td class="text-end">UGX 50,000 - 2,000,000</td>
                                             </tr>
                                             <tr>
                                                 <td>Education Loan</td>
-                                                <td class="text-end">8%</td>
+                                                <td class="text-end">UGX 200,000 - 8,000,000</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -129,80 +199,188 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('loanApplicationForm');
     const amountInput = document.getElementById('id_amount');
-    const durationInput = document.getElementById('id_duration_months');
+    const durationSelect = document.getElementById('id_duration_months');
     const loanTypeSelect = document.getElementById('id_loan_type');
     const purposeInput = document.getElementById('id_purpose');
+    const previewBtn = document.getElementById('previewBtn');
     const calculationNote = document.getElementById('calculation-note');
+    const amountFeedback = document.getElementById('amount-feedback');
+    const amountSuggestion = document.getElementById('amount-suggestion');
+    const confirmationModalEl = document.getElementById('confirmationModal');
+    const confirmationModal = new bootstrap.Modal(confirmationModalEl);
+    
+    // Loan type configuration
+    const loanConfig = {
+        'personal': {
+            name: 'Personal Loan',
+            rate: 12,
+            minAmount: 100000,
+            maxAmount: 5000000,
+            suggestion: 'Suggested: UGX 300,000 - 1,500,000'
+        },
+        'business': {
+            name: 'Business Loan',
+            rate: 10,
+            minAmount: 500000,
+            maxAmount: 10000000,
+            suggestion: 'Suggested: UGX 1,000,000 - 5,000,000'
+        },
+        'emergency': {
+            name: 'Emergency Loan',
+            rate: 15,
+            minAmount: 50000,
+            maxAmount: 2000000,
+            suggestion: 'Suggested: UGX 100,000 - 1,000,000'
+        },
+        'education': {
+            name: 'Education Loan',
+            rate: 8,
+            minAmount: 200000,
+            maxAmount: 8000000,
+            suggestion: 'Suggested: UGX 500,000 - 3,000,000'
+        }
+    };
     
     // Format currency without decimal places
     function formatCurrency(amount) {
         return 'UGX ' + Math.round(amount).toLocaleString();
     }
     
-    function calculateRepayment() {
+    // Calculate monthly payment using loan amortization formula
+    function calculateMonthlyPayment(principal, annualRate, months) {
+        const monthlyRate = annualRate / 100 / 12;
+        const numerator = monthlyRate * Math.pow(1 + monthlyRate, months);
+        const denominator = Math.pow(1 + monthlyRate, months) - 1;
+        return principal * (numerator / denominator);
+    }
+    
+    // Update loan amount suggestions based on loan type
+    function updateAmountSuggestions() {
+        const loanType = loanTypeSelect.value;
+        if (loanType && loanConfig[loanType]) {
+            const config = loanConfig[loanType];
+            amountInput.min = config.minAmount;
+            amountInput.max = config.maxAmount;
+            amountSuggestion.textContent = config.suggestion + ` (Range: ${formatCurrency(config.minAmount)} - ${formatCurrency(config.maxAmount)})`;
+        } else {
+            amountSuggestion.textContent = '';
+        }
+    }
+    
+    // Validate amount input
+    function validateAmount() {
         const amount = parseFloat(amountInput.value) || 0;
-        const duration = parseInt(durationInput.value) || 0;
         const loanType = loanTypeSelect.value;
         
-        const rates = {
-            'personal': 12,
-            'business': 10,
-            'emergency': 15,
-            'education': 8
-        };
-        
-        const rate = loanType ? rates[loanType] : 0;
-        
-        // Update interest rate display
-        document.getElementById('interest-rate').textContent = rate + '%';
-
-        // Validate inputs before calculation
-        const isValidAmount = amount >= 10000 && amount <= 10000000;
-        const isValidDuration = duration >= 1 && duration <= 24;
-        
-        if (isValidAmount && isValidDuration && rate > 0) {
-            // Monthly interest rate
-            const monthlyRate = rate / 100 / 12;
-            
-            // Calculate the monthly payment using the formula
-            const numerator = monthlyRate * Math.pow(1 + monthlyRate, duration);
-            const denominator = Math.pow(1 + monthlyRate, duration) - 1;
-            const monthlyPayment = amount * (numerator / denominator);
-            
-            if (!isNaN(monthlyPayment)) {
-                const totalRepayment = monthlyPayment * duration;
-                const totalInterest = totalRepayment - amount;
-                
-                // Update the UI with the calculated values
-                document.getElementById('monthly-payment').textContent = formatCurrency(monthlyPayment);
-                document.getElementById('total-repayment').textContent = formatCurrency(totalRepayment);
-                document.getElementById('total-interest').textContent = formatCurrency(totalInterest);
-                calculationNote.textContent = `You will pay ${formatCurrency(monthlyPayment)} monthly for ${duration} months`;
-                return;
-            }
+        if (!loanType || !loanConfig[loanType]) {
+            amountFeedback.textContent = 'Please select a loan type first';
+            return false;
         }
         
-        // Reset values if inputs are invalid
-        document.getElementById('monthly-payment').textContent = 'UGX 0';
-        document.getElementById('total-repayment').textContent = 'UGX 0';
-        document.getElementById('total-interest').textContent = 'UGX 0';
+        const config = loanConfig[loanType];
+        if (amount < config.minAmount) {
+            amountFeedback.textContent = `Minimum amount for ${config.name} is ${formatCurrency(config.minAmount)}`;
+            return false;
+        }
         
-        if (!loanType) {
-            calculationNote.textContent = 'Select a loan type to see calculations';
-        } else if (!isValidAmount || !isValidDuration) {
-            calculationNote.textContent = 'Enter valid amount (10,000-10,000,000) and duration (1-24)';
+        if (amount > config.maxAmount) {
+            amountFeedback.textContent = `Maximum amount for ${config.name} is ${formatCurrency(config.maxAmount)}`;
+            return false;
+        }
+        
+        amountFeedback.textContent = '';
+        return true;
+    }
+    
+    // Update real-time calculation display
+    function updateCalculation() {
+        const amount = parseFloat(amountInput.value) || 0;
+        const duration = parseInt(durationSelect.value) || 0;
+        const loanType = loanTypeSelect.value;
+        const purpose = purposeInput.value.trim();
+        
+        // Validate inputs
+        const isValidAmount = validateAmount();
+        const isValidDuration = duration >= 3 && duration <= 24;
+        const isValidPurpose = purpose.length >= 30;
+        const isValidLoanType = loanType in loanConfig;
+        
+        // Enable/disable preview button based on validation
+        previewBtn.disabled = !(isValidAmount && isValidDuration && isValidPurpose && isValidLoanType);
+        
+        if (isValidAmount && isValidDuration && isValidLoanType) {
+            const config = loanConfig[loanType];
+            const monthlyPayment = calculateMonthlyPayment(amount, config.rate, duration);
+            const totalRepayment = monthlyPayment * duration;
+            const totalInterest = totalRepayment - amount;
+            
+            // Update calculation display
+            document.getElementById('calc-amount').textContent = formatCurrency(amount);
+            document.getElementById('calc-duration').textContent = duration + ' Months';
+            document.getElementById('calc-rate').textContent = config.rate + '%';
+            document.getElementById('calc-monthly').textContent = formatCurrency(monthlyPayment);
+            document.getElementById('calc-total').textContent = formatCurrency(totalRepayment);
+            document.getElementById('calc-interest').textContent = formatCurrency(totalInterest);
+            
+            // Update calculation note
+            calculationNote.classList.remove('alert-warning', 'alert-danger');
+            calculationNote.classList.add('alert-info');
+            calculationNote.innerHTML = `<i class="fas fa-check-circle me-2"></i> Ready to preview loan terms`;
+            
+            return {
+                amount,
+                duration,
+                loanType,
+                monthlyPayment,
+                totalRepayment,
+                totalInterest,
+                rate: config.rate
+            };
         } else {
-            calculationNote.textContent = 'Enter loan details to see calculations';
+            // Reset calculation display
+            document.getElementById('calc-amount').textContent = 'UGX 0';
+            document.getElementById('calc-duration').textContent = '0 Months';
+            document.getElementById('calc-rate').textContent = '0%';
+            document.getElementById('calc-monthly').textContent = 'UGX 0';
+            document.getElementById('calc-total').textContent = 'UGX 0';
+            document.getElementById('calc-interest').textContent = 'UGX 0';
+            
+            // Update calculation note with specific guidance
+            if (!isValidLoanType) {
+                calculationNote.classList.remove('alert-info', 'alert-danger');
+                calculationNote.classList.add('alert-warning');
+                calculationNote.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i> Select a loan type to continue`;
+            } else if (!isValidAmount) {
+                calculationNote.classList.remove('alert-info', 'alert-danger');
+                calculationNote.classList.add('alert-warning');
+                calculationNote.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i> ${amountFeedback.textContent}`;
+            } else if (!isValidDuration) {
+                calculationNote.classList.remove('alert-info', 'alert-danger');
+                calculationNote.classList.add('alert-warning');
+                calculationNote.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i> Select a duration between 3-24 months`;
+            } else if (!isValidPurpose) {
+                calculationNote.classList.remove('alert-info', 'alert-warning');
+                calculationNote.classList.add('alert-danger');
+                calculationNote.innerHTML = `<i class="fas fa-times-circle me-2"></i> Purpose must be at least 30 characters`;
+            } else {
+                calculationNote.classList.remove('alert-info', 'alert-danger');
+                calculationNote.classList.add('alert-warning');
+                calculationNote.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i> Complete all fields to see calculation`;
+            }
+            
+            return null;
         }
     }
     
     // Validate purpose field
     function validatePurpose() {
-        if (purposeInput.value.length < 20) {
+        const purpose = purposeInput.value.trim();
+        if (purpose.length < 30) {
             purposeInput.classList.add('is-invalid');
             return false;
         }
@@ -210,36 +388,56 @@ document.addEventListener('DOMContentLoaded', function() {
         return true;
     }
     
-    // Event listeners for real-time calculation
-    amountInput.addEventListener('input', calculateRepayment);
-    durationInput.addEventListener('input', calculateRepayment);
-    loanTypeSelect.addEventListener('change', calculateRepayment);
-    purposeInput.addEventListener('input', validatePurpose);
+    // Event listeners
+    loanTypeSelect.addEventListener('change', function() {
+        updateAmountSuggestions();
+        updateCalculation();
+    });
     
-    // Form submission handler
-    form.addEventListener('submit', function(event) {
-        // Validate all fields
-        if (!form.checkValidity() || !validatePurpose()) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-        
-        form.classList.add('was-validated');
-        
-        // Ensure calculation is done before submitting
-        calculateRepayment();
-        
-        // Check if values are still zero when trying to submit
-        const monthlyPayment = document.getElementById('monthly-payment').textContent;
-        if (monthlyPayment === 'UGX 0') {
-            event.preventDefault();
-            calculationNote.textContent = 'Please complete all fields correctly before submitting';
-            calculationNote.classList.add('alert-danger');
+    amountInput.addEventListener('input', updateCalculation);
+    durationSelect.addEventListener('change', updateCalculation);
+    purposeInput.addEventListener('input', function() {
+        validatePurpose();
+        updateCalculation();
+    });
+    
+    // Preview button click handler
+    previewBtn.addEventListener('click', function() {
+        const calculation = updateCalculation();
+        if (calculation) {
+            const config = loanConfig[calculation.loanType];
+            
+            // Update modal content
+            document.getElementById('modal-loan-type').textContent = config.name;
+            document.getElementById('modal-loan-duration').textContent = calculation.duration + ' Months';
+            document.getElementById('modal-loan-amount').textContent = formatCurrency(calculation.amount);
+            document.getElementById('modal-monthly-payment').textContent = formatCurrency(calculation.monthlyPayment);
+            document.getElementById('modal-total-repayment').textContent = formatCurrency(calculation.totalRepayment);
+            document.getElementById('modal-total-interest').textContent = formatCurrency(calculation.totalInterest);
+            document.getElementById('modal-interest-rate').textContent = config.rate + '%';
+            
+            // Show the modal
+            confirmationModal.show();
         }
     });
     
-    // Initial calculation when the page is loaded
-    calculateRepayment();
+    // Confirm submission button in modal
+    document.getElementById('confirmSubmitBtn').addEventListener('click', function() {
+        form.submit();
+    });
+    
+    // Form submission handler
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity() || !validatePurpose() || !validateAmount()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+    
+    // Initial setup
+    updateAmountSuggestions();
+    updateCalculation();
 });
 </script>
 
@@ -255,10 +453,102 @@ document.addEventListener('DOMContentLoaded', function() {
 .is-invalid ~ .invalid-feedback {
     display: block;
 }
+
+/* Additional styles for amount suggestions */
+#amount-suggestion {
+    color: #0d6efd;
+    font-weight: 500;
+}
+
+/* Highlight valid inputs */
+.is-valid {
+    border-color: #198754 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* Calculation card styles */
+.calculation-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+.calculation-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+.calculation-item.highlight {
+    font-weight: bold;
+    color: #0d6efd;
+}
+.calculation-divider {
+    height: 1px;
+    background: #ddd;
+    margin: 10px 0;
+}
+
+/* Summary card styles */
+.loan-summary-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid #eee;
+}
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+.summary-header h6 {
+    margin: 0;
+    font-weight: 600;
+}
+.summary-body {
+    padding: 10px 0;
+}
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+}
+
+/* Button styles */
+#previewBtn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* Alert styles */
+.alert-info {
+    background-color: #e7f5ff;
+    border-color: #d0ebff;
+    color: #1864ab;
+}
+.alert-warning {
+    background-color: #fff9db;
+    border-color: #ffec99;
+    color: #e67700;
+}
 .alert-danger {
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-    color: #721c24;
+    background-color: #fff5f5;
+    border-color: #ffc9c9;
+    color: #c92a2a;
+}
+
+/* Modal styles */
+.modal-backdrop {
+    z-index: 1040;
+}
+.modal {
+    z-index: 1050;
 }
 </style>
 {% endblock %}
