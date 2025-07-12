@@ -19,9 +19,11 @@
                                         <button onclick="window.print()" class="cmn-btn small-btn me-2">
                                             <i class="fas fa-print me-2"></i>Print
                                         </button>
-                                        <a href="#" class="cmn-btn small-btn">
-                                            <i class="fas fa-download me-2"></i>Statement
+                                        {% if loan.status == 'approved' or loan.status == 'disbursed' %}
+                                        <a href="{% url 'core:repay-loan' loan.id %}" class="cmn-btn small-btn">
+                                            <i class="fas fa-money-bill-wave me-2"></i>Repay Loan
                                         </a>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -60,7 +62,10 @@
                                             </li>
                                             <li>
                                                 <span>Remaining Balance:</span>
-                                                <span class="text-danger">UGX {{ balance|floatformat:0|intcomma }}</span>
+                                                <span class="{% if balance > 0 %}text-danger{% else %}text-success{% endif %}">
+                                                    UGX {{ balance|floatformat:0|intcomma }}
+                                                    {% if balance <= 0 %}(Cleared){% endif %}
+                                                </span>
                                             </li>
                                         </ul>
                                     </div>

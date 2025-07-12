@@ -20,11 +20,16 @@
                                         <strong>Total Repayment:</strong> UGX {{ loan.total_repayment|intcomma }}
                                     </div>
                                     <div>
-                                        <strong>Remaining:</strong> UGX {{ remaining_balance|intcomma }}
+                                        <strong>Remaining:</strong> 
+                                        <span class="{% if remaining_balance > 0 %}text-danger{% else %}text-success{% endif %}">
+                                            UGX {{ remaining_balance|intcomma }}
+                                            {% if remaining_balance <= 0 %}(Cleared){% endif %}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
                             
+                            {% if remaining_balance > 0 %}
                             <div class="card">
                                 <div class="card-body">
                                     <h6 class="card-title">Make Payment</h6>
@@ -34,7 +39,9 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <label>Amount (UGX)</label>
-                                                    {{ form.amount }}
+                                                    <input type="number" name="amount" class="form-control" 
+                                                           min="1000" step="1000" 
+                                                           value="{{ suggested_amount|floatformat:0 }}" required>
                                                     <small class="form-text text-muted">
                                                         Minimum: UGX 1,000 | Suggested: UGX {{ loan.monthly_repayment|intcomma }}
                                                     </small>
@@ -43,7 +50,11 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <label>Payment Method</label>
-                                                    {{ form.payment_method }}
+                                                    <select name="payment_method" class="form-control" required>
+                                                        <option value="wallet">Wallet Balance</option>
+                                                        <option value="mobile_money">Mobile Money</option>
+                                                        <option value="card">Credit/Debit Card</option>
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div class="col-12">
@@ -71,10 +82,16 @@
                                         </div>
                                     </div>
                                     <button class="btn btn-sm btn-outline-primary w-100" 
-                                            onclick="document.getElementById('id_amount').value='{{ next_payment.amount|floatformat:0 }}'">
+                                            onclick="document.querySelector('input[name=amount]').value='{{ next_payment.amount|floatformat:0 }}'">
                                         Pay Full Amount Due
                                     </button>
                                 </div>
+                            </div>
+                            {% endif %}
+                            {% else %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle me-2"></i>
+                                This loan has been fully repaid. No payment is required.
                             </div>
                             {% endif %}
                         </div>
@@ -134,28 +151,19 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-fill amount field with suggested payment
-    document.getElementById('suggest-full').addEventListener('click', function(e) {
-        e.preventDefault();
-        document.getElementById('id_amount').value = '{{ loan.monthly_repayment|floatformat:0 }}';
-    });
-    
-    document.getElementById('suggest-balance').addEventListener('click', function(e) {
-        e.preventDefault();
-        document.getElementById('id_amount').value = '{{ remaining_balance|floatformat:0 }}';
-    });
-    
     // Validate amount before submission
     const form = document.querySelector('form');
-    form.addEventListener('submit', function(e) {
-        const amount = parseFloat(document.getElementById('id_amount').value);
-        const remaining = parseFloat('{{ remaining_balance }}');
-        
-        if (amount > remaining) {
-            e.preventDefault();
-            alert('Payment amount cannot exceed remaining balance of UGX ' + remaining.toLocaleString());
-        }
-    });
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const amount = parseFloat(document.querySelector('input[name=amount]').value);
+            const remaining = parseFloat('{{ remaining_balance }}');
+            
+            if (amount > remaining) {
+                e.preventDefault();
+                alert('Payment amount cannot exceed remaining balance of UGX ' + remaining.toLocaleString());
+            }
+        });
+    }
 });
 </script>
 {% endblock %}
