@@ -80,7 +80,7 @@ urlpatterns = [
     path('loans/repayments/', repayment_history, name='repayment-history'),
     path('loans/<int:loan_id>/', loan_detail, name='loan-detail'),
     path('loans/<int:loan_id>/repay/', repay_loan, name='repay-loan'),
-
+    path('loan/reminders/', views.payment_reminders, name='payment-reminders'),
 
     #mobile money
     path('mobile-money/deposit/', views.mobile_money_deposit, name='mobile-money-deposit'),

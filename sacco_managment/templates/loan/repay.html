@@ -12,18 +12,27 @@
                             <div class="section-text">
                                 <h5>Repay Loan #{{ loan.id }}</h5>
                                 <p>{{ loan.get_loan_type_display }} - {{ loan.get_status_display }}</p>
+                                
+                                <div class="progress mb-3">
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="width: {{ payment_percentage }}%" 
+                                         aria-valuenow="{{ payment_percentage }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ payment_percentage }}% Paid
+                                    </div>
+                                </div>
                             </div>
                             
                             <div class="alert alert-info">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <strong>Total Repayment:</strong> UGX {{ loan.total_repayment|intcomma }}
+                                        <strong>Total Repayment:</strong> UGX {{ loan.total_repayment|floatformat:2|intcomma }}
                                     </div>
                                     <div>
                                         <strong>Remaining:</strong> 
                                         <span class="{% if remaining_balance > 0 %}text-danger{% else %}text-success{% endif %}">
-                                            UGX {{ remaining_balance|intcomma }}
-                                            {% if remaining_balance <= 0 %}(Cleared){% endif %}
+                                            UGX {{ remaining_balance|floatformat:2|intcomma }}
                                         </span>
                                     </div>
                                 </div>
@@ -40,10 +49,10 @@
                                                 <div class="form-group mb-3">
                                                     <label>Amount (UGX)</label>
                                                     <input type="number" name="amount" class="form-control" 
-                                                           min="1000" step="1000" 
-                                                           value="{{ suggested_amount|floatformat:0 }}" required>
+                                                           min="0.01" step="0.01" 
+                                                           value="{{ suggested_amount|floatformat:2 }}" required>
                                                     <small class="form-text text-muted">
-                                                        Minimum: UGX 1,000 | Suggested: UGX {{ loan.monthly_repayment|intcomma }}
+                                                        Enter any amount up to remaining balance
                                                     </small>
                                                 </div>
                                             </div>
@@ -51,7 +60,7 @@
                                                 <div class="form-group mb-3">
                                                     <label>Payment Method</label>
                                                     <select name="payment_method" class="form-control" required>
-                                                        <option value="wallet">Wallet Balance</option>
+                                                        <option value="wallet">Wallet Balance (UGX {{ request.user.account.account_balance|floatformat:2|intcomma }})</option>
                                                         <option value="mobile_money">Mobile Money</option>
                                                         <option value="card">Credit/Debit Card</option>
                                                     </select>
@@ -64,6 +73,18 @@
                                             </div>
                                         </div>
                                     </form>
+                                    
+                                    <!-- Quick payment buttons -->
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                onclick="document.querySelector('input[name=amount]').value='{{ loan.monthly_repayment|floatformat:2 }}'">
+                                            Pay Monthly (UGX {{ loan.monthly_repayment|floatformat:2|intcomma }})
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success" 
+                                                onclick="document.querySelector('input[name=amount]').value='{{ remaining_balance|floatformat:2 }}'">
+                                            Pay Full Balance
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -71,23 +92,23 @@
                             <div class="card mt-4">
                                 <div class="card-body">
                                     <h6 class="card-title">Next Payment Due</h6>
-                                    <div class="alert alert-warning">
+                                    <div class="alert {% if next_payment < current_date %}alert-danger{% else %}alert-warning{% endif %}">
                                         <div class="d-flex justify-content-between">
                                             <div>
-                                                <strong>Amount:</strong> UGX {{ next_payment.amount|intcomma }}
+                                                <strong>Amount:</strong> UGX {{ loan.monthly_repayment|floatformat:2|intcomma }}
                                             </div>
                                             <div>
-                                                <strong>Due Date:</strong> {{ next_payment.due_date|date:"M d, Y" }}
+                                                <strong>Due Date:</strong> {{ next_payment|date:"M d, Y" }}
+                                                {% if next_payment < current_date %}
+                                                <span class="badge bg-danger ms-2">{{ next_payment|timesince }} overdue</span>
+                                                {% endif %}
                                             </div>
                                         </div>
                                     </div>
-                                    <button class="btn btn-sm btn-outline-primary w-100" 
-                                            onclick="document.querySelector('input[name=amount]').value='{{ next_payment.amount|floatformat:0 }}'">
-                                        Pay Full Amount Due
-                                    </button>
                                 </div>
                             </div>
                             {% endif %}
+                            
                             {% else %}
                             <div class="alert alert-success">
                                 <i class="fas fa-check-circle me-2"></i>
@@ -98,6 +119,7 @@
                     </div>
                 </div>
                 
+                <!-- Payment history sidebar -->
                 <div class="col-xl-4">
                     <div class="sidebar-right">
                         <div class="transactions-sidebar">
@@ -106,18 +128,21 @@
                                 <p>Last 5 payments</p>
                             </div>
                             <div class="sidebar-content">
-                                {% if repayments %}
+                                {% if loan.repayments.all %}
                                 <ul class="payment-history">
-                                    {% for payment in repayments %}
+                                    {% for payment in loan.repayments.all|slice:":5" %}
                                     <li>
                                         <div class="d-flex justify-content-between">
-                                            <span>{{ payment.payment_date|date:"M d" }}</span>
-                                            <span class="text-success">UGX {{ payment.amount|intcomma }}</span>
+                                            <span>{{ payment.payment_date|date:"M d, Y" }}</span>
+                                            <span class="text-success">UGX {{ payment.amount|floatformat:2|intcomma }}</span>
                                         </div>
                                         <small class="text-muted">{{ payment.get_payment_method_display }}</small>
                                     </li>
                                     {% endfor %}
                                 </ul>
+                                <a href="{% url 'core:repayment-history' loan.id %}" class="btn btn-sm btn-outline-secondary w-100 mt-2">
+                                    View Full History
+                                </a>
                                 {% else %}
                                 <div class="empty-state">
                                     <i class="fas fa-money-bill-wave"></i>
@@ -127,17 +152,19 @@
                             </div>
                         </div>
                         
+                        <!-- Reminders section -->
                         <div class="transactions-sidebar mt-4">
                             <div class="section-text">
-                                <h5>Quick Actions</h5>
+                                <h5>Payment Reminders</h5>
                             </div>
                             <div class="sidebar-content">
-                                <a href="{% url 'core:loan-detail' loan.id %}" class="btn btn-outline-secondary w-100 mb-2">
-                                    <i class="fas fa-info-circle me-2"></i> View Loan Details
+                                <a href="{% url 'core:payment-reminders' %}" class="btn btn-outline-primary w-100 mb-2">
+                                    <i class="fas fa-bell me-2"></i> Manage Reminders
                                 </a>
-                                <a href="{% url 'core:repayment-history' %}" class="btn btn-outline-secondary w-100">
-                                    <i class="fas fa-history me-2"></i> Full Payment History
-                                </a>
+                                <p class="small text-muted">
+                                    You'll receive notifications 3 days before, 1 day before, 
+                                    and on the due date of each payment.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -151,6 +178,17 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Format amount input to show 2 decimal places
+    const amountInput = document.querySelector('input[name=amount]');
+    if (amountInput) {
+        amountInput.addEventListener('blur', function() {
+            const value = parseFloat(this.value);
+            if (!isNaN(value)) {
+                this.value = value.toFixed(2);
+            }
+        });
+    }
+    
     // Validate amount before submission
     const form = document.querySelector('form');
     if (form) {
@@ -158,9 +196,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const amount = parseFloat(document.querySelector('input[name=amount]').value);
             const remaining = parseFloat('{{ remaining_balance }}');
             
+            if (isNaN(amount) || amount <= 0) {
+                e.preventDefault();
+                alert('Please enter a valid payment amount');
+                return;
+            }
+            
             if (amount > remaining) {
                 e.preventDefault();
-                alert('Payment amount cannot exceed remaining balance of UGX ' + remaining.toLocaleString());
+                alert('Payment amount cannot exceed remaining balance of UGX ' + remaining.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
             }
         });
     }
