@@ -11,561 +11,169 @@
 {% block header_actions %}
 <div class="d-flex align-items-center gap-3">
     <div class="position-relative flex-grow-1" style="max-width: 400px;">
-        <input type="text" class="form-control form-control-lg ps-5" placeholder="Search KYC submissions..." id="kycSearch">
+        <input type="text" class="form-control form-control-lg ps-5" placeholder="Search KYC submissions...">
         <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
     </div>
     <div class="dropdown">
         <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="statusFilter" data-bs-toggle="dropdown">
-            <i class="fas fa-filter me-1"></i> Status: All
+            <i class="fas fa-filter me-1"></i> Status: Pending
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="#" data-status="pending">Pending Review</a></li>
-            <li><a class="dropdown-item" href="#" data-status="approved">Approved</a></li>
-            <li><a class="dropdown-item" href="#" data-status="rejected">Rejected</a></li>
-            <li><a class="dropdown-item active" href="#" data-status="all">All Submissions</a></li>
+            <li><a class="dropdown-item active" href="#">Pending Review</a></li>
+            <li><a class="dropdown-item" href="#">Approved</a></li>
+            <li><a class="dropdown-item" href="#">Rejected</a></li>
+            <li><a class="dropdown-item" href="#">All Submissions</a></li>
         </ul>
     </div>
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="row g-3" id="kycContainer">
-    {% for kyc in kyc_submissions %}
-        {% if not kyc.user.is_superuser %}  <!-- Exclude super admin accounts -->
-        <div class="col-xl-3 col-lg-4 col-md-6 kyc-card" data-status="{{ kyc.get_status_display|lower }}" data-id="{{ kyc.id }}">
+<div class="row g-4">
+    {% if pending_kyc %}
+        {% for kyc in pending_kyc %}
+        <div class="col-xl-4 col-lg-6 col-md-6">
             <div class="card h-100 border-0 shadow-sm overflow-hidden">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center border-0 py-2 px-3">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center border-0 py-3">
                     <div>
-                        {% if kyc.status == 'approved' %}
-                        <span class="badge bg-success-light text-success rounded-pill">
-                            <i class="fas fa-check-circle me-1"></i> Approved
-                        </span>
-                        {% elif kyc.status == 'rejected' %}
-                        <span class="badge bg-danger-light text-danger rounded-pill">
-                            <i class="fas fa-times-circle me-1"></i> Rejected
-                        </span>
-                        {% else %}
                         <span class="badge bg-warning-light text-warning rounded-pill">
-                            <i class="fas fa-clock me-1"></i> Pending
+                            <i class="fas fa-clock me-1"></i> Pending Review
                         </span>
-                        {% endif %}
-                        <small class="text-muted d-block mt-1">Submitted {{ kyc.created_at|timesince }} ago</small>
+                        <small class="text-muted d-block mt-1">Submitted {{ kyc.date|timesince }} ago</small>
                     </div>
                     <div class="dropdown">
                         <button class="btn btn-sm btn-light rounded-circle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{{ kyc.get_download_url }}"><i class="fas fa-download me-2"></i>Download Documents</a></li>
-                            <li><a class="dropdown-item" href="{{ kyc.user.get_profile_url }}"><i class="fas fa-user me-2"></i>View Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2"></i>Download Documents</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-link me-2"></i>View Member Profile</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ kyc.id }}"><i class="fas fa-trash-alt me-2"></i>Delete</a></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt me-2"></i>Delete Submission</a></li>
                         </ul>
                     </div>
                 </div>
-                <div class="card-body d-flex flex-column py-3 px-3">
-                    <div class="text-center mb-3">
-                        <div class="avatar-container position-relative mx-auto mb-2" style="width: 40px; height: 40px;">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="avatar avatar-xxl mb-3">
                             {% if kyc.image %}
-                                <img src="{{ kyc.image.url }}" class="rounded-circle border object-fit-cover w-100 h-100" alt="User Photo">
+                                <img src="{{ kyc.image.url }}" class="rounded-circle border" alt="User Photo">
                             {% else %}
-                                <div class="avatar-initials bg-primary text-white rounded-circle d-flex align-items-center justify-content-center w-100 h-100 fs-5">
+                                <div class="avatar-initials bg-primary text-white rounded-circle d-flex align-items-center justify-content-center">
                                     {{ kyc.get_initials }}
                                 </div>
                             {% endif %}
-                            <div class="position-absolute top-0 end-0 bg-white rounded-circle p-1 shadow-sm">
-                                {% if kyc.identity_verified %}
-                                    <i class="fas fa-check-circle text-success" style="font-size: 0.7rem;"></i>
-                                {% else %}
-                                    <i class="fas fa-exclamation-circle text-warning" style="font-size: 0.7rem;"></i>
-                                {% endif %}
-                            </div>
                         </div>
-                        <h6 class="mb-1">{{ kyc.full_name }}</h6>
+                        <h5 class="mb-1">{{ kyc.full_name }}</h5>
                         <div class="text-muted small">
-                            {{ kyc.get_identity_type_display }}: {{ kyc.identity_number|truncatechars:12 }}
+                            {{ kyc.get_identity_type_display }}: {{ kyc.identity_number }}
                         </div>
                     </div>
                     
-                    <div class="kyc-meta small mb-3">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="text-muted">Status:</span>
-                            <span class="fw-bold">
-                                {% if kyc.status == 'approved' %}
-                                    <span class="text-success">Active</span>
-                                {% elif kyc.status == 'rejected' %}
-                                    <span class="text-danger">Rejected</span>
-                                {% else %}
-                                    <span class="text-warning">Needs Approval</span>
-                                {% endif %}
-                            </span>
+                    <div class="kyc-details">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-circle bg-primary-light text-primary me-3">
+                                <i class="fas fa-venus-mars"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted">Gender</small>
+                                <div class="fw-bold">{{ kyc.get_gender_display }}</div>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="text-muted">Account:</span>
-                            <span class="fw-bold">
-                                {% if kyc.user.is_active %}
-                                    <span class="text-success">Active</span>
-                                {% else %}
-                                    <span class="text-secondary">Inactive</span>
-                                {% endif %}
-                            </span>
+                        
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-circle bg-success-light text-success me-3">
+                                <i class="fas fa-birthday-cake"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted">Date of Birth</small>
+                                <div class="fw-bold">{{ kyc.date_of_birth|date:"d M Y" }}</div>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Last Updated:</span>
-                            <span class="fw-bold">{{ kyc.updated_at|date:"M d, Y" }}</span>
+                        
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-circle bg-info-light text-info me-3">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted">Location</small>
+                                <div class="fw-bold">{{ kyc.city }}, {{ kyc.country }}</div>
+                            </div>
                         </div>
                     </div>
-
-                    <button class="btn btn-outline-primary btn-sm w-100 mb-2 view-details-btn" 
-                            data-kyc-id="{{ kyc.id }}"
-                            data-bs-toggle="modal" 
-                            data-bs-target="#detailModal">
-                        <i class="fas fa-eye me-1"></i> Details
-                    </button>
                 </div>
-                <div class="card-footer bg-white border-0 pt-0 pb-2 px-3">
-                    <div class="d-flex gap-2">
-                        {% if kyc.status != 'approved' %}
-                        <button class="btn btn-success btn-sm flex-grow-1 approve-btn" 
-                                type="button" 
-                                data-kyc-id="{{ kyc.id }}"
-                                data-user-name="{{ kyc.full_name }}">
-                            <i class="fas fa-check me-1"></i> Approve
-                        </button>
-                        {% endif %}
-                        
-                        {% if kyc.status != 'rejected' %}
-                        <button class="btn btn-danger btn-sm flex-grow-1 reject-btn" 
-                                type="button"
-                                data-kyc-id="{{ kyc.id }}"
-                                data-user-name="{{ kyc.full_name }}">
+                <div class="card-footer bg-white border-0 pt-0 pb-3">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button class="btn btn-danger me-md-2" type="button">
                             <i class="fas fa-times me-1"></i> Reject
                         </button>
-                        {% endif %}
+                        <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#approveModal{{ kyc.id }}">
+                            <i class="fas fa-check me-1"></i> Approve
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Delete Confirmation Modal -->
-        <div class="modal fade" id="deleteModal{{ kyc.id }}" tabindex="-1" aria-hidden="true">
+        <!-- Approve Confirmation Modal -->
+        <div class="modal fade" id="approveModal{{ kyc.id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Confirm Deletion</h5>
+                        <h5 class="modal-title">Confirm Approval</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <p>Are you sure you want to delete this KYC submission for <strong>{{ kyc.full_name }}</strong>?</p>
-                        <div class="alert alert-danger mt-3">
+                        <p>Are you sure you want to approve this KYC submission for <strong>{{ kyc.full_name }}</strong>?</p>
+                        <div class="alert alert-warning mt-3">
                             <i class="fas fa-exclamation-triangle me-2"></i>
-                            This action cannot be undone. All submitted documents will be permanently removed.
+                            This action cannot be undone. The member will gain full access to their account.
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-danger">Confirm Deletion</button>
+                        <button type="button" class="btn btn-success">Confirm Approval</button>
                     </div>
                 </div>
             </div>
         </div>
-        {% endif %}
-    {% empty %}
+        {% endfor %}
+    {% else %}
     <div class="col-12">
         <div class="card border-0 shadow-sm">
             <div class="card-body text-center py-5">
                 <div class="py-4">
-                    <i class="fas fa-folder-open fa-4x text-muted mb-4"></i>
-                    <h3>No KYC Submissions Found</h3>
-                    <p class="text-muted lead">There are currently no KYC documents to review.</p>
+                    <i class="fas fa-check-circle fa-4x text-success mb-4"></i>
+                    <h3>No Pending KYC Submissions</h3>
+                    <p class="text-muted lead">All KYC documents have been reviewed and processed.</p>
+                    <a href="#" class="btn btn-outline-primary">
+                        <i class="fas fa-history me-2"></i> View Approved Submissions
+                    </a>
                 </div>
             </div>
         </div>
     </div>
-    {% endfor %}
-</div>
-
-<!-- Detail View Modal -->
-<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">KYC Submission Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="kycDetailContent">
-                <!-- Content loaded via AJAX -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                <div id="modalActionButtons">
-                    <!-- Buttons will be inserted here -->
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Reject Reason Modal -->
-<div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Reject KYC Submission</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>You are about to reject the KYC submission for <strong id="rejectUserName"></strong>.</p>
-                <div class="mb-3">
-                    <label for="rejectReason" class="form-label">Reason for rejection</label>
-                    <select class="form-select" id="rejectReason">
-                        <option value="document_unclear">Document unclear or blurry</option>
-                        <option value="document_expired">Document expired</option>
-                        <option value="information_mismatch">Information mismatch</option>
-                        <option value="incomplete_document">Incomplete document</option>
-                        <option value="suspected_fraud">Suspected fraud</option>
-                        <option value="other">Other reason</option>
-                    </select>
-                </div>
-                <div class="mb-3" id="otherReasonContainer" style="display: none;">
-                    <label for="customReason" class="form-label">Please specify</label>
-                    <textarea class="form-control" id="customReason" rows="3"></textarea>
-                </div>
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    The member will be notified and asked to resubmit their documents.
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirmRejectBtn">Confirm Rejection</button>
-            </div>
-        </div>
-    </div>
+    {% endif %}
 </div>
 
 <style>
-    .avatar-container {
-        position: relative;
+    .icon-circle {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
     .avatar-initials {
+        width: 50%;
+        height: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 600;
-    }
-    
-    .object-fit-cover {
-        object-fit: cover;
-    }
-    
-    .kyc-card {
-        transition: transform 0.2s ease;
-    }
-    
-    .kyc-card:hover {
-        transform: translateY(-3px);
-    }
-    
-    .document-preview {
-        border: 1px solid #eee;
-        border-radius: 8px;
-        overflow: hidden;
-        height: 200px;
-        background-color: #f8f9fa;
-    }
-    
-    .document-preview img {
-        object-fit: contain;
-        width: 100%;
-        height: 100%;
-    }
-    
-    .kyc-meta {
-        background-color: #f9f9f9;
-        border-radius: 6px;
-        padding: 0.75rem;
+        font-size: 1.2rem;
     }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Filter functionality
-    document.querySelectorAll('[data-status]').forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const status = this.getAttribute('data-status');
-            document.getElementById('statusFilter').innerHTML = 
-                `<i class="fas fa-filter me-1"></i> Status: ${this.textContent.trim()}`;
-            
-            // Filter cards
-            document.querySelectorAll('.kyc-card').forEach(card => {
-                if (status === 'all' || card.getAttribute('data-status') === status) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-            
-            // Update active state in dropdown
-            document.querySelectorAll('.dropdown-item').forEach(li => {
-                li.classList.remove('active');
-            });
-            this.classList.add('active');
-        });
-    });
-    
-    // Search functionality
-    document.getElementById('kycSearch').addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        document.querySelectorAll('.kyc-card').forEach(card => {
-            const name = card.querySelector('h6').textContent.toLowerCase();
-            const idNumber = card.querySelector('.text-muted.small').textContent.toLowerCase();
-            if (name.includes(searchTerm) || idNumber.includes(searchTerm)) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    });
-    
-    // View details modal
-    document.querySelectorAll('.view-details-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const kycId = this.getAttribute('data-kyc-id');
-            const modal = document.getElementById('detailModal');
-            const content = document.getElementById('kycDetailContent');
-            const actionButtons = document.getElementById('modalActionButtons');
-            
-            // Show loading spinner
-            content.innerHTML = `
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-            `;
-            
-            // Simulate AJAX loading
-            setTimeout(() => {
-                const card = document.querySelector(`.kyc-card[data-id="${kycId}"]`);
-                const status = card.getAttribute('data-status');
-                
-                // Generate content
-                content.innerHTML = `
-                    <div class="row">
-                        <div class="col-md-4 text-center">
-                            <div class="avatar-container mb-4 mx-auto" style="width: 40px; height: 40px;">
-                                ${card.querySelector('.avatar-container').innerHTML}
-                            </div>
-                            <h4>${card.querySelector('h6').textContent}</h4>
-                            <p class="text-muted">${card.querySelector('.text-muted.small').textContent}</p>
-                            
-                            <div class="card mt-3">
-                                <div class="card-body">
-                                    <h6 class="card-title">Account Status</h6>
-                                    <div class="d-flex justify-content-between mb-2">
-                                        <span>KYC Status:</span>
-                                        <strong>
-                                            ${status === 'approved' ? '<span class="text-success">Approved</span>' : 
-                                              status === 'rejected' ? '<span class="text-danger">Rejected</span>' : 
-                                              '<span class="text-warning">Pending</span>'}
-                                        </strong>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span>Account Active:</span>
-                                        <strong>
-                                            ${card.querySelector('.kyc-meta').querySelectorAll('span')[3].innerHTML}
-                                        </strong>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-8">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Full Name</label>
-                                    <p class="form-control-static">${card.querySelector('h6').textContent}</p>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Date of Birth</label>
-                                    <p class="form-control-static">${card.querySelector('.kyc-meta').querySelectorAll('span')[5].textContent}</p>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Gender</label>
-                                    <p class="form-control-static">${card.querySelector('.kyc-meta').querySelectorAll('span')[1].textContent}</p>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Submitted On</label>
-                                    <p class="form-control-static">${card.querySelector('small').textContent.replace('ago', '').trim()}</p>
-                                </div>
-                            </div>
-                            
-                            <h5 class="mt-4 mb-3">Submitted Documents</h5>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <div class="document-preview">
-                                        <img src="https://via.placeholder.com/300x200?text=ID+Front" alt="ID Front">
-                                    </div>
-                                    <p class="text-center mt-2 small">ID Front</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="document-preview">
-                                        <img src="https://via.placeholder.com/300x200?text=ID+Back" alt="ID Back">
-                                    </div>
-                                    <p class="text-center mt-2 small">ID Back</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="document-preview">
-                                        <img src="https://via.placeholder.com/300x200?text=Selfie" alt="Selfie">
-                                    </div>
-                                    <p class="text-center mt-2 small">Selfie with ID</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="document-preview">
-                                        <img src="https://via.placeholder.com/300x200?text=Proof+of+Address" alt="Proof of Address">
-                                    </div>
-                                    <p class="text-center mt-2 small">Proof of Address</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                // Set up action buttons based on current status
-                actionButtons.innerHTML = '';
-                if (status !== 'approved') {
-                    actionButtons.innerHTML += `
-                        <button type="button" class="btn btn-success approve-btn" 
-                                data-kyc-id="${kycId}"
-                                data-user-name="${card.querySelector('h6').textContent}">
-                            <i class="fas fa-check me-1"></i> Approve
-                        </button>
-                    `;
-                }
-                if (status !== 'rejected') {
-                    actionButtons.innerHTML += `
-                        <button type="button" class="btn btn-danger ms-2 reject-btn" 
-                                data-kyc-id="${kycId}"
-                                data-user-name="${card.querySelector('h6').textContent}">
-                            <i class="fas fa-times me-1"></i> Reject
-                        </button>
-                    `;
-                }
-                
-                // Attach event listeners to new buttons
-                if (actionButtons.querySelector('.approve-btn')) {
-                    actionButtons.querySelector('.approve-btn').addEventListener('click', approveKYC);
-                }
-                if (actionButtons.querySelector('.reject-btn')) {
-                    actionButtons.querySelector('.reject-btn').addEventListener('click', showRejectModal);
-                }
-            }, 800);
-        });
-    });
-    
-    // Approve functionality
-    function approveKYC() {
-        const kycId = this.getAttribute('data-kyc-id');
-        const userName = this.getAttribute('data-user-name');
-        
-        if (confirm(`Are you sure you want to approve the KYC submission for ${userName}?`)) {
-            // In a real app, you would make an AJAX call here
-            console.log(`Approving KYC ${kycId}`);
-            
-            // Update UI
-            const card = document.querySelector(`.kyc-card[data-id="${kycId}"]`);
-            if (card) {
-                card.querySelector('.badge').className = 'badge bg-success-light text-success rounded-pill';
-                card.querySelector('.badge').innerHTML = '<i class="fas fa-check-circle me-1"></i> Approved';
-                card.setAttribute('data-status', 'approved');
-                
-                // Update status in card
-                card.querySelector('.kyc-meta').querySelectorAll('span')[1].innerHTML = '<span class="text-success">Active</span>';
-                
-                // Disable buttons
-                card.querySelectorAll('.approve-btn, .reject-btn').forEach(b => {
-                    b.disabled = true;
-                });
-            }
-            
-            // Close modal if approving from detail view
-            if (this.closest('.modal')) {
-                bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();
-            }
-            
-            // Show success message
-            alert('KYC submission approved successfully!');
-        }
-    }
-    
-    // Attach approve handlers
-    document.querySelectorAll('.approve-btn').forEach(btn => {
-        btn.addEventListener('click', approveKYC);
-    });
-    
-    // Reject functionality
-    function showRejectModal() {
-        const kycId = this.getAttribute('data-kyc-id');
-        const userName = this.getAttribute('data-user-name');
-        
-        document.getElementById('rejectUserName').textContent = userName;
-        const rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
-        rejectModal.show();
-        
-        // Store KYC ID on confirm button
-        document.getElementById('confirmRejectBtn').setAttribute('data-kyc-id', kycId);
-    }
-    
-    // Attach reject handlers
-    document.querySelectorAll('.reject-btn').forEach(btn => {
-        btn.addEventListener('click', showRejectModal);
-    });
-    
-    // Reject reason toggle
-    document.getElementById('rejectReason').addEventListener('change', function() {
-        const otherContainer = document.getElementById('otherReasonContainer');
-        otherContainer.style.display = this.value === 'other' ? 'block' : 'none';
-    });
-    
-    // Confirm rejection
-    document.getElementById('confirmRejectBtn').addEventListener('click', function() {
-        const kycId = this.getAttribute('data-kyc-id');
-        const reason = document.getElementById('rejectReason').value;
-        const customReason = document.getElementById('customReason').value;
-        
-        // In a real app, you would make an AJAX call here
-        console.log(`Rejecting KYC ${kycId} with reason: ${reason}`, customReason);
-        
-        // Update UI
-        const card = document.querySelector(`.kyc-card[data-id="${kycId}"]`);
-        if (card) {
-            card.querySelector('.badge').className = 'badge bg-danger-light text-danger rounded-pill';
-            card.querySelector('.badge').innerHTML = '<i class="fas fa-times-circle me-1"></i> Rejected';
-            card.setAttribute('data-status', 'rejected');
-            
-            // Update status in card
-            card.querySelector('.kyc-meta').querySelectorAll('span')[1].innerHTML = '<span class="text-danger">Rejected</span>';
-            
-            // Disable buttons
-            card.querySelectorAll('.approve-btn, .reject-btn').forEach(b => {
-                b.disabled = true;
-            });
-        }
-        
-        // Close modal
-        bootstrap.Modal.getInstance(document.getElementById('rejectModal')).hide();
-        
-        // Also close detail modal if open
-        const detailModal = bootstrap.Modal.getInstance(document.getElementById('detailModal'));
-        if (detailModal) {
-            detailModal.hide();
-        }
-        
-        // Show success message
-        alert('KYC submission rejected. The member has been notified.');
-    });
-});
-</script>
 {% endblock %}
