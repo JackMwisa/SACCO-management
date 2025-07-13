@@ -109,15 +109,37 @@ class LoanApplication(models.Model):
 
 
 class LoanRepayment(models.Model):
+    PAYMENT_METHODS = (
+        ('wallet', 'Wallet Balance'),
+        ('mobile_money', 'Mobile Money'),
+        ('card', 'Credit/Debit Card'),
+        ('bank', 'Bank Transfer'),
+    )
+    
+    PAYMENT_STATUS = (
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+    )
+    
+    
+    
     loan = models.ForeignKey(LoanApplication, on_delete=models.CASCADE, related_name='repayments')
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     payment_date = models.DateTimeField(auto_now_add=True)
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, default='wallet')
     transaction = models.ForeignKey('Transaction', on_delete=models.SET_NULL, null=True, blank=True)
+    status = models.CharField(max_length=20, choices=PAYMENT_STATUS, default='pending')
     is_paid = models.BooleanField(default=False)
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Only on creation
+            if self.payment_method == 'wallet':
+                self.status = 'completed'
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"Repayment for {self.loan} - {self.amount}"
-
 
 
 # loan model

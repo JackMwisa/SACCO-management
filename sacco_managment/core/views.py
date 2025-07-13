@@ -134,6 +134,7 @@ def loan_detail(request, loan_id):
 @login_required
 def repay_loan(request, loan_id):
     loan = get_object_or_404(LoanApplication, id=loan_id, user=request.user)
+    account = request.user.account  # Get the user's account
     
     if loan.status not in ['approved', 'disbursed']:
         messages.error(request, "This loan is not currently active for repayment")
@@ -153,33 +154,40 @@ def repay_loan(request, loan_id):
             if amount > remaining_balance:
                 raise ValidationError(f"Amount cannot exceed remaining balance of UGX {remaining_balance:,.2f}")
             
-            with db_transaction.atomic():
-                account = request.user.account
-                
+            with db_transaction.atomic():  # Ensure all operations succeed or fail together
                 # Process payment based on method
                 if payment_method == 'wallet':
                     if account.account_balance < amount:
                         raise ValidationError("Insufficient funds in your wallet")
+                    
+                    # DEDUCT FROM ACCOUNT - THIS WAS MISSING
                     account.account_balance -= amount
-                    account.save()
-                
-                # Create repayment record
-                repayment = LoanRepayment.objects.create(
-                    loan=loan,
-                    amount=amount,
-                    payment_method=payment_method
-                )
+                    account.save()  # MUST save the changes
+                    payment_status = 'completed'
+                else:
+                    payment_status = 'pending'
                 
                 # Create transaction record
                 transaction = Transaction.objects.create(
                     user=request.user,
                     amount=amount,
                     transaction_type="loan_repayment",
-                    status="completed",
-                    description=f"Loan repayment via {payment_method}"
+                    status=payment_status,
+                    description=f"Loan repayment via {payment_method}",
+                    sender=request.user,
+                    receiver=None,  # System account
+                    sender_account=account,
+                    receiver_account=None  # System account
                 )
-                repayment.transaction = transaction
-                repayment.save()
+                
+                # Create repayment record
+                repayment = LoanRepayment.objects.create(
+                    loan=loan,
+                    amount=amount,
+                    payment_method=payment_method,
+                    transaction=transaction,
+                    is_paid=(payment_status == 'completed')
+                )
                 
                 # Create notification
                 Notification.objects.create(
@@ -213,7 +221,8 @@ def repay_loan(request, loan_id):
         'remaining_balance': remaining_balance,
         'suggested_amount': suggested_amount,
         'next_payment': calculate_next_payment_date(loan),
-        'payment_percentage': round((total_paid / loan.total_repayment * 100), 2) if loan.total_repayment > 0 else 0
+        'payment_percentage': round((total_paid / loan.total_repayment * 100), 2) if loan.total_repayment > 0 else 0,
+        'current_date': timezone.now().date()
     })
     
     
@@ -331,9 +340,21 @@ def loan_history(request):
 
 #  All repayments (across all loans)
 @login_required
-def repayment_history(request):
-    repayments = LoanRepayment.objects.filter(loan__user=request.user).order_by('-payment_date')
-    return render(request, 'loan/repayment_history.html', {'repayments': repayments})
+def repayment_history(request, loan_id=None):
+    if loan_id:
+        # Specific loan repayment history
+        loan = get_object_or_404(LoanApplication, id=loan_id, user=request.user)
+        repayments = loan.repayments.all().order_by('-payment_date')
+    else:
+        # All repayments across all loans
+        repayments = LoanRepayment.objects.filter(
+            loan__user=request.user
+        ).order_by('-payment_date')
+    
+    return render(request, 'loan/repayment_history.html', {
+        'repayments': repayments,
+        'specific_loan': loan if loan_id else None
+    })
 
 
 

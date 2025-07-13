@@ -9,48 +9,204 @@
                 <div class="col-xl-10">
                     <div class="section-content">
                         <div class="transactions-area">
-                            <div class="section-text text-center mb-4">
-                                <h5>Loan Repayment History</h5>
-                                <p>Track your repayments across all loans</p>
+                            <div class="section-header d-flex justify-content-between align-items-center mb-4">
+                                <div class="section-text">
+                                    <h5>Loan Repayment History</h5>
+                                    <p class="mb-0">Track your repayments across all loans</p>
+                                </div>
+                                <div class="total-summary">
+                                    <div class="d-flex gap-3">
+                                        <div class="summary-card bg-primary">
+                                            <small>Total Paid</small>
+                                            <h4>UGX {{ total_paid|floatformat:2|intcomma }}</h4>
+                                        </div>
+                                        <div class="summary-card bg-secondary">
+                                            <small>Total Loans</small>
+                                            <h4>{{ loans_count }}</h4>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                            
+                            <div class="filters mb-3">
+                                <form method="GET" class="row g-3">
+                                    <div class="col-md-3">
+                                        <label for="loan_type" class="form-label">Loan Type</label>
+                                        <select name="loan_type" id="loan_type" class="form-select">
+                                            <option value="">All Types</option>
+                                            {% for type in loan_types %}
+                                            <option value="{{ type.0 }}" {% if request.GET.loan_type == type.0 %}selected{% endif %}>
+                                                {{ type.1 }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="status" class="form-label">Status</label>
+                                        <select name="status" id="status" class="form-select">
+                                            <option value="">All Statuses</option>
+                                            <option value="paid" {% if request.GET.status == 'paid' %}selected{% endif %}>Paid</option>
+                                            <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="date_from" class="form-label">From Date</label>
+                                        <input type="date" name="date_from" id="date_from" class="form-control" 
+                                               value="{{ request.GET.date_from }}">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="date_to" class="form-label">To Date</label>
+                                        <input type="date" name="date_to" id="date_to" class="form-control" 
+                                               value="{{ request.GET.date_to }}">
+                                    </div>
+                                    <div class="col-md-12 text-end">
+                                        <button type="submit" class="btn btn-primary me-2">
+                                            <i class="fas fa-filter me-1"></i> Filter
+                                        </button>
+                                        <a href="{% url 'core:repayment-history' %}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-sync-alt me-1"></i> Reset
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                            
                             <div class="table-responsive">
-                                <table class="table text-white">
-                                    <thead>
+                                <table class="table table-hover">
+                                    <thead class="table-dark">
                                         <tr>
-                                            <th>Loan Type</th>
-                                            <th>Amount Paid</th>
+                                            <th>Loan Details</th>
+                                            <th class="text-end">Amount Paid</th>
                                             <th>Payment Date</th>
+                                            <th>Method</th>
                                             <th>Status</th>
                                             <th>Transaction</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for repayment in repayments %}
                                         <tr>
-                                            <td>{{ repayment.loan.get_loan_type_display }}</td>
-                                            <td>UGX {{ repayment.amount|intcomma }}</td>
-                                            <td>{{ repayment.payment_date|date:"M d, Y" }}</td>
+                                            <td>
+                                                <strong>#{{ repayment.loan.id }}</strong>
+                                                <div class="text-muted small">{{ repayment.loan.get_loan_type_display }}</div>
+                                                <div class="text-muted small">Applied: {{ repayment.loan.date_applied|date:"M d, Y" }}</div>
+                                            </td>
+                                            <td class="text-end">
+                                                <span class="fw-bold">UGX {{ repayment.amount|floatformat:2|intcomma }}</span>
+                                            </td>
+                                            <td>
+                                                {{ repayment.payment_date|date:"M d, Y" }}<br>
+                                                <small class="text-muted">{{ repayment.payment_date|time }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">
+                                                    {{ repayment.get_payment_method_display }}
+                                                </span>
+                                            </td>
                                             <td>
                                                 <span class="badge {% if repayment.is_paid %}bg-success{% else %}bg-warning{% endif %}">
-                                                    {% if repayment.is_paid %}Paid{% else %}Pending{% endif %}
+                                                    {% if repayment.is_paid %}
+                                                    <i class="fas fa-check-circle me-1"></i> Paid
+                                                    {% else %}
+                                                    <i class="fas fa-clock me-1"></i> Pending
+                                                    {% endif %}
                                                 </span>
                                             </td>
                                             <td>
                                                 {% if repayment.transaction %}
-                                                    <small>{{ repayment.transaction.transaction_id }}</small>
+                                                <a href="{% url 'core:transaction-detail' repayment.transaction.transaction_id %}" 
+                                                   class="text-primary" title="View transaction">
+                                                    {{ repayment.transaction.transaction_id|truncatechars:10 }}
+                                                </a>
                                                 {% else %}
-                                                    <em>—</em>
+                                                <em class="text-muted">—</em>
                                                 {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                                            type="button" data-bs-toggle="dropdown">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a class="dropdown-item" 
+                                                               href="{% url 'core:loan-detail' repayment.loan.id %}">
+                                                                <i class="fas fa-eye me-2"></i> View Loan
+                                                            </a>
+                                                        </li>
+                                                        {% if repayment.transaction %}
+                                                        <li>
+                                                            <a class="dropdown-item" 
+                                                               href="{% url 'core:transaction-detail' repayment.transaction.transaction_id %}">
+                                                                <i class="fas fa-receipt me-2"></i> View Receipt
+                                                            </a>
+                                                        </li>
+                                                        {% endif %}
+                                                        <li>
+                                                            <a class="dropdown-item" href="#">
+                                                                <i class="fas fa-print me-2"></i> Print
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </td>
                                         </tr>
                                         {% empty %}
                                         <tr>
-                                            <td colspan="5" class="text-center">No repayments made yet.</td>
+                                            <td colspan="7" class="text-center py-5">
+                                                <i class="fas fa-money-bill-wave fa-3x text-muted mb-3"></i>
+                                                <h5 class="text-muted">No repayment records found</h5>
+                                                <p class="text-muted">You haven't made any loan payments yet</p>
+                                                <a href="{% url 'core:apply-loan' %}" class="btn btn-primary">
+                                                    <i class="fas fa-plus me-2"></i> Apply for a Loan
+                                                </a>
+                                            </td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
+                            
+                            {% if is_paginated %}
+                            <nav aria-label="Page navigation" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1" aria-label="First">
+                                            <span aria-hidden="true">&laquo;&laquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    
+                                    {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                    <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                                    {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                                            <span aria-hidden="true">&raquo;&raquo;</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -58,4 +214,32 @@
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .summary-card {
+        padding: 10px 15px;
+        border-radius: 8px;
+        color: white;
+    }
+    .summary-card small {
+        opacity: 0.8;
+        font-size: 0.8rem;
+    }
+    .summary-card h4 {
+        margin: 5px 0 0;
+        font-weight: bold;
+    }
+    .table th {
+        white-space: nowrap;
+    }
+    .table td {
+        vertical-align: middle;
+    }
+    .badge {
+        padding: 6px 10px;
+        font-weight: 500;
+    }
+</style>
 {% endblock %}

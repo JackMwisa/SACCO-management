@@ -178,8 +178,13 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const amountInput = document.querySelector('input[name="amount"]');
+    const paymentMethod = document.querySelector('select[name="payment_method"]');
+    const form = document.querySelector('form');
+    const walletBalance = parseFloat('{{ request.user.account.account_balance }}');
+    const remainingBalance = parseFloat('{{ remaining_balance }}');
+    
     // Format amount input to show 2 decimal places
-    const amountInput = document.querySelector('input[name=amount]');
     if (amountInput) {
         amountInput.addEventListener('blur', function() {
             const value = parseFloat(this.value);
@@ -187,27 +192,91 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.value = value.toFixed(2);
             }
         });
-    }
-    
-    // Validate amount before submission
-    const form = document.querySelector('form');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            const amount = parseFloat(document.querySelector('input[name=amount]').value);
-            const remaining = parseFloat('{{ remaining_balance }}');
-            
-            if (isNaN(amount) || amount <= 0) {
+        
+        // Prevent entering negative values
+        amountInput.addEventListener('keydown', function(e) {
+            if (e.key === '-' || e.key === 'e' || e.key === 'E') {
                 e.preventDefault();
-                alert('Please enter a valid payment amount');
-                return;
-            }
-            
-            if (amount > remaining) {
-                e.preventDefault();
-                alert('Payment amount cannot exceed remaining balance of UGX ' + remaining.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
             }
         });
     }
+    
+    // Real-time wallet balance validation
+    if (paymentMethod) {
+        paymentMethod.addEventListener('change', function() {
+            if (this.value === 'wallet' && amountInput.value) {
+                validateWalletBalance();
+            }
+        });
+        
+        amountInput.addEventListener('input', function() {
+            if (paymentMethod.value === 'wallet') {
+                validateWalletBalance();
+            }
+        });
+    }
+    
+    function validateWalletBalance() {
+        const amount = parseFloat(amountInput.value) || 0;
+        const errorElement = document.querySelector('.wallet-error');
+        
+        if (amount > walletBalance) {
+            if (!errorElement) {
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'wallet-error text-danger small mt-2';
+                errorMsg.textContent = `Insufficient wallet balance. Available: UGX ${walletBalance.toFixed(2)}`;
+                amountInput.parentNode.appendChild(errorMsg);
+            }
+            return false;
+        } else if (errorElement) {
+            errorElement.remove();
+        }
+        return true;
+    }
+    
+    // Form submission validation
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const amount = parseFloat(amountInput.value) || 0;
+            let isValid = true;
+            
+            // Basic validation
+            if (isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid payment amount');
+                isValid = false;
+            } 
+            else if (amount > remainingBalance) {
+                alert(`Payment amount cannot exceed remaining balance of UGX ${remainingBalance.toFixed(2)}`);
+                isValid = false;
+            }
+            // Wallet-specific validation
+            else if (paymentMethod.value === 'wallet' && amount > walletBalance) {
+                alert(`Insufficient wallet balance. Available: UGX ${walletBalance.toFixed(2)}`);
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                amountInput.focus();
+            }
+        });
+    }
+    
+    // Quick payment buttons functionality
+    const quickPayButtons = document.querySelectorAll('.quick-pay-btn');
+    quickPayButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const amount = this.getAttribute('data-amount');
+            amountInput.value = parseFloat(amount).toFixed(2);
+            
+            // Validate immediately if wallet is selected
+            if (paymentMethod && paymentMethod.value === 'wallet') {
+                validateWalletBalance();
+            }
+        });
+    });
 });
 </script>
 {% endblock %}
+ 
