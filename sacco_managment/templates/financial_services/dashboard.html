@@ -40,7 +40,7 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between">
                                             <div>
-                                                <h6 class="text-uppercase text-white-50">Total Balance</h6>
+                                                <h6 class="text-uppercase text-white-50">Total Coin Balance</h6>
                                                 <h3 class="mb-0">{{ total_balance|intcomma }}</h3>
                                             </div>
                                             <div class="icon">
@@ -104,7 +104,14 @@
                                         <div class="wallet-card {% if wallet.is_default %}default-wallet{% endif %}">
                                             <div class="wallet-header">
                                                 <div class="wallet-icon">
-                                                    <img src="{% static 'assets1/images/crypto-icons/'|add:wallet.wallet_type|lower|add:'.png' %}" alt="{{ wallet.wallet_type }}" width="40">
+
+
+                                                    {% with wallet_type=wallet.wallet_type|lower %}
+                                                        <img src="{% static 'assets1/images/crypto-icons/' %}{{ wallet_type }}.png"
+                                                            onerror="this.onerror=null;this.src='{% static 'assets1/images/crypto-icons/default.png' %}'"
+                                                            width="40" alt="{{ wallet.wallet_type }}">
+                                                    {% endwith %}
+
                                                 </div>
                                                 <div class="wallet-info">
                                                     <h6>{{ wallet.wallet_type }}</h6>
@@ -185,7 +192,7 @@
                                                 </td>
                                                 <td>
                                                     <div class="d-flex align-items-center">
-                                                        <img src="{% static 'assets/crypto-icons/'|add:tx.wallet.wallet_type|lower|add:'.png' %}" alt="{{ tx.wallet.wallet_type }}" width="24" class="me-2">
+                                                        <img src="{% static 'assets1/images/crypto-icons/'|add:tx.wallet.wallet_type|lower|add:'.png' %}" alt="{{ tx.wallet.wallet_type }}" width="24" class="me-2">
                                                         {{ tx.wallet.wallet_type }}
                                                     </div>
                                                 </td>
