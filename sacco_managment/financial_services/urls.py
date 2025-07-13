@@ -10,6 +10,8 @@ urlpatterns = [
     path('transaction-history/', views.transaction_history, name='transaction_history'),
     path('report/', views.generate_report, name='generate_report'),
     
+    path('wallet/<int:wallet_id>/', views.wallet_detail, name='wallet_detail'),
+    
     # API endpoints
     path('api/transactions/', views.transaction_history, name='transaction_history_api'),
 ]

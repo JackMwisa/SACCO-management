@@ -111,6 +111,18 @@ def transaction_history(request):
     return render(request, 'financial_services/transaction_history.html', context)
 
 @login_required
+def wallet_detail(request, wallet_id):
+    wallet = get_object_or_404(CryptoWallet, id=wallet_id, user=request.user)
+    transactions = CryptoTransaction.objects.filter(wallet=wallet).order_by('-timestamp')
+
+    return render(request, 'financial_services/wallet_detail.html', {
+        'wallet': wallet,
+        'transactions': transactions,
+    })
+
+
+
+@login_required
 def generate_report(request):
     transactions = CryptoTransaction.objects.filter(
         wallet__user=request.user

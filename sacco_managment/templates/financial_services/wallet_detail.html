@@ -1,0 +1,108 @@
+{% extends 'partials/dashboard-base.html' %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+
+<section class="dashboard-section body-collapse">
+    <div class="overlay pt-120">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xxl-10 col-xl-12">
+                    <div class="section-content">
+
+                        <!-- Header -->
+                        <div class="dashboard-header mb-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h2 class="mb-1">{{ wallet.wallet_type }} Wallet</h2>
+                                    <p class="text-muted">Address: {{ wallet.address }}</p>
+                                </div>
+                                <a href="{% url 'financial_services:crypto_dashboard' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Wallet Summary -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card wallet-card default-wallet">
+                                    <div class="wallet-header">
+                                        <div class="wallet-icon">
+                                            <img src="{% static 'assets/crypto-icons/'|add:wallet.wallet_type|lower|add:'.png' %}" alt="{{ wallet.wallet_type }}" width="40">
+                                        </div>
+                                        <div class="wallet-info">
+                                            <h6>{{ wallet.wallet_type }}</h6>
+                                            <small>{{ wallet.address }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="wallet-balance">
+                                        <h4>{{ wallet.balance|intcomma }}</h4>
+                                        <small class="{% if wallet.change_24h >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                            {{ wallet.change_24h|floatformat:2 }}%
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transactions Table -->
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Transactions</h5>
+                                <a href="{% url 'financial_services:create_transaction' %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-plus me-2"></i> New Transaction
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Type</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for tx in transactions %}
+                                            <tr>
+                                                <td>{{ tx.timestamp|date:"M d, Y H:i" }}</td>
+                                                <td>
+                                                    <span class="badge bg-{% if tx.transaction_type == 'deposit' %}success{% else %}danger{% endif %}-light text-{% if tx.transaction_type == 'deposit' %}success{% else %}danger{% endif %}">
+                                                        {{ tx.transaction_type|title }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ tx.amount|intcomma }}</td>
+                                                <td>
+                                                    <span class="badge bg-{% if tx.status == 'completed' %}success{% elif tx.status == 'pending' %}warning{% else %}danger{% endif %}-light text-{% if tx.status == 'completed' %}success{% elif tx.status == 'pending' %}warning{% else %}danger{% endif %}">
+                                                        {{ tx.status|title }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ tx.description|default:"—" }}</td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="5" class="text-center py-5">
+                                                    <img src="{% static 'images/empty-transactions.svg' %}" alt="No transactions" width="150" class="mb-3">
+                                                    <h5>No Transactions Found</h5>
+                                                    <p class="text-muted">This wallet has no recorded activity yet.</p>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

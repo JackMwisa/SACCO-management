@@ -7,41 +7,215 @@
     <div class="overlay pt-120">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-xl-12">
+                <div class="col-xxl-10 col-xl-12">
                     <div class="section-content">
-                        <div class="transactions-area">
-                            <div class="section-text">
-                                <h5>My Crypto Wallets</h5>
-                                <p>Your wallet balances and recent transactions</p>
-                            </div>
-
-                            <!-- Wallets List -->
-                            <div class="wallets mb-4">
-                                {% for wallet in wallets %}
-                                <div class="wallet mb-3 p-3 border rounded shadow-sm">
-                                    <h3>{{ wallet.wallet_type }}</h3>
-                                    <p>Balance: {{ wallet.balance }}</p>
+                        <!-- Header Section -->
+                        <div class="dashboard-header mb-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h2 class="mb-1">My Crypto Portfolio</h2>
+                                    <p class="text-muted">Track your digital assets and transactions</p>
                                 </div>
-                                {% endfor %}
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addWalletModal">
+                                        <i class="fas fa-plus me-2"></i> Add Wallet
+                                    </button>
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <li><a class="dropdown-item" href="#"><i class="fas fa-sync-alt me-2"></i> Refresh</a></li>
+                                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
 
-                            <!-- Recent Transactions -->
-                            <h3>Recent Transactions</h3>
-                            <ul>
-                                {% for tx in transactions %}
-                                <li>{{ tx.timestamp }} - {{ tx.transaction_type }}: {{ tx.amount }} {{
-                                    tx.wallet.wallet_type }}</li>
-                                {% endfor %}
-                            </ul>
+                        <!-- Summary Cards -->
+                        <div class="row mb-4">
+                            <div class="col-md-4 mb-3">
+                                <div class="card summary-card bg-primary-gradient text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="text-uppercase text-white-50">Total Balance</h6>
+                                                <h3 class="mb-0">{{ total_balance|intcomma }}</h3>
+                                            </div>
+                                            <div class="icon">
+                                                <i class="fas fa-wallet"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card summary-card bg-success-gradient text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="text-uppercase text-white-50">24h Change</h6>
+                                                <h3 class="mb-0 {% if daily_change >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                                    {{ daily_change|floatformat:2 }}%
+                                                </h3>
+                                            </div>
+                                            <div class="icon">
+                                                <i class="fas fa-chart-line"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card summary-card bg-info-gradient text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="text-uppercase text-white-50">Active Wallets</h6>
+                                                <h3 class="mb-0">{{ wallets|length }}</h3>
+                                            </div>
+                                            <div class="icon">
+                                                <i class="fas fa-link"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                            <!-- Action Links with proper spacing and green buttons -->
-                            <div class="action-links mt-4">
-                                <a href="{% url 'financial_services:create_transaction' %}"
-                                    class="btn btn-green-light mb-2">New Transaction</a>
-                                <a href="{% url 'financial_services:transaction_history' %}"
-                                    class="btn btn-green-medium mb-2">View All Transactions</a>
-                                <a href="{% url 'financial_services:generate_report' %}"
-                                    class="btn btn-green-dark mb-2">Download Report</a>
+                        <!-- Wallets Section -->
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Your Wallets</h5>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-filter"></i> Filter
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-sort"></i> Sort
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-4">
+                                    {% for wallet in wallets %}
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="wallet-card {% if wallet.is_default %}default-wallet{% endif %}">
+                                            <div class="wallet-header">
+                                                <div class="wallet-icon">
+                                                    <img src="{% static 'assets1/images/crypto-icons/'|add:wallet.wallet_type|lower|add:'.png' %}" alt="{{ wallet.wallet_type }}" width="40">
+                                                </div>
+                                                <div class="wallet-info">
+                                                    <h6>{{ wallet.wallet_type }}</h6>
+                                                    <small class="text-muted">{{ wallet.address|slice:":6" }}...{{ wallet.address|slice:"-4:" }}</small>
+                                                </div>
+                                                <div class="wallet-actions">
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-icon" type="button" data-bs-toggle="dropdown">
+                                                            <i class="fas fa-ellipsis-v"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i>View</a></li>
+                                                            <li><a class="dropdown-item" href="#"><i class="fas fa-pen me-2"></i>Edit</a></li>
+                                                            <li><hr class="dropdown-divider"></li>
+                                                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash me-2"></i>Remove</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="wallet-balance">
+                                                <h4>{{ wallet.balance|intcomma }}</h4>
+                                                <small class="{% if wallet.change_24h >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                                    {{ wallet.change_24h|floatformat:2 }}%
+                                                </small>
+                                            </div>
+                                            <div class="wallet-footer">
+                                                <a href="{% url 'financial_services:wallet_detail' wallet.id %}" class="btn btn-sm btn-primary w-100">
+                                                    <i class="fas fa-exchange-alt me-2"></i> Manage
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="col-12">
+                                        <div class="empty-state text-center py-5">
+                                            <img src="{% static 'images/empty-wallet.svg' %}" alt="No wallets" width="200" class="mb-4">
+                                            <h4>No Wallets Found</h4>
+                                            <p class="text-muted mb-4">You haven't added any crypto wallets yet</p>
+                                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWalletModal">
+                                                <i class="fas fa-plus me-2"></i> Add Wallet
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transactions Section -->
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Recent Transactions</h5>
+                                <a href="{% url 'financial_services:transaction_history' %}" class="btn btn-sm btn-outline-primary">
+                                    View All <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Type</th>
+                                                <th>Wallet</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for tx in transactions %}
+                                            <tr>
+                                                <td>{{ tx.timestamp|date:"M d, Y H:i" }}</td>
+                                                <td>
+                                                    <span class="badge bg-{% if tx.transaction_type == 'deposit' %}success{% else %}danger{% endif %}-light text-{% if tx.transaction_type == 'deposit' %}success{% else %}danger{% endif %}">
+                                                        {{ tx.transaction_type|title }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="{% static 'assets/crypto-icons/'|add:tx.wallet.wallet_type|lower|add:'.png' %}" alt="{{ tx.wallet.wallet_type }}" width="24" class="me-2">
+                                                        {{ tx.wallet.wallet_type }}
+                                                    </div>
+                                                </td>
+                                                <td>{{ tx.amount|intcomma }}</td>
+                                                <td>
+                                                    <span class="badge bg-{% if tx.status == 'completed' %}success{% elif tx.status == 'pending' %}warning{% else %}danger{% endif %}-light text-{% if tx.status == 'completed' %}success{% elif tx.status == 'pending' %}warning{% else %}danger{% endif %}">
+                                                        {{ tx.status|title }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-secondary">
+                                                        <i class="fas fa-info-circle"></i> Details
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="6" class="text-center py-5">
+                                                    <img src="{% static 'images/empty-transactions.svg' %}" alt="No transactions" width="150" class="mb-3">
+                                                    <h5>No Transactions Found</h5>
+                                                    <p class="text-muted">You haven't made any transactions yet</p>
+                                                    <a href="{% url 'financial_services:create_transaction' %}" class="btn btn-primary">
+                                                        <i class="fas fa-plus me-2"></i> New Transaction
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -51,4 +225,177 @@
     </div>
 </section>
 
+<!-- Add Wallet Modal -->
+<div class="modal fade" id="addWalletModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Wallet</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">Wallet Type</label>
+                        <select class="form-select">
+                            <option selected disabled>Select wallet type</option>
+                            <option>Bitcoin</option>
+                            <option>Ethereum</option>
+                            <option>Binance</option>
+                            <option>Solana</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Wallet Address</label>
+                        <input type="text" class="form-control" placeholder="Enter wallet address">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nickname (Optional)</label>
+                        <input type="text" class="form-control" placeholder="My main wallet">
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="defaultWallet">
+                        <label class="form-check-label" for="defaultWallet">
+                            Set as default wallet
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary">Add Wallet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Summary Cards */
+    .summary-card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+    
+    .summary-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .summary-card .icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.2);
+    }
+    
+    .bg-primary-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .bg-success-gradient {
+        background: linear-gradient(135deg, #2af598 0%, #009efd 100%);
+    }
+    
+    .bg-info-gradient {
+        background: linear-gradient(135deg, #a6c1ee 0%, #fbc2eb 100%);
+    }
+    
+    /* Wallet Cards */
+    .wallet-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        border: 1px solid #eee;
+    }
+    
+    .wallet-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .wallet-card.default-wallet {
+        border: 1px solid #4e73df;
+        background: rgba(78, 115, 223, 0.03);
+    }
+    
+    .wallet-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .wallet-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(78, 115, 223, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+    
+    .wallet-info {
+        flex: 1;
+    }
+    
+    .wallet-info h6 {
+        margin-bottom: 0.25rem;
+    }
+    
+    .wallet-balance {
+        margin-bottom: 1.5rem;
+    }
+    
+    .wallet-balance h4 {
+        font-weight: 600;
+    }
+    
+    /* Empty States */
+    .empty-state {
+        background: rgba(255,255,255,0.5);
+        border-radius: 12px;
+        padding: 2rem;
+    }
+    
+    /* Table Styling */
+    .table-hover tbody tr:hover {
+        background-color: rgba(78, 115, 223, 0.03);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+    
+    // Copy wallet address functionality
+    document.querySelectorAll('.copy-wallet').forEach(button => {
+        button.addEventListener('click', function() {
+            const walletAddress = this.getAttribute('data-address');
+            navigator.clipboard.writeText(walletAddress).then(() => {
+                const tooltip = bootstrap.Tooltip.getInstance(this);
+                tooltip.setContent({'.tooltip-inner': 'Copied!'});
+                setTimeout(() => {
+                    tooltip.setContent({'.tooltip-inner': 'Copy to clipboard'});
+                }, 2000);
+            });
+        });
+    });
+});
+</script>
 {% endblock %}

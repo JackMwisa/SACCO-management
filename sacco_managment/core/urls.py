@@ -71,8 +71,8 @@ urlpatterns = [
     path("withdraw_fund/<card_id>/",
          credit_card.withdraw_fund, name="withdraw_fund"),
     path("delete_card/<card_id>/", credit_card.delete_card, name="delete_card"),
-
-
+     path('cards/', views.all_credit_cards, name='all-credit-cards'), 
+     
     # Loan URLs
     path('loans/apply/', apply_for_loan, name='apply-loan'),
     path('loans/', loan_status, name='loan-status'),

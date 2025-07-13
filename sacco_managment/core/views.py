@@ -616,6 +616,14 @@ def mobile_money_webhook(request):
     
     return JsonResponse({'status': 'failed'}, status=400)
     
+    
+# In views.py
+def all_credit_cards(request):
+    credit_cards = CreditCard.objects.filter(user=request.user)
+    return render(request, 'credit_card/all_credit_cards.html', {'credit_cards': credit_cards})
+
+
+
     # core/views.py
 @staff_member_required
 def reconciliation_dashboard(request):
