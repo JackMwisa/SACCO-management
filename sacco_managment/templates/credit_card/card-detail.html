@@ -42,7 +42,7 @@
                                                                                 </div>
                                                                                 <div class="bottom_card">
                                                                                     <div class="card_info">
-                                                                                    <div class="card_holder_name" style="text-align: left;">${{credic_card.amount|intcomma}}</div>
+                                                                                    <div class="card_holder_name" style="text-align: left;">UGX {{credic_card.amount|intcomma}}</div>
                                                                                     <div class="card_holder_name">{{credic_card.name}}</div>
                                                                                     </div>
                                                                                     <div class="card_info">
@@ -83,7 +83,7 @@
                                                                         <ul class="payment-details">
                                                                             <li>
                                                                                 <span>Current Amount</span>
-                                                                                <span>${{credic_card.amount|intcomma}}</span>
+                                                                                <span>UGX {{credic_card.amount|intcomma}}</span>
                                                                             </li>
                                                                             <li>
                                                                                 <span>Name of holder</span>
@@ -171,13 +171,13 @@
                                     <div class="col-md-12">
                                         <div class="single-input">
                                             <label for="month">Sacco Available Balance</label>
-                                            <input type="text" id="month" value="${{ account.account_balance|intcomma }}">
+                                            <input type="text" id="month" value="UGX {{ account.account_balance|intcomma }}">
                                         </div>
                                     </div>
                                     <div class="col-md-12">
                                         <div class="single-input">
                                             <label for="year">Enter Amount</label>
-                                            <input type="number" name="funding_amount"  id="amount" placeholder="$20">
+                                            <input type="number" name="funding_amount"  id="amount" placeholder="UGX 1,000">
                                         </div>
                                     </div>
                                     <div class="col-12">
@@ -217,13 +217,13 @@
                                     <div class="col-md-12">
                                         <div class="single-input">
                                             <label for="month">Card's Available Balance</label>
-                                            <input type="text" id="month" value="${{ credic_card.amount|intcomma }}">
+                                            <input type="text" id="month" value="UGX {{ credic_card.amount|intcomma }}">
                                         </div>
                                     </div>
                                     <div class="col-md-12">
                                         <div class="single-input">
                                             <label for="year">Enter Amount</label>
-                                            <input type="number" name="amount" id="amount" placeholder="$20">
+                                            <input type="number" name="amount" id="amount" placeholder="UGX 1,000">
                                         </div>
                                     </div>
                                     <div class="col-12">
