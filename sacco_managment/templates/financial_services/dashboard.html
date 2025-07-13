@@ -36,11 +36,11 @@
                         <!-- Summary Cards -->
                         <div class="row mb-4">
                             <div class="col-md-4 mb-3">
-                                <div class="card summary-card bg-primary-gradient  ">
+                                <div class="card summary-card bg-primary-gradient text-white">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between">
                                             <div>
-                                                <h6 class="text-uppercase  ">Total Coin Balance</h6>
+                                                <h6 class="text-uppercase text-white-50">Total Coin Balance</h6>
                                                 <h3 class="mb-0">{{ total_balance|intcomma }}</h3>
                                             </div>
                                             <div class="icon">
@@ -51,11 +51,11 @@
                                 </div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <div class="card summary-card bg-success-gradient  ">
+                                <div class="card summary-card bg-success-gradient text-white">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between">
                                             <div>
-                                                <h6 class="text-uppercase  ">24h Change</h6>
+                                                <h6 class="text-uppercase text-white-50">24h Change</h6>
                                                 <h3 class="mb-0 {% if daily_change >= 0 %}text-success{% else %}text-danger{% endif %}">
                                                     {{ daily_change|floatformat:2 }}%
                                                 </h3>
@@ -68,11 +68,11 @@
                                 </div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <div class="card summary-card bg-info-gradient  ">
+                                <div class="card summary-card bg-info-gradient text-white">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between">
                                             <div>
-                                                <h6 class="text-uppercase  ">Active Wallets</h6>
+                                                <h6 class="text-uppercase text-white-50">Active Wallets</h6>
                                                 <h3 class="mb-0">{{ wallets|length }}</h3>
                                             </div>
                                             <div class="icon">
@@ -135,7 +135,7 @@
                                                 </small>
                                             </div>
                                             <div class="wallet-footer">
-                                                <a href="{% url 'financial_services:wallet_detail' wallet.id %}" class="btn btn-sm btn-success w-100">
+                                                <a href="{% url 'financial_services:wallet_detail' wallet.id %}" class="btn btn-sm btn-primary w-100">
                                                     <i class="fas fa-exchange-alt me-2"></i> Manage
                                                 </a>
                                             </div>
@@ -161,7 +161,7 @@
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">Recent Transactions</h5>
-                                <a href="{% url 'financial_services:transaction_history' %}" class="btn btn-sm btn-outline-success">
+                                <a href="{% url 'financial_services:transaction_history' %}" class="btn btn-sm btn-outline-primary">
                                     View All <i class="fas fa-arrow-right ms-1"></i>
                                 </a>
                             </div>
@@ -289,7 +289,7 @@
         transform: translateY(-5px);
     }
     
-    .summary-card .icon {view
+    .summary-card .icon {
         width: 50px;
         height: 50px;
         border-radius: 50%;
@@ -299,31 +299,17 @@
         background: rgba(255,255,255,0.2);
     }
     
-        .bg-primary-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            background-color: #667eea; /* fallback */
-        }
-
-        .bg-success-gradient {
-            background: linear-gradient(135deg, #2af598 0%, #009efd 100%);
-            background-color: #2af598; /* fallback */
-        }
-
-        .bg-info-gradient {
-            background: linear-gradient(135deg, #a6c1ee 0%, #fbc2eb 100%);
-            background-color: #a6c1ee; /* fallback */
-        }
-
-
-        .summary-card h3,
-.summary-card h6 {
-    color: #fff !important;
-}
-
-.summary-card .icon i {
-    font-size: 1.5rem;
-    color: #fff;
-}
+    .bg-primary-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .bg-success-gradient {
+        background: linear-gradient(135deg, #2af598 0%, #009efd 100%);
+    }
+    
+    .bg-info-gradient {
+        background: linear-gradient(135deg, #a6c1ee 0%, #fbc2eb 100%);
+    }
     
     /* Wallet Cards */
     .wallet-card {
@@ -341,7 +327,7 @@
     }
     
     .wallet-card.default-wallet {
-        border: 1px solid #05b147;
+        border: 1px solid #4e73df;
         background: rgba(78, 115, 223, 0.03);
     }
     
