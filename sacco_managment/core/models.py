@@ -123,7 +123,6 @@ class LoanRepayment(models.Model):
     )
     
     
-    
     loan = models.ForeignKey(LoanApplication, on_delete=models.CASCADE, related_name='repayments')
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     payment_date = models.DateTimeField(auto_now_add=True)
