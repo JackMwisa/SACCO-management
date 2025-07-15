@@ -1,20 +1,25 @@
-{% extends "partials/dashboard-base.html" %} 
-{% load humanize %} 
-{% load static %} 
-{% block content %}
+<!-- templates/mobile_money/payment_prompt.html -->
+{% extends "partials/dashboard-base.html" %}
+{% load humanize %}
+{% load static %}
 
+{% block content %}
 <section class="dashboard-section body-collapse pay step step-2">
   <div class="overlay pt-120">
     <div class="container-fruid">
       <div class="main-content">
         <div class="payment-confirmation text-center">
           <div class="icon-area mb-4">
-            <img src="{% static 'assets1/images/icon/mobile-money-large.png' %}" width="120">
+            <img src="{% static 'assets1/images/icon/'|add:provider|lower|add:'-large.png' %}" width="120">
           </div>
           
           <h4>Complete Payment</h4>
           
           <div class="payment-details mt-4">
+            <div class="detail-item">
+              <span>Recipient:</span>
+              <strong>{% if user_name %}{{ user_name }}{% else %}Your Account{% endif %}</strong>
+            </div>
             <div class="detail-item">
               <span>Phone Number:</span>
               <strong>{{ phone }}</strong>
@@ -29,19 +34,34 @@
             </div>
           </div>
           
-          <div class="qr-code my-4">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ ref }}" 
-                 alt="Payment QR Code" class="img-fluid">
-            <p class="text-muted mt-2">Scan to pay</p>
+          {% if provider == 'MTN' %}
+          <div class="payment-instructions mb-4">
+            <h5>How to complete payment on MTN:</h5>
+            <ol class="text-start">
+              <li>You will receive a payment request on your phone</li>
+              <li>Open the MTN Mobile Money menu</li>
+              <li>Select "Pay Bill" or "Pay Merchant"</li>
+              <li>Enter your PIN to confirm the payment</li>
+              <li>Wait for confirmation message</li>
+            </ol>
+            
+            <div class="alert alert-info mt-3">
+              <i class="fas fa-info-circle me-2"></i>
+              The name <strong>{% if user_name %}{{ user_name }}{% else %}GEMS SACCO{% endif %}</strong> should appear on your payment prompt
+            </div>
           </div>
+          {% else %}
+          <!-- Similar instructions for other providers -->
+          {% endif %}
           
           <div class="processing-info mb-4">
             <div class="spinner-border text-primary mb-2" role="status">
               <span class="visually-hidden">Loading...</span>
             </div>
-            <p>Waiting for payment confirmation...</p>
-            <div class="countdown">
-              <small class="text-muted">This page will automatically update</small>
+            <p id="status-message">Waiting for payment confirmation...</p>
+            <div class="progress mt-2">
+              <div id="payment-progress" class="progress-bar progress-bar-striped progress-bar-animated" 
+                   role="progressbar" style="width: 0%"></div>
             </div>
           </div>
           
@@ -49,7 +69,8 @@
             <div class="accordion" id="paymentHelp">
               <div class="accordion-item">
                 <h2 class="accordion-header">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#helpCollapse">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                          data-bs-target="#helpCollapse">
                     Not seeing the payment request?
                   </button>
                 </h2>
@@ -58,8 +79,10 @@
                     <ul>
                       <li>Ensure your phone has network connectivity</li>
                       <li>Check your mobile money PIN is correct</li>
-                      <li>Dial *165# to check pending requests</li>
+                      <li>Dial *165# to check pending requests (MTN)</li>
                       <li>Wait 2 minutes and try again if needed</li>
+                      <li>Ensure you have sufficient balance</li>
+                      <li>Contact support if the issue persists</li>
                     </ul>
                   </div>
                 </div>
@@ -84,26 +107,43 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   let attempts = 0;
-  const maxAttempts = 10;
+  const maxAttempts = 20; // 20 attempts (100 seconds total)
   const checkInterval = 5000; // 5 seconds
+  const statusMessage = document.getElementById('status-message');
+  const progressBar = document.getElementById('payment-progress');
   
   const checkPaymentStatus = setInterval(function() {
     attempts++;
+    const progressPercent = (attempts / maxAttempts) * 100;
+    progressBar.style.width = `${progressPercent}%`;
+    
     fetch(`{% url 'core:check-payment-status' ref %}`)
       .then(response => response.json())
       .then(data => {
         if (data.status === 'completed') {
+          statusMessage.innerHTML = '<i class="fas fa-check-circle text-success me-2"></i> Payment confirmed!';
+          progressBar.classList.remove('progress-bar-animated');
+          progressBar.classList.remove('progress-bar-striped');
+          progressBar.classList.add('bg-success');
           clearInterval(checkPaymentStatus);
-          window.location.href = "{% url 'core:mobile-money-transactions' %}";
+          
+          // Redirect after 3 seconds
+          setTimeout(() => {
+            window.location.href = "{% url 'core:mobile-money-transactions' %}";
+          }, 3000);
+          
         } else if (attempts >= maxAttempts) {
+          statusMessage.innerHTML = '<i class="fas fa-exclamation-triangle text-warning me-2"></i> Payment confirmation taking longer than expected';
+          progressBar.classList.remove('progress-bar-animated');
+          progressBar.classList.remove('progress-bar-striped');
+          progressBar.classList.add('bg-warning');
           clearInterval(checkPaymentStatus);
-          document.querySelector('.processing-info').innerHTML = `
-            <div class="alert alert-warning">
-              <p>Payment confirmation taking longer than expected</p>
-              <p>Check your transaction history or try again later</p>
-            </div>
-          `;
+        } else {
+          statusMessage.innerHTML = `Checking payment status... (Attempt ${attempts}/${maxAttempts})`;
         }
+      })
+      .catch(error => {
+        console.error('Error checking payment status:', error);
       });
   }, checkInterval);
 });

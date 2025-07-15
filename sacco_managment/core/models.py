@@ -223,8 +223,10 @@ class MobileMoneyTransaction(models.Model):
     provider = models.CharField(max_length=20, choices=PROVIDER_CHOICES)
     phone_number = models.CharField(max_length=15)
     transaction_ref = models.CharField(max_length=50, unique=True)
+    momo_transaction_id = models.CharField(max_length=50, null=True, blank=True)  # For MTN transaction ID
     is_reconciled = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
+    verified_name = models.CharField(max_length=100, null=True, blank=True)  # Store verified name
 
     def __str__(self):
         return f"{self.provider} - {self.phone_number} - {self.transaction.amount}"

@@ -8,7 +8,9 @@ from .views import (
     repay_loan,
     loan_history,
     repayment_history,
+    verify_mobile_number,
 )
+
 
 
 app_name = "core"
@@ -90,6 +92,7 @@ urlpatterns = [
     path('mobile-money/transactions/', views.mobile_money_transactions, name='mobile-money-transactions'),
     path('webhook/mobile-money/', views.mobile_money_webhook, name='mobile-money-webhook'),
     path('admin/reconciliation/', views.reconciliation_dashboard, name='reconciliation-dashboard'),
+    path('mobile-money/verify-number/', verify_mobile_number, name='verify-mobile-number'),
     path('mobile-money/callback/', views.mobile_money_callback, name='mobile-money-callback'),
 
 ]

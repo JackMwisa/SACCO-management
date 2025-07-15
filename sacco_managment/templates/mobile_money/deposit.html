@@ -134,7 +134,7 @@
   </div>
 </section>
 
-<script>
+<!-- <script>
 document.addEventListener('DOMContentLoaded', function() {
   const form = document.getElementById('depositForm');
   const amountInput = form.querySelector('input[name="amount"]');
@@ -155,5 +155,73 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+</script> -->
+
+ 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const phoneInput = document.getElementById('id_phone_number');
+    const providerRadios = document.querySelectorAll('input[name="provider"]');
+    const nameVerification = document.createElement('div');
+    nameVerification.className = 'name-verification mt-2';
+    phoneInput.parentNode.appendChild(nameVerification);
+
+    function verifyNumber() {
+        const phone = phoneInput.value;
+        const provider = document.querySelector('input[name="provider"]:checked').value;
+        
+        if (phone.length >= 12) {
+            nameVerification.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Verifying...';
+            
+            fetch("{% url 'core:verify-mobile-number' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFTToken': '{{ csrf_token }}'
+                },
+                body: `phone_number=${encodeURIComponent(phone)}&provider=${encodeURIComponent(provider)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.valid) {
+                    nameVerification.innerHTML = `
+                        <span class="text-success">
+                            <i class="fas fa-check-circle"></i> 
+                            Verified ${provider} number registered to: <strong>${data.name}</strong>
+                        </span>
+                    `;
+                } else {
+                    nameVerification.innerHTML = `
+                        <span class="text-danger">
+                            <i class="fas fa-exclamation-triangle"></i> 
+                            ${data.message || 'Could not verify number'}
+                        </span>
+                    `;
+                }
+            })
+            .catch(error => {
+                nameVerification.innerHTML = `
+                    <span class="text-warning">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        Verification service unavailable
+                    </span>
+                `;
+            });
+        } else {
+            nameVerification.innerHTML = '';
+        }
+    }
+
+    phoneInput.addEventListener('blur', verifyNumber);
+    providerRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (phoneInput.value.length >= 12) {
+                verifyNumber();
+            }
+        });
+    });
+});
 </script>
+
+
 {% endblock %}

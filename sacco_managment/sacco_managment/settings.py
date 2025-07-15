@@ -53,6 +53,18 @@ LOCALE_PATHS = [
     
 ]
 
+# settings.py
+MTN_MOMO_API = {
+    'COLLECTION_PRIMARY_KEY': '27e1d379f2194df2ba742910142d0a44',
+    'COLLECTION_SECONDARY_KEY': 'a49aeee59eb947deaa697b9394b743be',
+    'DISBURSEMENT_PRIMARY_KEY': 'fd214efb4f61441cb33e697b976e3327',
+    'DISBURSEMENT_SECONDARY_KEY': '9d62bb199e6442a1b78b8aaaef7d3919',
+    'BASE_URL': 'https://sandbox.momodeveloper.mtn.com',
+    'CALLBACK_URL': 'https://yourdomain.com/mobile-money/callback/',
+    'ENVIRONMENT': 'sandbox'  # Change to 'production' when live
+}
+
+
 # Application definition
 
 INSTALLED_APPS = [
