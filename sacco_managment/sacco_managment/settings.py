@@ -15,6 +15,8 @@ import os
 import dj_database_url
 from dotenv import load_dotenv
 from datetime import timedelta
+from decouple import config
+
 
 
 load_dotenv() 
@@ -52,6 +54,19 @@ LOCALE_PATHS = [
     BASE_DIR / 'locale', 
     
 ]
+
+
+MTN_MOMO_API = {
+    'COLLECTION_PRIMARY_KEY': config('MTN_COLLECTION_PRIMARY_KEY'),
+    'COLLECTION_SECONDARY_KEY': config('MTN_COLLECTION_SECONDARY_KEY'),
+    'DISBURSEMENT_PRIMARY_KEY': config('MTN_DISBURSEMENT_PRIMARY_KEY'),
+    'DISBURSEMENT_SECONDARY_KEY': config('MTN_DISBURSEMENT_SECONDARY_KEY'),
+    'BASE_URL': config('MTN_BASE_URL'),
+    'CALLBACK_URL': config('MTN_CALLBACK_URL'),
+    'ENVIRONMENT': config('MTN_ENVIRONMENT', default='sandbox')
+}
+
+
 
 # Application definition
 

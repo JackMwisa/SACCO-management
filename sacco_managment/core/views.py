@@ -27,7 +27,7 @@ from django.urls import reverse
 from django.core.exceptions import ValidationError
 from dateutil.relativedelta import relativedelta
 from django.db import transaction as db_transaction
-
+from .utils.momo import MTNMomoAPI
 
 def index(request):
     if request.user.is_authenticated:
@@ -455,15 +455,153 @@ def mobile_money_deposit(request):
         'deposit_limits': settings.MOBILE_MONEY_CONFIG['DEPOSIT_LIMITS']
     })
 
+
+
+@login_required
+def verify_mobile_number(request):
+    if request.method == 'POST':
+        phone_number = request.POST.get('phone_number')
+        provider = request.POST.get('provider')
+        
+        momo_api = MTNMomoAPI()
+        
+        if provider == 'MTN':
+            user_info = momo_api.verify_user(phone_number)
+            if user_info:
+                return JsonResponse({
+                    'valid': True,
+                    'name': user_info.get('name', 'Verified User'),
+                    'provider': provider
+                })
+            else:
+                return JsonResponse({
+                    'valid': False,
+                    'message': 'Could not verify MTN number'
+                })
+        else:
+            # For other providers, implement similar verification
+            return JsonResponse({
+                'valid': True,
+                'name': 'Verified User',
+                'provider': provider
+            })
+    
+    return JsonResponse({'valid': False, 'message': 'Invalid request'})
+
+@login_required
+def mobile_money_deposit(request):
+    account = request.user.account
+    deposit_limit = settings.MOBILE_MONEY_CONFIG['DEPOSIT_LIMITS']['single']
+    
+    if request.method == 'POST':
+        form = MobileMoneyDepositForm(request.POST)
+        if form.is_valid():
+            amount = form.cleaned_data['amount']
+            provider = form.cleaned_data['provider']
+            phone_number = form.cleaned_data['phone_number']
+            
+            # Validate amount against limits
+            if amount < settings.MOBILE_MONEY_CONFIG['DEPOSIT_LIMITS']['min']:
+                messages.error(request, f"Amount must be at least UGX {settings.MOBILE_MONEY_CONFIG['DEPOSIT_LIMITS']['min']}")
+                return redirect('core:mobile-money-deposit')
+                
+            if amount > deposit_limit:
+                messages.error(request, f"Amount exceeds single deposit limit of UGX {deposit_limit}")
+                return redirect('core:mobile-money-deposit')
+                
+            # Check daily deposit limit
+            today = timezone.now().date()
+            today_deposits = Transaction.objects.filter(
+                user=request.user,
+                transaction_type='mobile_money_deposit',
+                date__date=today,
+                status='completed'
+            ).aggregate(Sum('amount'))['amount__sum'] or 0
+            
+            if today_deposits + amount > settings.MOBILE_MONEY_CONFIG['DEPOSIT_LIMITS']['daily']:
+                messages.error(request, 
+                    f"This deposit would exceed your daily limit of UGX {settings.MOBILE_MONEY_CONFIG['DEPOSIT_LIMITS']['daily']}")
+                return redirect('core:mobile-money-deposit')
+            
+            # Generate unique reference
+            ref = f"MMD-{request.user.id}-{timezone.now().timestamp()}"
+            
+            # Create pending transaction
+            transaction = Transaction.objects.create(
+                user=request.user,
+                amount=amount,
+                transaction_type="mobile_money_deposit",
+                status="pending",
+                description=f"Mobile Money Deposit from {phone_number} ({provider})"
+            )
+            
+            mm_transaction = MobileMoneyTransaction.objects.create(
+                transaction=transaction,
+                provider=provider,
+                phone_number=phone_number,
+                transaction_ref=ref
+            )
+            
+            # Initiate actual payment request if MTN
+            if provider == 'MTN':
+                momo_api = MTNMomoAPI()
+                payer_message = f"Deposit to {request.user.get_full_name()}'s account"
+                payee_note = f"Deposit ref: {ref}"
+                
+                payment_request = momo_api.request_payment(
+                    amount=amount,
+                    phone_number=phone_number,
+                    external_id=ref,
+                    payee_note=payee_note,
+                    payer_message=payer_message
+                )
+                
+                if payment_request:
+                    mm_transaction.momo_transaction_id = payment_request.get('financialTransactionId')
+                    mm_transaction.save()
+                    
+                    return render(request, 'mobile_money/payment_prompt.html', {
+                        'phone': phone_number,
+                        'amount': amount,
+                        'ref': ref,
+                        'provider': provider,
+                        'user_name': payment_request.get('payer', {}).get('name', 'Customer'),
+                        'callback_url': reverse('core:mobile-money-callback')
+                    })
+                else:
+                    messages.error(request, "Failed to initiate payment request with MTN")
+                    return redirect('core:mobile-money-deposit')
+            else:
+                # For other providers, implement similar flow
+                return render(request, 'mobile_money/payment_prompt.html', {
+                    'phone': phone_number,
+                    'amount': amount,
+                    'ref': ref,
+                    'provider': provider,
+                    'callback_url': reverse('core:mobile-money-callback')
+                })
+    
+    # GET request handling remains the same
+    initial = {}
+    phone_number = getattr(request.user, 'phone_number', None)
+    if phone_number:
+        initial['phone_number'] = phone_number
+    form = MobileMoneyDepositForm(initial=initial)
+
+    return render(request, 'mobile_money/deposit.html', {
+        'form': form,
+        'account': account,
+        'deposit_limits': settings.MOBILE_MONEY_CONFIG['DEPOSIT_LIMITS']
+    })
+
+
 @csrf_exempt
 def mobile_money_callback(request):
-    """
-    This would be the endpoint that the payment provider calls with payment status
-    """
+    """Handle MTN MoMo API callbacks"""
     if request.method == 'POST':
         try:
             payload = json.loads(request.body)
-            ref = payload.get('tx_ref')
+            ref = payload.get('externalId')
             status = payload.get('status')
             
             if not ref or not status:
@@ -473,6 +611,13 @@ def mobile_money_callback(request):
             transaction = mm_transaction.transaction
             
             if status.lower() == 'successful':
+                # Verify transaction with MTN
+                momo_api = MTNMomoAPI()
+                if mm_transaction.provider == 'MTN' and mm_transaction.momo_transaction_id:
+                    txn_status = momo_api.check_transaction_status(mm_transaction.momo_transaction_id)
+                    if not txn_status or txn_status.get('status') != 'SUCCESSFUL':
+                        return JsonResponse({'status': 'error', 'message': 'Transaction verification failed'}, status=400)
+                
                 # Update transaction status
                 transaction.status = 'completed'
                 transaction.save()
@@ -516,7 +661,6 @@ def mobile_money_callback(request):
     
     return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=405)
 
- 
 @login_required
 def mobile_money_withdrawal(request):
     account = request.user.account
@@ -525,6 +669,8 @@ def mobile_money_withdrawal(request):
         form = MobileMoneyWithdrawalForm(request.POST, user=request.user)
         if form.is_valid():
             amount = form.cleaned_data['amount']
+            phone_number = form.cleaned_data['phone_number']
+            provider = form.cleaned_data['provider']
             
             # Check available balance (including locked funds)
             if account.available_balance < amount:
@@ -535,23 +681,69 @@ def mobile_money_withdrawal(request):
             account.locked_funds += amount
             account.save()
             
+            # Generate unique reference
+            ref = f"MMW-{request.user.id}-{timezone.now().timestamp()}"
+            
             # Create transaction record
             transaction = Transaction.objects.create(
                 user=request.user,
                 amount=amount,
                 transaction_type="mobile_money_withdrawal",
-                status="pending_approval",  # New status
-                description=f"Withdrawal request to {form.cleaned_data['phone_number']}"
+                status="pending_approval",
+                description=f"Withdrawal request to {phone_number}"
             )
             
-            MobileMoneyTransaction.objects.create(
+            mm_transaction = MobileMoneyTransaction.objects.create(
                 transaction=transaction,
-                provider=form.cleaned_data['provider'],
-                phone_number=form.cleaned_data['phone_number'],
-                transaction_ref=f"MMW-{timezone.now().timestamp()}"
+                provider=provider,
+                phone_number=phone_number,
+                transaction_ref=ref
             )
             
-            # Notify admin
+            # For MTN, initiate transfer immediately
+            if provider == 'MTN':
+                momo_api = MTNMomoAPI()
+                payer_message = f"Withdrawal from {request.user.get_full_name()}'s account"
+                payee_note = f"Withdrawal ref: {ref}"
+                
+                transfer = momo_api.transfer_money(
+                    amount=amount,
+                    phone_number=phone_number,
+                    external_id=ref,
+                    payee_note=payee_note,
+                    payer_message=payer_message
+                )
+                
+                if transfer:
+                    mm_transaction.momo_transaction_id = transfer.get('financialTransactionId')
+                    mm_transaction.save()
+                    
+                    if transfer.get('status') == 'SUCCESSFUL':
+                        transaction.status = 'completed'
+                        transaction.save()
+                        
+                        # Deduct from locked funds
+                        account.locked_funds -= amount
+                        account.save()
+                        
+                        messages.success(request, "Withdrawal processed successfully!")
+                        return redirect('core:mobile-money-transactions')
+                    else:
+                        transaction.status = 'failed'
+                        transaction.save()
+                        
+                        # Return locked funds
+                        account.locked_funds -= amount
+                        account.account_balance += amount
+                        account.save()
+                        
+                        messages.error(request, "Withdrawal failed. Please try again.")
+                        return redirect('core:mobile-money-withdrawal')
+                else:
+                    messages.error(request, "Failed to initiate withdrawal with MTN")
+                    return redirect('core:mobile-money-withdrawal')
+            
+            # Notify admin for non-MTN or if MTN transfer failed
             Notification.objects.create(
                 user=request.user,
                 notification_type="Withdrawal Request",
@@ -560,15 +752,14 @@ def mobile_money_withdrawal(request):
             
             messages.success(request, "Withdrawal request submitted for admin approval")
             return redirect('core:mobile-money-transactions')
-    else:
-        form = MobileMoneyWithdrawalForm(user=request.user)
+    
+    # GET request handling
+    form = MobileMoneyWithdrawalForm(user=request.user)
     
     return render(request, 'mobile_money/withdrawal.html', {
         'form': form,
         'account': account
     })
-    
-    
 
 @csrf_exempt
 def mobile_money_webhook(request):
