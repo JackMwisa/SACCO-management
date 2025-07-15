@@ -15,6 +15,8 @@ import os
 import dj_database_url
 from dotenv import load_dotenv
 from datetime import timedelta
+from decouple import config
+
 
 
 load_dotenv() 
@@ -53,16 +55,17 @@ LOCALE_PATHS = [
     
 ]
 
-# settings.py
+
 MTN_MOMO_API = {
-    'COLLECTION_PRIMARY_KEY': '27e1d379f2194df2ba742910142d0a44',
-    'COLLECTION_SECONDARY_KEY': 'a49aeee59eb947deaa697b9394b743be',
-    'DISBURSEMENT_PRIMARY_KEY': 'fd214efb4f61441cb33e697b976e3327',
-    'DISBURSEMENT_SECONDARY_KEY': '9d62bb199e6442a1b78b8aaaef7d3919',
-    'BASE_URL': 'https://sandbox.momodeveloper.mtn.com',
-    'CALLBACK_URL': 'https://yourdomain.com/mobile-money/callback/',
-    'ENVIRONMENT': 'sandbox'  # Change to 'production' when live
+    'COLLECTION_PRIMARY_KEY': config('MTN_COLLECTION_PRIMARY_KEY'),
+    'COLLECTION_SECONDARY_KEY': config('MTN_COLLECTION_SECONDARY_KEY'),
+    'DISBURSEMENT_PRIMARY_KEY': config('MTN_DISBURSEMENT_PRIMARY_KEY'),
+    'DISBURSEMENT_SECONDARY_KEY': config('MTN_DISBURSEMENT_SECONDARY_KEY'),
+    'BASE_URL': config('MTN_BASE_URL'),
+    'CALLBACK_URL': config('MTN_CALLBACK_URL'),
+    'ENVIRONMENT': config('MTN_ENVIRONMENT', default='sandbox')
 }
+
 
 
 # Application definition
