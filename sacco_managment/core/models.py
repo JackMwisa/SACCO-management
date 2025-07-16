@@ -88,6 +88,9 @@ class LoanApplication(models.Model):
     date_disbursed = models.DateTimeField(null=True, blank=True)
     admin_comment = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
+    monthly_repayment = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    total_repayment = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    total_interest = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     
     def __str__(self):
         return f"{self.user.username} - {self.loan_type} - {self.amount}"
