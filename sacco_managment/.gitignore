@@ -10,6 +10,3 @@ logs/
 # Ignore coverage reports
 coverage/
 
-build/
-
-source/

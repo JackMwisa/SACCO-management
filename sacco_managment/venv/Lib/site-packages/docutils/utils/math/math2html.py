@@ -61,6 +61,11 @@ class Trace:
             message = Trace.prefix + message
         Trace.show(message, sys.stderr)
 
+    def fatal(cls, message):
+        "Show an error message and terminate"
+        Trace.error('FATAL: ' + message)
+        exit(-1)
+
     def show(cls, message, channel):
         "Show a message out of a channel"
         channel.write(message + '\n')
@@ -68,6 +73,7 @@ class Trace:
     debug = classmethod(debug)
     message = classmethod(message)
     error = classmethod(error)
+    fatal = classmethod(fatal)
     show = classmethod(show)
 
 
@@ -134,7 +140,6 @@ class FormulaConfig:
         '\\oe':        'œ',
         '\\ss':        'ß',
         '\\th':        'þ',
-        '\\hbar':      'ħ',  # cf. \hslash: ℏ in tex2unichar
     }
     for key, value in tex2unichar.mathalpha.items():
         alphacommands['\\'+key] = value
@@ -201,8 +206,9 @@ class FormulaConfig:
         '\\euro': '€',
         '\\guillemotleft': '«',
         '\\guillemotright': '»',
+        '\\hbar': '<i>\u0127</i>',  # ħ LATIN SMALL LETTER H WITH STROKE
         '\\lVert': '‖',
-        '\\Arrowvert':  '‖',
+        '\\Arrowvert':  '\u2016',  # ‖
         '\\lvert': '|',
         '\\newline': '<br/>',
         '\\nobreakspace': ' ',
