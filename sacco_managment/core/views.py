@@ -117,16 +117,94 @@ def loan_status(request):
 @login_required
 def loan_detail(request, loan_id):
     loan = get_object_or_404(LoanApplication, id=loan_id, user=request.user)
-    repayments = loan.repayments.all().order_by('-payment_date')[:5]  # Get last 5 payments
+    repayments = loan.repayments.all().order_by('-payment_date')[:5]
     total_paid = repayments.aggregate(Sum('amount'))['amount__sum'] or 0
-    balance = round(loan.total_repayment - total_paid, 2)  # Round to 2 decimal places
+    balance = round(loan.total_repayment - total_paid, 2)
+    
+    # Generate repayment schedule
+    repayment_schedule = []
+    if loan.status == 'disbursed':
+        payment_date = loan.date_disbursed
+        for i in range(loan.duration_months):
+            payment_date = payment_date + relativedelta(months=1)
+            paid = False
+            payment = None
+            
+            # Check if this payment exists
+            for repayment in loan.repayments.all():
+                if repayment.payment_date.month == payment_date.month and repayment.payment_date.year == payment_date.year:
+                    paid = True
+                    payment = repayment
+                    break
+                    
+            repayment_schedule.append({
+                'due_date': payment_date,
+                'amount': loan.monthly_repayment,
+                'paid': paid,
+                'payment_date': payment.payment_date if payment else None
+            })
+
+    if request.method == 'POST':
+        # Handle repayment form submission
+        amount = Decimal(request.POST.get('amount', 0))
+        if amount <= 0:
+            messages.error(request, "Amount must be greater than zero")
+        elif amount > balance:
+            messages.error(request, f"Amount cannot exceed remaining balance of UGX {balance:,.2f}")
+        else:
+            try:
+                with transaction.atomic():
+                    # Deduct from account
+                    account = request.user.account
+                    if account.account_balance < amount:
+                        messages.error(request, "Insufficient funds in your account")
+                    else:
+                        account.account_balance -= amount
+                        account.save()
+
+                        # Create transaction record
+                        transaction = Transaction.objects.create(
+                            user=request.user,
+                            amount=amount,
+                            transaction_type="loan_repayment",
+                            status="completed",
+                            description=f"Loan repayment for {loan.get_loan_type_display()} loan",
+                            sender=request.user,
+                            receiver=None,
+                            sender_account=account,
+                            receiver_account=None
+                        )
+
+                        # Create repayment record
+                        repayment = LoanRepayment.objects.create(
+                            loan=loan,
+                            amount=amount,
+                            payment_method='wallet',
+                            transaction=transaction,
+                            is_paid=True
+                        )
+
+                        # Check if loan is fully paid
+                        new_total_paid = loan.repayments.aggregate(Sum('amount'))['amount__sum'] or 0
+                        if new_total_paid >= loan.total_repayment:
+                            loan.status = 'completed'
+                            loan.date_completed = timezone.now()
+                            loan.save()
+                            messages.success(request, "Congratulations! Your loan has been fully repaid!")
+                        else:
+                            messages.success(request, f"Payment of UGX {amount:,.2f} received successfully")
+
+                        return redirect('core:loan-detail', loan_id=loan.id)
+            except Exception as e:
+                messages.error(request, f"Payment failed: {str(e)}")
 
     context = {
         'loan': loan,
         'repayments': repayments,
         'total_paid': total_paid,
         'balance': balance,
-        'next_payment': calculate_next_payment_date(loan),
+        'repayment_schedule': repayment_schedule,
+        'today': timezone.now().date(),
         'suggested_amount': min(loan.monthly_repayment, balance) if balance > 0 else 0
     }
     return render(request, 'loan/detail.html', context)
