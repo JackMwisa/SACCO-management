@@ -1,0 +1,286 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="English" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>account.admin &mdash; SACCO Management System 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=cd5f4460"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SACCO Management System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../core.html">core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_auths.html">user_auths package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../account.html">account package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../financial_services.html">financial_services package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reports.html">reports package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../support.html">support package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SACCO Management System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">account.admin</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for account.admin</h1><div class="highlight"><pre>
+<span></span><span class="c1"># account/admin.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib</span><span class="w"> </span><span class="kn">import</span> <span class="n">admin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth.admin</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserAdmin</span> <span class="k">as</span> <span class="n">BaseUserAdmin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib</span><span class="w"> </span><span class="kn">import</span> <span class="n">messages</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.urls</span><span class="w"> </span><span class="kn">import</span> <span class="n">reverse</span><span class="p">,</span> <span class="n">path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.utils.html</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_html</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.http</span><span class="w"> </span><span class="kn">import</span> <span class="n">HttpResponseRedirect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdminRequest</span>  <span class="c1"># or from account.models if needed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Account</span><span class="p">,</span> <span class="n">KYC</span><span class="p">,</span> <span class="n">StaffPermission</span><span class="p">,</span> <span class="n">AuditLog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">user_auths.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdminRequest</span>
+<span class="c1"># Unregister User if already registered</span>
+<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">unregister</span><span class="p">(</span><span class="n">User</span><span class="p">)</span>
+
+<span class="c1"># --- StaffPermission Admin ---</span>
+<div class="viewcode-block" id="StaffPermissionAdmin">
+<a class="viewcode-back" href="../../account.html#account.admin.StaffPermissionAdmin">[docs]</a>
+<span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">StaffPermission</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StaffPermissionAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;role&#39;</span><span class="p">,</span> <span class="s1">&#39;permissions_summary&#39;</span><span class="p">,</span> <span class="s1">&#39;is_active&#39;</span><span class="p">)</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;role&#39;</span><span class="p">,</span> <span class="s1">&#39;can_view_balances&#39;</span><span class="p">,</span> <span class="s1">&#39;can_approve_loans&#39;</span><span class="p">)</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;user__username&#39;</span><span class="p">,</span> <span class="s1">&#39;user__email&#39;</span><span class="p">)</span>
+    <span class="n">list_editable</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;role&#39;</span><span class="p">,)</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;activate_staff&#39;</span><span class="p">,</span> <span class="s1">&#39;deactivate_staff&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="StaffPermissionAdmin.permissions_summary">
+<a class="viewcode-back" href="../../account.html#account.admin.StaffPermissionAdmin.permissions_summary">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">permissions_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">perms</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">can_view_balances</span><span class="p">:</span> <span class="n">perms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;View Balances&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">can_reset_passwords</span><span class="p">:</span> <span class="n">perms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Reset Passwords&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">can_approve_loans</span><span class="p">:</span> <span class="n">perms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Approve Loans&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">can_edit_kyc</span><span class="p">:</span> <span class="n">perms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Edit KYC&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">perms</span><span class="p">)</span> <span class="k">if</span> <span class="n">perms</span> <span class="k">else</span> <span class="s2">&quot;No permissions&quot;</span></div>
+
+    <span class="n">permissions_summary</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s2">&quot;Permissions&quot;</span>
+
+<div class="viewcode-block" id="StaffPermissionAdmin.is_active">
+<a class="viewcode-back" href="../../account.html#account.admin.StaffPermissionAdmin.is_active">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_active</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_active</span></div>
+
+    <span class="n">is_active</span><span class="o">.</span><span class="n">boolean</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="StaffPermissionAdmin.activate_staff">
+<a class="viewcode-back" href="../../account.html#account.admin.StaffPermissionAdmin.activate_staff">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">activate_staff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="n">updated</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user__is_active</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">updated</span><span class="si">}</span><span class="s2"> staff members activated.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="StaffPermissionAdmin.deactivate_staff">
+<a class="viewcode-back" href="../../account.html#account.admin.StaffPermissionAdmin.deactivate_staff">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deactivate_staff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="n">updated</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user__is_active</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">updated</span><span class="si">}</span><span class="s2"> staff members deactivated.&quot;</span><span class="p">)</span></div>
+</div>
+
+
+<span class="c1"># --- Custom User Admin ---</span>
+<div class="viewcode-block" id="UserAdmin">
+<a class="viewcode-back" href="../../account.html#account.admin.UserAdmin">[docs]</a>
+<span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">User</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UserAdmin</span><span class="p">(</span><span class="n">BaseUserAdmin</span><span class="p">):</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;email&#39;</span><span class="p">,</span> <span class="s1">&#39;role&#39;</span><span class="p">,</span> <span class="s1">&#39;is_active&#39;</span><span class="p">,</span> <span class="s1">&#39;is_staff&#39;</span><span class="p">,</span> <span class="s1">&#39;last_login&#39;</span><span class="p">)</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;role&#39;</span><span class="p">,</span> <span class="s1">&#39;is_active&#39;</span><span class="p">,</span> <span class="s1">&#39;is_staff&#39;</span><span class="p">)</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;email&#39;</span><span class="p">,</span> <span class="s1">&#39;first_name&#39;</span><span class="p">,</span> <span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;make_staff&#39;</span><span class="p">,</span> <span class="s1">&#39;remove_staff&#39;</span><span class="p">]</span>
+
+    <span class="n">fieldsets</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">)}),</span>
+        <span class="p">(</span><span class="s1">&#39;Personal info&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;first_name&#39;</span><span class="p">,</span> <span class="s1">&#39;last_name&#39;</span><span class="p">,</span> <span class="s1">&#39;email&#39;</span><span class="p">)}),</span>
+        <span class="p">(</span><span class="s1">&#39;Permissions&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;is_active&#39;</span><span class="p">,</span> <span class="s1">&#39;is_staff&#39;</span><span class="p">,</span> <span class="s1">&#39;is_superuser&#39;</span><span class="p">,</span> <span class="s1">&#39;role&#39;</span><span class="p">,</span> <span class="s1">&#39;groups&#39;</span><span class="p">,</span> <span class="s1">&#39;user_permissions&#39;</span><span class="p">)}),</span>
+        <span class="p">(</span><span class="s1">&#39;Important dates&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;last_login&#39;</span><span class="p">,</span> <span class="s1">&#39;date_joined&#39;</span><span class="p">)}),</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="UserAdmin.make_staff">
+<a class="viewcode-back" href="../../account.html#account.admin.UserAdmin.make_staff">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_staff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="n">updated</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">is_staff</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">updated</span><span class="si">}</span><span class="s2"> users marked as staff.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="UserAdmin.remove_staff">
+<a class="viewcode-back" href="../../account.html#account.admin.UserAdmin.remove_staff">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_staff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="n">updated</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">is_staff</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">updated</span><span class="si">}</span><span class="s2"> users removed from staff.&quot;</span><span class="p">)</span></div>
+</div>
+
+
+<span class="c1"># --- Account Admin ---</span>
+<div class="viewcode-block" id="AccountAdmin">
+<a class="viewcode-back" href="../../account.html#account.admin.AccountAdmin">[docs]</a>
+<span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">Account</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AccountAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;account_number&#39;</span><span class="p">,</span> <span class="s1">&#39;account_status&#39;</span><span class="p">,</span> <span class="s1">&#39;balance_summary&#39;</span><span class="p">,</span> <span class="s1">&#39;kyc_status&#39;</span><span class="p">)</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;account_status&#39;</span><span class="p">,</span> <span class="s1">&#39;kyc_submitted&#39;</span><span class="p">,</span> <span class="s1">&#39;kyc_confirmed&#39;</span><span class="p">)</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;user__username&#39;</span><span class="p">,</span> <span class="s1">&#39;account_number&#39;</span><span class="p">)</span>
+    <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;account_balance&#39;</span><span class="p">,</span> <span class="s1">&#39;mobile_money_balance&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AccountAdmin.balance_summary">
+<a class="viewcode-back" href="../../account.html#account.admin.AccountAdmin.balance_summary">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">balance_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Main: UGX </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">account_balance</span><span class="si">}</span><span class="s2"> | Mobile: UGX </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">mobile_money_balance</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+    <span class="n">balance_summary</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s2">&quot;Balances&quot;</span>
+
+<div class="viewcode-block" id="AccountAdmin.kyc_status">
+<a class="viewcode-back" href="../../account.html#account.admin.AccountAdmin.kyc_status">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">kyc_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">kyc_confirmed</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">format_html</span><span class="p">(</span><span class="s1">&#39;&lt;span style=&quot;color: green;&quot;&gt;&amp;#10003; Approved&lt;/span&gt;&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">obj</span><span class="o">.</span><span class="n">kyc_submitted</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">format_html</span><span class="p">(</span><span class="s1">&#39;&lt;span style=&quot;color: orange;&quot;&gt;Pending Review&lt;/span&gt;&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">format_html</span><span class="p">(</span><span class="s1">&#39;&lt;span style=&quot;color: red;&quot;&gt;Not Submitted&lt;/span&gt;&#39;</span><span class="p">)</span></div>
+
+    <span class="n">kyc_status</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s2">&quot;KYC Status&quot;</span></div>
+
+
+<span class="c1"># --- KYC Admin ---</span>
+<div class="viewcode-block" id="KYCAdmin">
+<a class="viewcode-back" href="../../account.html#account.admin.KYCAdmin">[docs]</a>
+<span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">KYC</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KYCAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;full_name&#39;</span><span class="p">,</span> <span class="s1">&#39;identity_type&#39;</span><span class="p">,</span> <span class="s1">&#39;country&#39;</span><span class="p">,</span> <span class="s1">&#39;kyc_actions&#39;</span><span class="p">)</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;identity_type&#39;</span><span class="p">,</span> <span class="s1">&#39;country&#39;</span><span class="p">)</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;full_name&#39;</span><span class="p">,</span> <span class="s1">&#39;user__username&#39;</span><span class="p">)</span>
+    <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;account&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="KYCAdmin.get_urls">
+<a class="viewcode-back" href="../../account.html#account.admin.KYCAdmin.get_urls">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_urls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">urls</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_urls</span><span class="p">()</span>
+        <span class="n">custom_urls</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">path</span><span class="p">(</span><span class="s1">&#39;&lt;path:object_id&gt;/approve/&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">admin_site</span><span class="o">.</span><span class="n">admin_view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">approve_kyc</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;approve_kyc&#39;</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">custom_urls</span> <span class="o">+</span> <span class="n">urls</span></div>
+
+
+<div class="viewcode-block" id="KYCAdmin.kyc_actions">
+<a class="viewcode-back" href="../../account.html#account.admin.KYCAdmin.kyc_actions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">kyc_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">kyc_confirmed</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">format_html</span><span class="p">(</span><span class="s1">&#39;&lt;a class=&quot;button&quot; href=&quot;</span><span class="si">{}</span><span class="s1">&quot;&gt;Approve&lt;/a&gt;&#39;</span><span class="p">,</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:approve_kyc&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">pk</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="s2">&quot;Approved&quot;</span></div>
+
+    <span class="n">kyc_actions</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s2">&quot;Actions&quot;</span>
+
+<div class="viewcode-block" id="KYCAdmin.approve_kyc">
+<a class="viewcode-back" href="../../account.html#account.admin.KYCAdmin.approve_kyc">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">approve_kyc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">object_id</span><span class="p">):</span>
+        <span class="n">kyc</span> <span class="o">=</span> <span class="n">KYC</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">object_id</span><span class="p">)</span>
+        <span class="n">kyc</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">kyc_confirmed</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">kyc</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;KYC for </span><span class="si">{</span><span class="n">kyc</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2"> approved successfully.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:account_kyc_changelist&#39;</span><span class="p">))</span></div>
+</div>
+
+
+<span class="c1"># --- AuditLog Admin ---</span>
+<div class="viewcode-block" id="AuditLogAdmin">
+<a class="viewcode-back" href="../../account.html#account.admin.AuditLogAdmin">[docs]</a>
+<span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">AuditLog</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AuditLogAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;action&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">,</span> <span class="s1">&#39;ip_address&#39;</span><span class="p">)</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">)</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;user__username&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">)</span>
+    <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;action&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">,</span> <span class="s1">&#39;ip_address&#39;</span><span class="p">)</span>
+    <span class="n">date_hierarchy</span> <span class="o">=</span> <span class="s1">&#39;timestamp&#39;</span></div>
+
+
+<div class="viewcode-block" id="AdminRequestAdmin">
+<a class="viewcode-back" href="../../account.html#account.admin.AdminRequestAdmin">[docs]</a>
+<span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">AdminRequest</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AdminRequestAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;request_type&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;created_at&#39;</span><span class="p">)</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;request_type&#39;</span><span class="p">)</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;user__username&#39;</span><span class="p">,</span> <span class="s1">&#39;user__email&#39;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Gems.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

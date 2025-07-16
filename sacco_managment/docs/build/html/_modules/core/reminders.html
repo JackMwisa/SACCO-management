@@ -1,0 +1,194 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="English" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>core.reminders &mdash; SACCO Management System 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=cd5f4460"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SACCO Management System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../core.html">core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_auths.html">user_auths package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../account.html">account package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../financial_services.html">financial_services package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reports.html">reports package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../support.html">support package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SACCO Management System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">core.reminders</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for core.reminders</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.core.mail</span><span class="w"> </span><span class="kn">import</span> <span class="n">send_mail</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.template.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">render_to_string</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.conf</span><span class="w"> </span><span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoanApplication</span><span class="p">,</span> <span class="n">Notification</span>
+
+<div class="viewcode-block" id="send_payment_reminders">
+<a class="viewcode-back" href="../../core.html#core.reminders.send_payment_reminders">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">send_payment_reminders</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Send payment reminders for upcoming and overdue payments</span>
+<span class="sd">    Runs daily via cron job or celery task</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">today</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    
+    <span class="c1"># Get all active loans</span>
+    <span class="n">active_loans</span> <span class="o">=</span> <span class="n">LoanApplication</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">status__in</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;approved&#39;</span><span class="p">,</span> <span class="s1">&#39;disbursed&#39;</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">loan</span> <span class="ow">in</span> <span class="n">active_loans</span><span class="p">:</span>
+        <span class="n">next_payment_date</span> <span class="o">=</span> <span class="n">calculate_next_payment_date</span><span class="p">(</span><span class="n">loan</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">next_payment_date</span><span class="p">:</span>
+            <span class="k">continue</span>
+            
+        <span class="n">days_until_due</span> <span class="o">=</span> <span class="p">(</span><span class="n">next_payment_date</span> <span class="o">-</span> <span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">days</span>
+        <span class="n">total_paid</span> <span class="o">=</span> <span class="n">loan</span><span class="o">.</span><span class="n">repayments</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Sum</span><span class="p">(</span><span class="s1">&#39;amount&#39;</span><span class="p">))[</span><span class="s1">&#39;amount__sum&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="n">remaining_balance</span> <span class="o">=</span> <span class="n">loan</span><span class="o">.</span><span class="n">total_repayment</span> <span class="o">-</span> <span class="n">total_paid</span>
+        
+        <span class="c1"># Skip if loan is already paid</span>
+        <span class="k">if</span> <span class="n">remaining_balance</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+            
+        <span class="c1"># Determine reminder type based on days until due</span>
+        <span class="k">if</span> <span class="n">days_until_due</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">send_reminder</span><span class="p">(</span><span class="n">loan</span><span class="p">,</span> <span class="s1">&#39;upcoming&#39;</span><span class="p">,</span> <span class="n">days_until_due</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">days_until_due</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">send_reminder</span><span class="p">(</span><span class="n">loan</span><span class="p">,</span> <span class="s1">&#39;due_tomorrow&#39;</span><span class="p">,</span> <span class="n">days_until_due</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">days_until_due</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">send_reminder</span><span class="p">(</span><span class="n">loan</span><span class="p">,</span> <span class="s1">&#39;due_today&#39;</span><span class="p">,</span> <span class="n">days_until_due</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">days_until_due</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">send_reminder</span><span class="p">(</span><span class="n">loan</span><span class="p">,</span> <span class="s1">&#39;overdue&#39;</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">days_until_due</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="send_reminder">
+<a class="viewcode-back" href="../../core.html#core.reminders.send_reminder">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">send_reminder</span><span class="p">(</span><span class="n">loan</span><span class="p">,</span> <span class="n">reminder_type</span><span class="p">,</span> <span class="n">days</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Send a reminder notification and email</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;loan&#39;</span><span class="p">:</span> <span class="n">loan</span><span class="p">,</span>
+        <span class="s1">&#39;days&#39;</span><span class="p">:</span> <span class="n">days</span><span class="p">,</span>
+        <span class="s1">&#39;next_payment_date&#39;</span><span class="p">:</span> <span class="n">calculate_next_payment_date</span><span class="p">(</span><span class="n">loan</span><span class="p">),</span>
+        <span class="s1">&#39;amount_due&#39;</span><span class="p">:</span> <span class="n">loan</span><span class="o">.</span><span class="n">monthly_repayment</span><span class="p">,</span>
+        <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">loan</span><span class="o">.</span><span class="n">user</span>
+    <span class="p">}</span>
+    
+    <span class="c1"># Create notification</span>
+    <span class="k">if</span> <span class="n">reminder_type</span> <span class="o">==</span> <span class="s1">&#39;upcoming&#39;</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Reminder: Your loan payment of UGX </span><span class="si">{</span><span class="n">loan</span><span class="o">.</span><span class="n">monthly_repayment</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2"> is due in </span><span class="si">{</span><span class="n">days</span><span class="si">}</span><span class="s2"> days&quot;</span>
+    <span class="k">elif</span> <span class="n">reminder_type</span> <span class="o">==</span> <span class="s1">&#39;due_tomorrow&#39;</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Reminder: Your loan payment of UGX </span><span class="si">{</span><span class="n">loan</span><span class="o">.</span><span class="n">monthly_repayment</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2"> is due tomorrow&quot;</span>
+    <span class="k">elif</span> <span class="n">reminder_type</span> <span class="o">==</span> <span class="s1">&#39;due_today&#39;</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Reminder: Your loan payment of UGX </span><span class="si">{</span><span class="n">loan</span><span class="o">.</span><span class="n">monthly_repayment</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2"> is due today&quot;</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># overdue</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Urgent: Your loan payment of UGX </span><span class="si">{</span><span class="n">loan</span><span class="o">.</span><span class="n">monthly_repayment</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">days</span><span class="si">}</span><span class="s2"> days overdue&quot;</span>
+    
+    <span class="n">Notification</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">loan</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+        <span class="n">notification_type</span><span class="o">=</span><span class="s2">&quot;Payment Reminder&quot;</span><span class="p">,</span>
+        <span class="n">amount</span><span class="o">=</span><span class="n">loan</span><span class="o">.</span><span class="n">monthly_repayment</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="n">message</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># Send email</span>
+    <span class="n">subject</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Loan Payment Reminder - </span><span class="si">{</span><span class="n">reminder_type</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">html_message</span> <span class="o">=</span> <span class="n">render_to_string</span><span class="p">(</span><span class="s1">&#39;emails/payment_reminder.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+    <span class="n">send_mail</span><span class="p">(</span>
+        <span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># Text version will be auto-generated from HTML</span>
+        <span class="n">html_message</span><span class="o">=</span><span class="n">html_message</span><span class="p">,</span>
+        <span class="n">from_email</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">DEFAULT_FROM_EMAIL</span><span class="p">,</span>
+        <span class="n">recipient_list</span><span class="o">=</span><span class="p">[</span><span class="n">loan</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">],</span>
+        <span class="n">fail_silently</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Gems.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

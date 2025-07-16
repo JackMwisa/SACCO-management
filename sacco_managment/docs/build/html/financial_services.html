@@ -1,0 +1,890 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="English" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>financial_services package &mdash; SACCO Management System 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=cd5f4460"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="financial_services.migrations package" href="financial_services.migrations.html" />
+    <link rel="prev" title="account.migrations package" href="account.migrations.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SACCO Management System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_auths.html">user_auths package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="account.html">account package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">financial_services package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="financial_services.migrations.html">financial_services.migrations package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-financial_services.admin">financial_services.admin module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#financial_services.admin.CryptoTransactionAdmin"><code class="docutils literal notranslate"><span class="pre">CryptoTransactionAdmin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoTransactionAdmin.Media"><code class="docutils literal notranslate"><span class="pre">CryptoTransactionAdmin.Media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoTransactionAdmin.amount_display"><code class="docutils literal notranslate"><span class="pre">CryptoTransactionAdmin.amount_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoTransactionAdmin.date_hierarchy"><code class="docutils literal notranslate"><span class="pre">CryptoTransactionAdmin.date_hierarchy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoTransactionAdmin.get_queryset"><code class="docutils literal notranslate"><span class="pre">CryptoTransactionAdmin.get_queryset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoTransactionAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">CryptoTransactionAdmin.list_display</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoTransactionAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">CryptoTransactionAdmin.list_filter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoTransactionAdmin.list_select_related"><code class="docutils literal notranslate"><span class="pre">CryptoTransactionAdmin.list_select_related</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoTransactionAdmin.media"><code class="docutils literal notranslate"><span class="pre">CryptoTransactionAdmin.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoTransactionAdmin.readonly_fields"><code class="docutils literal notranslate"><span class="pre">CryptoTransactionAdmin.readonly_fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoTransactionAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">CryptoTransactionAdmin.search_fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoTransactionAdmin.wallet_info"><code class="docutils literal notranslate"><span class="pre">CryptoTransactionAdmin.wallet_info()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#financial_services.admin.CryptoWalletAdmin"><code class="docutils literal notranslate"><span class="pre">CryptoWalletAdmin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoWalletAdmin.Media"><code class="docutils literal notranslate"><span class="pre">CryptoWalletAdmin.Media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoWalletAdmin.balance_display"><code class="docutils literal notranslate"><span class="pre">CryptoWalletAdmin.balance_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoWalletAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">CryptoWalletAdmin.list_display</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoWalletAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">CryptoWalletAdmin.list_filter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoWalletAdmin.list_select_related"><code class="docutils literal notranslate"><span class="pre">CryptoWalletAdmin.list_select_related</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoWalletAdmin.media"><code class="docutils literal notranslate"><span class="pre">CryptoWalletAdmin.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoWalletAdmin.readonly_fields"><code class="docutils literal notranslate"><span class="pre">CryptoWalletAdmin.readonly_fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.admin.CryptoWalletAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">CryptoWalletAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-financial_services.apps">financial_services.apps module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#financial_services.apps.FinancialServicesConfig"><code class="docutils literal notranslate"><span class="pre">FinancialServicesConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.apps.FinancialServicesConfig.default_auto_field"><code class="docutils literal notranslate"><span class="pre">FinancialServicesConfig.default_auto_field</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.apps.FinancialServicesConfig.name"><code class="docutils literal notranslate"><span class="pre">FinancialServicesConfig.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-financial_services.forms">financial_services.forms module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#financial_services.forms.ReportForm"><code class="docutils literal notranslate"><span class="pre">ReportForm</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.forms.ReportForm.base_fields"><code class="docutils literal notranslate"><span class="pre">ReportForm.base_fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.forms.ReportForm.clean"><code class="docutils literal notranslate"><span class="pre">ReportForm.clean()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.forms.ReportForm.declared_fields"><code class="docutils literal notranslate"><span class="pre">ReportForm.declared_fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.forms.ReportForm.media"><code class="docutils literal notranslate"><span class="pre">ReportForm.media</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#financial_services.forms.TransactionForm"><code class="docutils literal notranslate"><span class="pre">TransactionForm</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.forms.TransactionForm.Meta"><code class="docutils literal notranslate"><span class="pre">TransactionForm.Meta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.forms.TransactionForm.base_fields"><code class="docutils literal notranslate"><span class="pre">TransactionForm.base_fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.forms.TransactionForm.clean"><code class="docutils literal notranslate"><span class="pre">TransactionForm.clean()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.forms.TransactionForm.clean_amount"><code class="docutils literal notranslate"><span class="pre">TransactionForm.clean_amount()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.forms.TransactionForm.declared_fields"><code class="docutils literal notranslate"><span class="pre">TransactionForm.declared_fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.forms.TransactionForm.media"><code class="docutils literal notranslate"><span class="pre">TransactionForm.media</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-financial_services.models">financial_services.models module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#financial_services.models.CryptoTransaction"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.STATUS_CHOICES"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.STATUS_CHOICES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.TRANSACTION_TYPES"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.TRANSACTION_TYPES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.amount"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.amount</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.description"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.get_absolute_url"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.get_absolute_url()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.get_next_by_timestamp"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.get_next_by_timestamp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.get_previous_by_timestamp"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.get_previous_by_timestamp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.get_status_display"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.get_status_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.get_transaction_type_display"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.get_transaction_type_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.id"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.objects"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.objects</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.related_transaction"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.related_transaction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.related_transaction_id"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.related_transaction_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.related_transactions"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.related_transactions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.save"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.save()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.status"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.timestamp"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.timestamp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.transaction_type"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.transaction_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.wallet"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.wallet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoTransaction.wallet_id"><code class="docutils literal notranslate"><span class="pre">CryptoTransaction.wallet_id</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#financial_services.models.CryptoWallet"><code class="docutils literal notranslate"><span class="pre">CryptoWallet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.WALLET_TYPES"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.WALLET_TYPES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.balance"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.balance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.created_at"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.created_at</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.get_balance_display"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.get_balance_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.get_next_by_created_at"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.get_next_by_created_at()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.get_next_by_updated_at"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.get_next_by_updated_at()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.get_previous_by_created_at"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.get_previous_by_created_at()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.get_previous_by_updated_at"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.get_previous_by_updated_at()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.get_wallet_type_display"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.get_wallet_type_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.id"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.objects"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.objects</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.transactions"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.transactions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.updated_at"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.updated_at</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.user"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.user</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.user_id"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.user_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.models.CryptoWallet.wallet_type"><code class="docutils literal notranslate"><span class="pre">CryptoWallet.wallet_type</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-financial_services.tests">financial_services.tests module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#financial_services.tests.FinancialServicesTests"><code class="docutils literal notranslate"><span class="pre">FinancialServicesTests</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.tests.FinancialServicesTests.setUp"><code class="docutils literal notranslate"><span class="pre">FinancialServicesTests.setUp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.tests.FinancialServicesTests.test_create_transaction_get"><code class="docutils literal notranslate"><span class="pre">FinancialServicesTests.test_create_transaction_get()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.tests.FinancialServicesTests.test_dashboard_view"><code class="docutils literal notranslate"><span class="pre">FinancialServicesTests.test_dashboard_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.tests.FinancialServicesTests.test_generate_report"><code class="docutils literal notranslate"><span class="pre">FinancialServicesTests.test_generate_report()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.tests.FinancialServicesTests.test_transaction_detail"><code class="docutils literal notranslate"><span class="pre">FinancialServicesTests.test_transaction_detail()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.tests.FinancialServicesTests.test_transaction_history_no_filters"><code class="docutils literal notranslate"><span class="pre">FinancialServicesTests.test_transaction_history_no_filters()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#financial_services.tests.FinancialServicesTests.test_wallet_detail"><code class="docutils literal notranslate"><span class="pre">FinancialServicesTests.test_wallet_detail()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-financial_services.urls">financial_services.urls module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-financial_services.views">financial_services.views module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#financial_services.views.create_transaction"><code class="docutils literal notranslate"><span class="pre">create_transaction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#financial_services.views.dashboard"><code class="docutils literal notranslate"><span class="pre">dashboard()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#financial_services.views.generate_report"><code class="docutils literal notranslate"><span class="pre">generate_report()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#financial_services.views.transaction_detail"><code class="docutils literal notranslate"><span class="pre">transaction_detail()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#financial_services.views.transaction_history"><code class="docutils literal notranslate"><span class="pre">transaction_history()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#financial_services.views.wallet_detail"><code class="docutils literal notranslate"><span class="pre">wallet_detail()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-financial_services">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">reports package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">support package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SACCO Management System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">financial_services package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/financial_services.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="financial-services-package">
+<h1>financial_services package<a class="headerlink" href="#financial-services-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="financial_services.migrations.html">financial_services.migrations package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="financial_services.migrations.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="financial_services.migrations.html#module-financial_services.migrations.0001_initial">financial_services.migrations.0001_initial module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="financial_services.migrations.html#financial_services.migrations.0001_initial.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="financial_services.migrations.html#financial_services.migrations.0001_initial.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="financial_services.migrations.html#financial_services.migrations.0001_initial.Migration.initial"><code class="docutils literal notranslate"><span class="pre">Migration.initial</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="financial_services.migrations.html#financial_services.migrations.0001_initial.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="financial_services.migrations.html#module-financial_services.migrations.0002_alter_cryptotransaction_options_and_more">financial_services.migrations.0002_alter_cryptotransaction_options_and_more module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="financial_services.migrations.html#financial_services.migrations.0002_alter_cryptotransaction_options_and_more.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="financial_services.migrations.html#financial_services.migrations.0002_alter_cryptotransaction_options_and_more.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="financial_services.migrations.html#financial_services.migrations.0002_alter_cryptotransaction_options_and_more.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="financial_services.migrations.html#module-financial_services.migrations">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-financial_services.admin">
+<span id="financial-services-admin-module"></span><h2>financial_services.admin module<a class="headerlink" href="#module-financial_services.admin" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoTransactionAdmin">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">financial_services.admin.</span></span><span class="sig-name descname"><span class="pre">CryptoTransactionAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/admin.html#CryptoTransactionAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.admin.CryptoTransactionAdmin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoTransactionAdmin.Media">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Media</span></span><a class="reference internal" href="_modules/financial_services/admin.html#CryptoTransactionAdmin.Media"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.admin.CryptoTransactionAdmin.Media" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoTransactionAdmin.Media.css">
+<span class="sig-name descname"><span class="pre">css</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'all':</span> <span class="pre">('admin/css/custom.css',)}</span></em><a class="headerlink" href="#financial_services.admin.CryptoTransactionAdmin.Media.css" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoTransactionAdmin.amount_display">
+<span class="sig-name descname"><span class="pre">amount_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/admin.html#CryptoTransactionAdmin.amount_display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.admin.CryptoTransactionAdmin.amount_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoTransactionAdmin.date_hierarchy">
+<span class="sig-name descname"><span class="pre">date_hierarchy</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'timestamp'</span></em><a class="headerlink" href="#financial_services.admin.CryptoTransactionAdmin.date_hierarchy" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoTransactionAdmin.get_queryset">
+<span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/admin.html#CryptoTransactionAdmin.get_queryset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.admin.CryptoTransactionAdmin.get_queryset" title="Link to this definition"></a></dt>
+<dd><p>Return a QuerySet of all model instances that can be edited by the
+admin site. This is used by changelist_view.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoTransactionAdmin.list_display">
+<span class="sig-name descname"><span class="pre">list_display</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('id',</span> <span class="pre">'wallet_info',</span> <span class="pre">'transaction_type',</span> <span class="pre">'amount_display',</span> <span class="pre">'status',</span> <span class="pre">'timestamp')</span></em><a class="headerlink" href="#financial_services.admin.CryptoTransactionAdmin.list_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoTransactionAdmin.list_filter">
+<span class="sig-name descname"><span class="pre">list_filter</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('transaction_type',</span> <span class="pre">'status',</span> <span class="pre">'timestamp')</span></em><a class="headerlink" href="#financial_services.admin.CryptoTransactionAdmin.list_filter" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoTransactionAdmin.list_select_related">
+<span class="sig-name descname"><span class="pre">list_select_related</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('wallet',</span> <span class="pre">'wallet__user')</span></em><a class="headerlink" href="#financial_services.admin.CryptoTransactionAdmin.list_select_related" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoTransactionAdmin.media">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#financial_services.admin.CryptoTransactionAdmin.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoTransactionAdmin.readonly_fields">
+<span class="sig-name descname"><span class="pre">readonly_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('timestamp',)</span></em><a class="headerlink" href="#financial_services.admin.CryptoTransactionAdmin.readonly_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoTransactionAdmin.search_fields">
+<span class="sig-name descname"><span class="pre">search_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('wallet__user__username',</span> <span class="pre">'wallet__user__email',</span> <span class="pre">'description')</span></em><a class="headerlink" href="#financial_services.admin.CryptoTransactionAdmin.search_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoTransactionAdmin.wallet_info">
+<span class="sig-name descname"><span class="pre">wallet_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/admin.html#CryptoTransactionAdmin.wallet_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.admin.CryptoTransactionAdmin.wallet_info" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoWalletAdmin">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">financial_services.admin.</span></span><span class="sig-name descname"><span class="pre">CryptoWalletAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/admin.html#CryptoWalletAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.admin.CryptoWalletAdmin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoWalletAdmin.Media">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Media</span></span><a class="reference internal" href="_modules/financial_services/admin.html#CryptoWalletAdmin.Media"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.admin.CryptoWalletAdmin.Media" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoWalletAdmin.Media.css">
+<span class="sig-name descname"><span class="pre">css</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'all':</span> <span class="pre">('admin/css/custom.css',)}</span></em><a class="headerlink" href="#financial_services.admin.CryptoWalletAdmin.Media.css" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoWalletAdmin.balance_display">
+<span class="sig-name descname"><span class="pre">balance_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/admin.html#CryptoWalletAdmin.balance_display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.admin.CryptoWalletAdmin.balance_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoWalletAdmin.list_display">
+<span class="sig-name descname"><span class="pre">list_display</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('user',</span> <span class="pre">'wallet_type',</span> <span class="pre">'balance_display',</span> <span class="pre">'created_at')</span></em><a class="headerlink" href="#financial_services.admin.CryptoWalletAdmin.list_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoWalletAdmin.list_filter">
+<span class="sig-name descname"><span class="pre">list_filter</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('wallet_type',</span> <span class="pre">'created_at')</span></em><a class="headerlink" href="#financial_services.admin.CryptoWalletAdmin.list_filter" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoWalletAdmin.list_select_related">
+<span class="sig-name descname"><span class="pre">list_select_related</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('user',)</span></em><a class="headerlink" href="#financial_services.admin.CryptoWalletAdmin.list_select_related" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoWalletAdmin.media">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#financial_services.admin.CryptoWalletAdmin.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoWalletAdmin.readonly_fields">
+<span class="sig-name descname"><span class="pre">readonly_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('created_at',</span> <span class="pre">'updated_at')</span></em><a class="headerlink" href="#financial_services.admin.CryptoWalletAdmin.readonly_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.admin.CryptoWalletAdmin.search_fields">
+<span class="sig-name descname"><span class="pre">search_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('user__username',</span> <span class="pre">'user__email')</span></em><a class="headerlink" href="#financial_services.admin.CryptoWalletAdmin.search_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-financial_services.apps">
+<span id="financial-services-apps-module"></span><h2>financial_services.apps module<a class="headerlink" href="#module-financial_services.apps" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="financial_services.apps.FinancialServicesConfig">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">financial_services.apps.</span></span><span class="sig-name descname"><span class="pre">FinancialServicesConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/apps.html#FinancialServicesConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.apps.FinancialServicesConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AppConfig</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.apps.FinancialServicesConfig.default_auto_field">
+<span class="sig-name descname"><span class="pre">default_auto_field</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'django.db.models.BigAutoField'</span></em><a class="headerlink" href="#financial_services.apps.FinancialServicesConfig.default_auto_field" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.apps.FinancialServicesConfig.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'financial_services'</span></em><a class="headerlink" href="#financial_services.apps.FinancialServicesConfig.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-financial_services.forms">
+<span id="financial-services-forms-module"></span><h2>financial_services.forms module<a class="headerlink" href="#module-financial_services.forms" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="financial_services.forms.ReportForm">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">financial_services.forms.</span></span><span class="sig-name descname"><span class="pre">ReportForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_id='id_%s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_class=&lt;class</span> <span class="pre">'django.forms.utils.ErrorList'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_suffix=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">empty_permitted=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_order=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_required_attribute=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">renderer=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/forms.html#ReportForm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.forms.ReportForm" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Form</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.forms.ReportForm.base_fields">
+<span class="sig-name descname"><span class="pre">base_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'end_date':</span> <span class="pre">&lt;django.forms.fields.DateField</span> <span class="pre">object&gt;,</span> <span class="pre">'format':</span> <span class="pre">&lt;django.forms.fields.ChoiceField</span> <span class="pre">object&gt;,</span> <span class="pre">'start_date':</span> <span class="pre">&lt;django.forms.fields.DateField</span> <span class="pre">object&gt;}</span></em><a class="headerlink" href="#financial_services.forms.ReportForm.base_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.forms.ReportForm.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/forms.html#ReportForm.clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.forms.ReportForm.clean" title="Link to this definition"></a></dt>
+<dd><p>Hook for doing any extra form-wide cleaning after Field.clean() has been
+called on every field. Any ValidationError raised by this method will
+not be associated with a particular field; it will have a special-case
+association with the field named '__all__'.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.forms.ReportForm.declared_fields">
+<span class="sig-name descname"><span class="pre">declared_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'end_date':</span> <span class="pre">&lt;django.forms.fields.DateField</span> <span class="pre">object&gt;,</span> <span class="pre">'format':</span> <span class="pre">&lt;django.forms.fields.ChoiceField</span> <span class="pre">object&gt;,</span> <span class="pre">'start_date':</span> <span class="pre">&lt;django.forms.fields.DateField</span> <span class="pre">object&gt;}</span></em><a class="headerlink" href="#financial_services.forms.ReportForm.declared_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="financial_services.forms.ReportForm.media">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#financial_services.forms.ReportForm.media" title="Link to this definition"></a></dt>
+<dd><p>Return all media required to render the widgets on this form.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="financial_services.forms.TransactionForm">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">financial_services.forms.</span></span><span class="sig-name descname"><span class="pre">TransactionForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/forms.html#TransactionForm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.forms.TransactionForm" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelForm</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="financial_services.forms.TransactionForm.Meta">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="_modules/financial_services/forms.html#TransactionForm.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.forms.TransactionForm.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.forms.TransactionForm.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['wallet',</span> <span class="pre">'transaction_type',</span> <span class="pre">'amount',</span> <span class="pre">'description']</span></em><a class="headerlink" href="#financial_services.forms.TransactionForm.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.forms.TransactionForm.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#financial_services.forms.TransactionForm.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#financial_services.models.CryptoTransaction" title="financial_services.models.CryptoTransaction"><code class="xref py py-class docutils literal notranslate"><span class="pre">CryptoTransaction</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.forms.TransactionForm.Meta.widgets">
+<span class="sig-name descname"><span class="pre">widgets</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'description':</span> <span class="pre">&lt;django.forms.widgets.Textarea</span> <span class="pre">object&gt;}</span></em><a class="headerlink" href="#financial_services.forms.TransactionForm.Meta.widgets" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.forms.TransactionForm.base_fields">
+<span class="sig-name descname"><span class="pre">base_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'amount':</span> <span class="pre">&lt;django.forms.fields.DecimalField</span> <span class="pre">object&gt;,</span> <span class="pre">'description':</span> <span class="pre">&lt;django.forms.fields.CharField</span> <span class="pre">object&gt;,</span> <span class="pre">'transaction_type':</span> <span class="pre">&lt;django.forms.fields.TypedChoiceField</span> <span class="pre">object&gt;,</span> <span class="pre">'wallet':</span> <span class="pre">&lt;django.forms.models.ModelChoiceField</span> <span class="pre">object&gt;}</span></em><a class="headerlink" href="#financial_services.forms.TransactionForm.base_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.forms.TransactionForm.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/forms.html#TransactionForm.clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.forms.TransactionForm.clean" title="Link to this definition"></a></dt>
+<dd><p>Hook for doing any extra form-wide cleaning after Field.clean() has been
+called on every field. Any ValidationError raised by this method will
+not be associated with a particular field; it will have a special-case
+association with the field named '__all__'.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.forms.TransactionForm.clean_amount">
+<span class="sig-name descname"><span class="pre">clean_amount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/forms.html#TransactionForm.clean_amount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.forms.TransactionForm.clean_amount" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.forms.TransactionForm.declared_fields">
+<span class="sig-name descname"><span class="pre">declared_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#financial_services.forms.TransactionForm.declared_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="financial_services.forms.TransactionForm.media">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#financial_services.forms.TransactionForm.media" title="Link to this definition"></a></dt>
+<dd><p>Return all media required to render the widgets on this form.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-financial_services.models">
+<span id="financial-services-models-module"></span><h2>financial_services.models module<a class="headerlink" href="#module-financial_services.models" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">financial_services.models.</span></span><span class="sig-name descname"><span class="pre">CryptoTransaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wallet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transaction_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_transaction</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/models.html#CryptoTransaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.models.CryptoTransaction" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.DoesNotExist">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#financial_services.models.CryptoTransaction.DoesNotExist" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.MultipleObjectsReturned">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#financial_services.models.CryptoTransaction.MultipleObjectsReturned" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.STATUS_CHOICES">
+<span class="sig-name descname"><span class="pre">STATUS_CHOICES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('PENDING',</span> <span class="pre">'Pending'),</span> <span class="pre">('COMPLETED',</span> <span class="pre">'Completed'),</span> <span class="pre">('FAILED',</span> <span class="pre">'Failed'),</span> <span class="pre">('CANCELLED',</span> <span class="pre">'Cancelled'))</span></em><a class="headerlink" href="#financial_services.models.CryptoTransaction.STATUS_CHOICES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.TRANSACTION_TYPES">
+<span class="sig-name descname"><span class="pre">TRANSACTION_TYPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('DEPOSIT',</span> <span class="pre">'Deposit'),</span> <span class="pre">('WITHDRAWAL',</span> <span class="pre">'Withdrawal'),</span> <span class="pre">('TRANSFER',</span> <span class="pre">'Transfer'))</span></em><a class="headerlink" href="#financial_services.models.CryptoTransaction.TRANSACTION_TYPES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.amount">
+<span class="sig-name descname"><span class="pre">amount</span></span><a class="headerlink" href="#financial_services.models.CryptoTransaction.amount" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#financial_services.models.CryptoTransaction.description" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.get_absolute_url">
+<span class="sig-name descname"><span class="pre">get_absolute_url</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/models.html#CryptoTransaction.get_absolute_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.models.CryptoTransaction.get_absolute_url" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.get_next_by_timestamp">
+<span class="sig-name descname"><span class="pre">get_next_by_timestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">timestamp&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#financial_services.models.CryptoTransaction.get_next_by_timestamp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.get_previous_by_timestamp">
+<span class="sig-name descname"><span class="pre">get_previous_by_timestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">timestamp&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#financial_services.models.CryptoTransaction.get_previous_by_timestamp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.get_status_display">
+<span class="sig-name descname"><span class="pre">get_status_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.CharField:</span> <span class="pre">status&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#financial_services.models.CryptoTransaction.get_status_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.get_transaction_type_display">
+<span class="sig-name descname"><span class="pre">get_transaction_type_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.CharField:</span> <span class="pre">transaction_type&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#financial_services.models.CryptoTransaction.get_transaction_type_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#financial_services.models.CryptoTransaction.id" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#financial_services.models.CryptoTransaction.objects" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.related_transaction">
+<span class="sig-name descname"><span class="pre">related_transaction</span></span><a class="headerlink" href="#financial_services.models.CryptoTransaction.related_transaction" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.related_transaction_id">
+<span class="sig-name descname"><span class="pre">related_transaction_id</span></span><a class="headerlink" href="#financial_services.models.CryptoTransaction.related_transaction_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.related_transactions">
+<span class="sig-name descname"><span class="pre">related_transactions</span></span><a class="headerlink" href="#financial_services.models.CryptoTransaction.related_transactions" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Parent.children</span></code> is a <code class="docutils literal notranslate"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/models.html#CryptoTransaction.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.models.CryptoTransaction.save" title="Link to this definition"></a></dt>
+<dd><p>Save the current instance. Override this in a subclass if you want to
+control the saving process.</p>
+<p>The 'force_insert' and 'force_update' parameters can be used to insist
+that the &quot;save&quot; must be an SQL insert or update (or equivalent for
+non-SQL backends), respectively. Normally, they should not be set.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.status">
+<span class="sig-name descname"><span class="pre">status</span></span><a class="headerlink" href="#financial_services.models.CryptoTransaction.status" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#financial_services.models.CryptoTransaction.timestamp" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.transaction_type">
+<span class="sig-name descname"><span class="pre">transaction_type</span></span><a class="headerlink" href="#financial_services.models.CryptoTransaction.transaction_type" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.wallet">
+<span class="sig-name descname"><span class="pre">wallet</span></span><a class="headerlink" href="#financial_services.models.CryptoTransaction.wallet" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoTransaction.wallet_id">
+<span class="sig-name descname"><span class="pre">wallet_id</span></span><a class="headerlink" href="#financial_services.models.CryptoTransaction.wallet_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">financial_services.models.</span></span><span class="sig-name descname"><span class="pre">CryptoWallet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wallet_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">balance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_at</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updated_at</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/models.html#CryptoWallet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.models.CryptoWallet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.DoesNotExist">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#financial_services.models.CryptoWallet.DoesNotExist" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.MultipleObjectsReturned">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#financial_services.models.CryptoWallet.MultipleObjectsReturned" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.WALLET_TYPES">
+<span class="sig-name descname"><span class="pre">WALLET_TYPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('BTC',</span> <span class="pre">'Bitcoin'),</span> <span class="pre">('ETH',</span> <span class="pre">'Ethereum'),</span> <span class="pre">('USDT',</span> <span class="pre">'Tether'))</span></em><a class="headerlink" href="#financial_services.models.CryptoWallet.WALLET_TYPES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.balance">
+<span class="sig-name descname"><span class="pre">balance</span></span><a class="headerlink" href="#financial_services.models.CryptoWallet.balance" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.created_at">
+<span class="sig-name descname"><span class="pre">created_at</span></span><a class="headerlink" href="#financial_services.models.CryptoWallet.created_at" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.get_balance_display">
+<span class="sig-name descname"><span class="pre">get_balance_display</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/models.html#CryptoWallet.get_balance_display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.models.CryptoWallet.get_balance_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.get_next_by_created_at">
+<span class="sig-name descname"><span class="pre">get_next_by_created_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">created_at&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#financial_services.models.CryptoWallet.get_next_by_created_at" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.get_next_by_updated_at">
+<span class="sig-name descname"><span class="pre">get_next_by_updated_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">updated_at&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#financial_services.models.CryptoWallet.get_next_by_updated_at" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.get_previous_by_created_at">
+<span class="sig-name descname"><span class="pre">get_previous_by_created_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">created_at&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#financial_services.models.CryptoWallet.get_previous_by_created_at" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.get_previous_by_updated_at">
+<span class="sig-name descname"><span class="pre">get_previous_by_updated_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">updated_at&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#financial_services.models.CryptoWallet.get_previous_by_updated_at" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.get_wallet_type_display">
+<span class="sig-name descname"><span class="pre">get_wallet_type_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.CharField:</span> <span class="pre">wallet_type&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#financial_services.models.CryptoWallet.get_wallet_type_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#financial_services.models.CryptoWallet.id" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#financial_services.models.CryptoWallet.objects" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.transactions">
+<span class="sig-name descname"><span class="pre">transactions</span></span><a class="headerlink" href="#financial_services.models.CryptoWallet.transactions" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Parent.children</span></code> is a <code class="docutils literal notranslate"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.updated_at">
+<span class="sig-name descname"><span class="pre">updated_at</span></span><a class="headerlink" href="#financial_services.models.CryptoWallet.updated_at" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.user">
+<span class="sig-name descname"><span class="pre">user</span></span><a class="headerlink" href="#financial_services.models.CryptoWallet.user" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.user_id">
+<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#financial_services.models.CryptoWallet.user_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.models.CryptoWallet.wallet_type">
+<span class="sig-name descname"><span class="pre">wallet_type</span></span><a class="headerlink" href="#financial_services.models.CryptoWallet.wallet_type" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-financial_services.tests">
+<span id="financial-services-tests-module"></span><h2>financial_services.tests module<a class="headerlink" href="#module-financial_services.tests" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="financial_services.tests.FinancialServicesTests">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">financial_services.tests.</span></span><span class="sig-name descname"><span class="pre">FinancialServicesTests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/tests.html#FinancialServicesTests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.tests.FinancialServicesTests" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.tests.FinancialServicesTests.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/tests.html#FinancialServicesTests.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.tests.FinancialServicesTests.setUp" title="Link to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.tests.FinancialServicesTests.test_create_transaction_get">
+<span class="sig-name descname"><span class="pre">test_create_transaction_get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/tests.html#FinancialServicesTests.test_create_transaction_get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.tests.FinancialServicesTests.test_create_transaction_get" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.tests.FinancialServicesTests.test_dashboard_view">
+<span class="sig-name descname"><span class="pre">test_dashboard_view</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/tests.html#FinancialServicesTests.test_dashboard_view"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.tests.FinancialServicesTests.test_dashboard_view" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.tests.FinancialServicesTests.test_generate_report">
+<span class="sig-name descname"><span class="pre">test_generate_report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/tests.html#FinancialServicesTests.test_generate_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.tests.FinancialServicesTests.test_generate_report" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.tests.FinancialServicesTests.test_transaction_detail">
+<span class="sig-name descname"><span class="pre">test_transaction_detail</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/tests.html#FinancialServicesTests.test_transaction_detail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.tests.FinancialServicesTests.test_transaction_detail" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.tests.FinancialServicesTests.test_transaction_history_no_filters">
+<span class="sig-name descname"><span class="pre">test_transaction_history_no_filters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/tests.html#FinancialServicesTests.test_transaction_history_no_filters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.tests.FinancialServicesTests.test_transaction_history_no_filters" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="financial_services.tests.FinancialServicesTests.test_wallet_detail">
+<span class="sig-name descname"><span class="pre">test_wallet_detail</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/tests.html#FinancialServicesTests.test_wallet_detail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.tests.FinancialServicesTests.test_wallet_detail" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-financial_services.urls">
+<span id="financial-services-urls-module"></span><h2>financial_services.urls module<a class="headerlink" href="#module-financial_services.urls" title="Link to this heading"></a></h2>
+</section>
+<section id="module-financial_services.views">
+<span id="financial-services-views-module"></span><h2>financial_services.views module<a class="headerlink" href="#module-financial_services.views" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="financial_services.views.create_transaction">
+<span class="sig-prename descclassname"><span class="pre">financial_services.views.</span></span><span class="sig-name descname"><span class="pre">create_transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/views.html#create_transaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.views.create_transaction" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="financial_services.views.dashboard">
+<span class="sig-prename descclassname"><span class="pre">financial_services.views.</span></span><span class="sig-name descname"><span class="pre">dashboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/views.html#dashboard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.views.dashboard" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="financial_services.views.generate_report">
+<span class="sig-prename descclassname"><span class="pre">financial_services.views.</span></span><span class="sig-name descname"><span class="pre">generate_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/views.html#generate_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.views.generate_report" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="financial_services.views.transaction_detail">
+<span class="sig-prename descclassname"><span class="pre">financial_services.views.</span></span><span class="sig-name descname"><span class="pre">transaction_detail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/views.html#transaction_detail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.views.transaction_detail" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="financial_services.views.transaction_history">
+<span class="sig-prename descclassname"><span class="pre">financial_services.views.</span></span><span class="sig-name descname"><span class="pre">transaction_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/views.html#transaction_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.views.transaction_history" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="financial_services.views.wallet_detail">
+<span class="sig-prename descclassname"><span class="pre">financial_services.views.</span></span><span class="sig-name descname"><span class="pre">wallet_detail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wallet_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/views.html#wallet_detail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.views.wallet_detail" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-financial_services">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-financial_services" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="account.migrations.html" class="btn btn-neutral float-left" title="account.migrations package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="financial_services.migrations.html" class="btn btn-neutral float-right" title="financial_services.migrations package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Gems.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

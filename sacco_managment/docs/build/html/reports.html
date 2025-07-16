@@ -1,0 +1,652 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="English" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>reports package &mdash; SACCO Management System 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=cd5f4460"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="reports.migrations package" href="reports.migrations.html" />
+    <link rel="prev" title="financial_services.migrations package" href="financial_services.migrations.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SACCO Management System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_auths.html">user_auths package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="account.html">account package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="financial_services.html">financial_services package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">reports package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reports.migrations.html">reports.migrations package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-reports.admin">reports.admin module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reports.admin.FinancialReportAdmin"><code class="docutils literal notranslate"><span class="pre">FinancialReportAdmin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#reports.admin.FinancialReportAdmin.actions"><code class="docutils literal notranslate"><span class="pre">FinancialReportAdmin.actions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.admin.FinancialReportAdmin.date_hierarchy"><code class="docutils literal notranslate"><span class="pre">FinancialReportAdmin.date_hierarchy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.admin.FinancialReportAdmin.date_range"><code class="docutils literal notranslate"><span class="pre">FinancialReportAdmin.date_range()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.admin.FinancialReportAdmin.delete_selected_reports"><code class="docutils literal notranslate"><span class="pre">FinancialReportAdmin.delete_selected_reports()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.admin.FinancialReportAdmin.download_link"><code class="docutils literal notranslate"><span class="pre">FinancialReportAdmin.download_link()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.admin.FinancialReportAdmin.get_queryset"><code class="docutils literal notranslate"><span class="pre">FinancialReportAdmin.get_queryset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.admin.FinancialReportAdmin.get_readonly_fields"><code class="docutils literal notranslate"><span class="pre">FinancialReportAdmin.get_readonly_fields()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.admin.FinancialReportAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">FinancialReportAdmin.list_display</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.admin.FinancialReportAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">FinancialReportAdmin.list_filter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.admin.FinancialReportAdmin.list_per_page"><code class="docutils literal notranslate"><span class="pre">FinancialReportAdmin.list_per_page</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.admin.FinancialReportAdmin.media"><code class="docutils literal notranslate"><span class="pre">FinancialReportAdmin.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.admin.FinancialReportAdmin.readonly_fields"><code class="docutils literal notranslate"><span class="pre">FinancialReportAdmin.readonly_fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.admin.FinancialReportAdmin.save_model"><code class="docutils literal notranslate"><span class="pre">FinancialReportAdmin.save_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.admin.FinancialReportAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">FinancialReportAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-reports.apps">reports.apps module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reports.apps.ReportsConfig"><code class="docutils literal notranslate"><span class="pre">ReportsConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#reports.apps.ReportsConfig.default_auto_field"><code class="docutils literal notranslate"><span class="pre">ReportsConfig.default_auto_field</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.apps.ReportsConfig.name"><code class="docutils literal notranslate"><span class="pre">ReportsConfig.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-reports.forms">reports.forms module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reports.forms.DateRangeForm"><code class="docutils literal notranslate"><span class="pre">DateRangeForm</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#reports.forms.DateRangeForm.REPORT_FORMATS"><code class="docutils literal notranslate"><span class="pre">DateRangeForm.REPORT_FORMATS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.forms.DateRangeForm.base_fields"><code class="docutils literal notranslate"><span class="pre">DateRangeForm.base_fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.forms.DateRangeForm.clean"><code class="docutils literal notranslate"><span class="pre">DateRangeForm.clean()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.forms.DateRangeForm.declared_fields"><code class="docutils literal notranslate"><span class="pre">DateRangeForm.declared_fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.forms.DateRangeForm.media"><code class="docutils literal notranslate"><span class="pre">DateRangeForm.media</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-reports.models">reports.models module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reports.models.FinancialReport"><code class="docutils literal notranslate"><span class="pre">FinancialReport</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">FinancialReport.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">FinancialReport.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.REPORT_FORMATS"><code class="docutils literal notranslate"><span class="pre">FinancialReport.REPORT_FORMATS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.REPORT_TYPES"><code class="docutils literal notranslate"><span class="pre">FinancialReport.REPORT_TYPES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.end_date"><code class="docutils literal notranslate"><span class="pre">FinancialReport.end_date</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.file"><code class="docutils literal notranslate"><span class="pre">FinancialReport.file</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.format"><code class="docutils literal notranslate"><span class="pre">FinancialReport.format</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.generated_at"><code class="docutils literal notranslate"><span class="pre">FinancialReport.generated_at</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.get_format_display"><code class="docutils literal notranslate"><span class="pre">FinancialReport.get_format_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.get_next_by_end_date"><code class="docutils literal notranslate"><span class="pre">FinancialReport.get_next_by_end_date()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.get_next_by_generated_at"><code class="docutils literal notranslate"><span class="pre">FinancialReport.get_next_by_generated_at()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.get_next_by_start_date"><code class="docutils literal notranslate"><span class="pre">FinancialReport.get_next_by_start_date()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.get_previous_by_end_date"><code class="docutils literal notranslate"><span class="pre">FinancialReport.get_previous_by_end_date()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.get_previous_by_generated_at"><code class="docutils literal notranslate"><span class="pre">FinancialReport.get_previous_by_generated_at()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.get_previous_by_start_date"><code class="docutils literal notranslate"><span class="pre">FinancialReport.get_previous_by_start_date()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.get_report_type_display"><code class="docutils literal notranslate"><span class="pre">FinancialReport.get_report_type_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.id"><code class="docutils literal notranslate"><span class="pre">FinancialReport.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.objects"><code class="docutils literal notranslate"><span class="pre">FinancialReport.objects</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.report_type"><code class="docutils literal notranslate"><span class="pre">FinancialReport.report_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.start_date"><code class="docutils literal notranslate"><span class="pre">FinancialReport.start_date</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.transactions"><code class="docutils literal notranslate"><span class="pre">FinancialReport.transactions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.user"><code class="docutils literal notranslate"><span class="pre">FinancialReport.user</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.models.FinancialReport.user_id"><code class="docutils literal notranslate"><span class="pre">FinancialReport.user_id</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-reports.tests">reports.tests module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reports.tests.ReportGenerationTests"><code class="docutils literal notranslate"><span class="pre">ReportGenerationTests</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#reports.tests.ReportGenerationTests.setUp"><code class="docutils literal notranslate"><span class="pre">ReportGenerationTests.setUp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.tests.ReportGenerationTests.test_delete_report"><code class="docutils literal notranslate"><span class="pre">ReportGenerationTests.test_delete_report()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.tests.ReportGenerationTests.test_generate_csv_report"><code class="docutils literal notranslate"><span class="pre">ReportGenerationTests.test_generate_csv_report()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.tests.ReportGenerationTests.test_generate_excel_report"><code class="docutils literal notranslate"><span class="pre">ReportGenerationTests.test_generate_excel_report()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.tests.ReportGenerationTests.test_generate_pdf_report"><code class="docutils literal notranslate"><span class="pre">ReportGenerationTests.test_generate_pdf_report()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.tests.ReportGenerationTests.test_generate_report_view_get"><code class="docutils literal notranslate"><span class="pre">ReportGenerationTests.test_generate_report_view_get()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reports.tests.ReportGenerationTests.test_report_history_view"><code class="docutils literal notranslate"><span class="pre">ReportGenerationTests.test_report_history_view()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-reports.urls">reports.urls module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-reports.views">reports.views module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reports.views.delete_report"><code class="docutils literal notranslate"><span class="pre">delete_report()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reports.views.download_report"><code class="docutils literal notranslate"><span class="pre">download_report()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reports.views.generate_csv_report"><code class="docutils literal notranslate"><span class="pre">generate_csv_report()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reports.views.generate_excel_report"><code class="docutils literal notranslate"><span class="pre">generate_excel_report()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reports.views.generate_pdf_report"><code class="docutils literal notranslate"><span class="pre">generate_pdf_report()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reports.views.generate_report"><code class="docutils literal notranslate"><span class="pre">generate_report()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reports.views.report_history"><code class="docutils literal notranslate"><span class="pre">report_history()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-reports">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">support package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SACCO Management System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">reports package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/reports.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="reports-package">
+<h1>reports package<a class="headerlink" href="#reports-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reports.migrations.html">reports.migrations package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reports.migrations.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reports.migrations.html#module-reports.migrations.0001_initial">reports.migrations.0001_initial module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reports.migrations.html#reports.migrations.0001_initial.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reports.migrations.html#reports.migrations.0001_initial.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reports.migrations.html#reports.migrations.0001_initial.Migration.initial"><code class="docutils literal notranslate"><span class="pre">Migration.initial</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reports.migrations.html#reports.migrations.0001_initial.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reports.migrations.html#module-reports.migrations.0002_alter_financialreport_options_and_more">reports.migrations.0002_alter_financialreport_options_and_more module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reports.migrations.html#reports.migrations.0002_alter_financialreport_options_and_more.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reports.migrations.html#reports.migrations.0002_alter_financialreport_options_and_more.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reports.migrations.html#reports.migrations.0002_alter_financialreport_options_and_more.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reports.migrations.html#module-reports.migrations">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-reports.admin">
+<span id="reports-admin-module"></span><h2>reports.admin module<a class="headerlink" href="#module-reports.admin" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="reports.admin.FinancialReportAdmin">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">reports.admin.</span></span><span class="sig-name descname"><span class="pre">FinancialReportAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/admin.html#FinancialReportAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.admin.FinancialReportAdmin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.admin.FinancialReportAdmin.actions">
+<span class="sig-name descname"><span class="pre">actions</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['delete_selected_reports']</span></em><a class="headerlink" href="#reports.admin.FinancialReportAdmin.actions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.admin.FinancialReportAdmin.date_hierarchy">
+<span class="sig-name descname"><span class="pre">date_hierarchy</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'generated_at'</span></em><a class="headerlink" href="#reports.admin.FinancialReportAdmin.date_hierarchy" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.admin.FinancialReportAdmin.date_range">
+<span class="sig-name descname"><span class="pre">date_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/admin.html#FinancialReportAdmin.date_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.admin.FinancialReportAdmin.date_range" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.admin.FinancialReportAdmin.delete_selected_reports">
+<span class="sig-name descname"><span class="pre">delete_selected_reports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queryset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/admin.html#FinancialReportAdmin.delete_selected_reports"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.admin.FinancialReportAdmin.delete_selected_reports" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.admin.FinancialReportAdmin.download_link">
+<span class="sig-name descname"><span class="pre">download_link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/admin.html#FinancialReportAdmin.download_link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.admin.FinancialReportAdmin.download_link" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.admin.FinancialReportAdmin.get_queryset">
+<span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/admin.html#FinancialReportAdmin.get_queryset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.admin.FinancialReportAdmin.get_queryset" title="Link to this definition"></a></dt>
+<dd><p>Return a QuerySet of all model instances that can be edited by the
+admin site. This is used by changelist_view.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.admin.FinancialReportAdmin.get_readonly_fields">
+<span class="sig-name descname"><span class="pre">get_readonly_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/admin.html#FinancialReportAdmin.get_readonly_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.admin.FinancialReportAdmin.get_readonly_fields" title="Link to this definition"></a></dt>
+<dd><p>Hook for specifying custom readonly fields.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.admin.FinancialReportAdmin.list_display">
+<span class="sig-name descname"><span class="pre">list_display</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('user',</span> <span class="pre">'report_type',</span> <span class="pre">'date_range',</span> <span class="pre">'format',</span> <span class="pre">'generated_at',</span> <span class="pre">'download_link')</span></em><a class="headerlink" href="#reports.admin.FinancialReportAdmin.list_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.admin.FinancialReportAdmin.list_filter">
+<span class="sig-name descname"><span class="pre">list_filter</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('format',</span> <span class="pre">'generated_at',</span> <span class="pre">'report_type')</span></em><a class="headerlink" href="#reports.admin.FinancialReportAdmin.list_filter" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.admin.FinancialReportAdmin.list_per_page">
+<span class="sig-name descname"><span class="pre">list_per_page</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="headerlink" href="#reports.admin.FinancialReportAdmin.list_per_page" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="reports.admin.FinancialReportAdmin.media">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#reports.admin.FinancialReportAdmin.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.admin.FinancialReportAdmin.readonly_fields">
+<span class="sig-name descname"><span class="pre">readonly_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('generated_at',</span> <span class="pre">'file')</span></em><a class="headerlink" href="#reports.admin.FinancialReportAdmin.readonly_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.admin.FinancialReportAdmin.save_model">
+<span class="sig-name descname"><span class="pre">save_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/admin.html#FinancialReportAdmin.save_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.admin.FinancialReportAdmin.save_model" title="Link to this definition"></a></dt>
+<dd><p>Given a model instance save it to the database.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.admin.FinancialReportAdmin.search_fields">
+<span class="sig-name descname"><span class="pre">search_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('user__email',</span> <span class="pre">'report_type')</span></em><a class="headerlink" href="#reports.admin.FinancialReportAdmin.search_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-reports.apps">
+<span id="reports-apps-module"></span><h2>reports.apps module<a class="headerlink" href="#module-reports.apps" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="reports.apps.ReportsConfig">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">reports.apps.</span></span><span class="sig-name descname"><span class="pre">ReportsConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/apps.html#ReportsConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.apps.ReportsConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AppConfig</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.apps.ReportsConfig.default_auto_field">
+<span class="sig-name descname"><span class="pre">default_auto_field</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'django.db.models.BigAutoField'</span></em><a class="headerlink" href="#reports.apps.ReportsConfig.default_auto_field" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.apps.ReportsConfig.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'reports'</span></em><a class="headerlink" href="#reports.apps.ReportsConfig.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-reports.forms">
+<span id="reports-forms-module"></span><h2>reports.forms module<a class="headerlink" href="#module-reports.forms" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="reports.forms.DateRangeForm">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">reports.forms.</span></span><span class="sig-name descname"><span class="pre">DateRangeForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_id='id_%s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_class=&lt;class</span> <span class="pre">'django.forms.utils.ErrorList'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_suffix=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">empty_permitted=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_order=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_required_attribute=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">renderer=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/forms.html#DateRangeForm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.forms.DateRangeForm" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Form</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.forms.DateRangeForm.REPORT_FORMATS">
+<span class="sig-name descname"><span class="pre">REPORT_FORMATS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('PDF',</span> <span class="pre">'PDF'),</span> <span class="pre">('EXCEL',</span> <span class="pre">'Excel'),</span> <span class="pre">('CSV',</span> <span class="pre">'CSV'))</span></em><a class="headerlink" href="#reports.forms.DateRangeForm.REPORT_FORMATS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.forms.DateRangeForm.base_fields">
+<span class="sig-name descname"><span class="pre">base_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'end_date':</span> <span class="pre">&lt;django.forms.fields.DateField</span> <span class="pre">object&gt;,</span> <span class="pre">'format':</span> <span class="pre">&lt;django.forms.fields.ChoiceField</span> <span class="pre">object&gt;,</span> <span class="pre">'start_date':</span> <span class="pre">&lt;django.forms.fields.DateField</span> <span class="pre">object&gt;}</span></em><a class="headerlink" href="#reports.forms.DateRangeForm.base_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.forms.DateRangeForm.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/forms.html#DateRangeForm.clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.forms.DateRangeForm.clean" title="Link to this definition"></a></dt>
+<dd><p>Hook for doing any extra form-wide cleaning after Field.clean() has been
+called on every field. Any ValidationError raised by this method will
+not be associated with a particular field; it will have a special-case
+association with the field named '__all__'.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.forms.DateRangeForm.declared_fields">
+<span class="sig-name descname"><span class="pre">declared_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'end_date':</span> <span class="pre">&lt;django.forms.fields.DateField</span> <span class="pre">object&gt;,</span> <span class="pre">'format':</span> <span class="pre">&lt;django.forms.fields.ChoiceField</span> <span class="pre">object&gt;,</span> <span class="pre">'start_date':</span> <span class="pre">&lt;django.forms.fields.DateField</span> <span class="pre">object&gt;}</span></em><a class="headerlink" href="#reports.forms.DateRangeForm.declared_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="reports.forms.DateRangeForm.media">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#reports.forms.DateRangeForm.media" title="Link to this definition"></a></dt>
+<dd><p>Return all media required to render the widgets on this form.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-reports.models">
+<span id="reports-models-module"></span><h2>reports.models module<a class="headerlink" href="#module-reports.models" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="reports.models.FinancialReport">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">reports.models.</span></span><span class="sig-name descname"><span class="pre">FinancialReport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generated_at</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/models.html#FinancialReport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.models.FinancialReport" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.DoesNotExist">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#reports.models.FinancialReport.DoesNotExist" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.MultipleObjectsReturned">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#reports.models.FinancialReport.MultipleObjectsReturned" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.REPORT_FORMATS">
+<span class="sig-name descname"><span class="pre">REPORT_FORMATS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('PDF',</span> <span class="pre">'PDF'),</span> <span class="pre">('EXCEL',</span> <span class="pre">'Excel'))</span></em><a class="headerlink" href="#reports.models.FinancialReport.REPORT_FORMATS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.REPORT_TYPES">
+<span class="sig-name descname"><span class="pre">REPORT_TYPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('TRANSACTION',</span> <span class="pre">'Transaction</span> <span class="pre">Report'),</span> <span class="pre">('SUMMARY',</span> <span class="pre">'Financial</span> <span class="pre">Summary'))</span></em><a class="headerlink" href="#reports.models.FinancialReport.REPORT_TYPES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.end_date">
+<span class="sig-name descname"><span class="pre">end_date</span></span><a class="headerlink" href="#reports.models.FinancialReport.end_date" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.file">
+<span class="sig-name descname"><span class="pre">file</span></span><a class="headerlink" href="#reports.models.FinancialReport.file" title="Link to this definition"></a></dt>
+<dd><p>The descriptor for the file attribute on the model instance. Return a
+FieldFile when accessed so you can write code like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">myapp.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">MyModel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">instance</span> <span class="o">=</span> <span class="n">MyModel</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">instance</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">size</span>
+</pre></div>
+</div>
+<p>Assign a file object on assignment so you can do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/path/to/hello.world&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">instance</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.format">
+<span class="sig-name descname"><span class="pre">format</span></span><a class="headerlink" href="#reports.models.FinancialReport.format" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.generated_at">
+<span class="sig-name descname"><span class="pre">generated_at</span></span><a class="headerlink" href="#reports.models.FinancialReport.generated_at" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.get_format_display">
+<span class="sig-name descname"><span class="pre">get_format_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.CharField:</span> <span class="pre">format&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#reports.models.FinancialReport.get_format_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.get_next_by_end_date">
+<span class="sig-name descname"><span class="pre">get_next_by_end_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateField:</span> <span class="pre">end_date&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#reports.models.FinancialReport.get_next_by_end_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.get_next_by_generated_at">
+<span class="sig-name descname"><span class="pre">get_next_by_generated_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">generated_at&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#reports.models.FinancialReport.get_next_by_generated_at" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.get_next_by_start_date">
+<span class="sig-name descname"><span class="pre">get_next_by_start_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateField:</span> <span class="pre">start_date&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#reports.models.FinancialReport.get_next_by_start_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.get_previous_by_end_date">
+<span class="sig-name descname"><span class="pre">get_previous_by_end_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateField:</span> <span class="pre">end_date&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#reports.models.FinancialReport.get_previous_by_end_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.get_previous_by_generated_at">
+<span class="sig-name descname"><span class="pre">get_previous_by_generated_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">generated_at&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#reports.models.FinancialReport.get_previous_by_generated_at" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.get_previous_by_start_date">
+<span class="sig-name descname"><span class="pre">get_previous_by_start_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.DateField:</span> <span class="pre">start_date&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#reports.models.FinancialReport.get_previous_by_start_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.get_report_type_display">
+<span class="sig-name descname"><span class="pre">get_report_type_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field=&lt;django.db.models.fields.CharField:</span> <span class="pre">report_type&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#reports.models.FinancialReport.get_report_type_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#reports.models.FinancialReport.id" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#reports.models.FinancialReport.objects" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.report_type">
+<span class="sig-name descname"><span class="pre">report_type</span></span><a class="headerlink" href="#reports.models.FinancialReport.report_type" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.start_date">
+<span class="sig-name descname"><span class="pre">start_date</span></span><a class="headerlink" href="#reports.models.FinancialReport.start_date" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.transactions">
+<span class="sig-name descname"><span class="pre">transactions</span></span><a class="headerlink" href="#reports.models.FinancialReport.transactions" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related objects manager on the forward and reverse sides of
+a many-to-many relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
+instances.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.user">
+<span class="sig-name descname"><span class="pre">user</span></span><a class="headerlink" href="#reports.models.FinancialReport.user" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="reports.models.FinancialReport.user_id">
+<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#reports.models.FinancialReport.user_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-reports.tests">
+<span id="reports-tests-module"></span><h2>reports.tests module<a class="headerlink" href="#module-reports.tests" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="reports.tests.ReportGenerationTests">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">reports.tests.</span></span><span class="sig-name descname"><span class="pre">ReportGenerationTests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/tests.html#ReportGenerationTests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.tests.ReportGenerationTests" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.tests.ReportGenerationTests.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/tests.html#ReportGenerationTests.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.tests.ReportGenerationTests.setUp" title="Link to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.tests.ReportGenerationTests.test_delete_report">
+<span class="sig-name descname"><span class="pre">test_delete_report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/tests.html#ReportGenerationTests.test_delete_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.tests.ReportGenerationTests.test_delete_report" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.tests.ReportGenerationTests.test_generate_csv_report">
+<span class="sig-name descname"><span class="pre">test_generate_csv_report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/tests.html#ReportGenerationTests.test_generate_csv_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.tests.ReportGenerationTests.test_generate_csv_report" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.tests.ReportGenerationTests.test_generate_excel_report">
+<span class="sig-name descname"><span class="pre">test_generate_excel_report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/tests.html#ReportGenerationTests.test_generate_excel_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.tests.ReportGenerationTests.test_generate_excel_report" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.tests.ReportGenerationTests.test_generate_pdf_report">
+<span class="sig-name descname"><span class="pre">test_generate_pdf_report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/tests.html#ReportGenerationTests.test_generate_pdf_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.tests.ReportGenerationTests.test_generate_pdf_report" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.tests.ReportGenerationTests.test_generate_report_view_get">
+<span class="sig-name descname"><span class="pre">test_generate_report_view_get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/tests.html#ReportGenerationTests.test_generate_report_view_get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.tests.ReportGenerationTests.test_generate_report_view_get" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="reports.tests.ReportGenerationTests.test_report_history_view">
+<span class="sig-name descname"><span class="pre">test_report_history_view</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/tests.html#ReportGenerationTests.test_report_history_view"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.tests.ReportGenerationTests.test_report_history_view" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-reports.urls">
+<span id="reports-urls-module"></span><h2>reports.urls module<a class="headerlink" href="#module-reports.urls" title="Link to this heading"></a></h2>
+</section>
+<section id="module-reports.views">
+<span id="reports-views-module"></span><h2>reports.views module<a class="headerlink" href="#module-reports.views" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="reports.views.delete_report">
+<span class="sig-prename descclassname"><span class="pre">reports.views.</span></span><span class="sig-name descname"><span class="pre">delete_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/views.html#delete_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.views.delete_report" title="Link to this definition"></a></dt>
+<dd><p>Handles deletion of a report.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reports.views.download_report">
+<span class="sig-prename descclassname"><span class="pre">reports.views.</span></span><span class="sig-name descname"><span class="pre">download_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/views.html#download_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.views.download_report" title="Link to this definition"></a></dt>
+<dd><p>Handles report file download.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reports.views.generate_csv_report">
+<span class="sig-prename descclassname"><span class="pre">reports.views.</span></span><span class="sig-name descname"><span class="pre">generate_csv_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transactions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/views.html#generate_csv_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.views.generate_csv_report" title="Link to this definition"></a></dt>
+<dd><p>Generates a CSV report for transactions.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reports.views.generate_excel_report">
+<span class="sig-prename descclassname"><span class="pre">reports.views.</span></span><span class="sig-name descname"><span class="pre">generate_excel_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transactions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/views.html#generate_excel_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.views.generate_excel_report" title="Link to this definition"></a></dt>
+<dd><p>Generates an Excel report for transactions.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reports.views.generate_pdf_report">
+<span class="sig-prename descclassname"><span class="pre">reports.views.</span></span><span class="sig-name descname"><span class="pre">generate_pdf_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transactions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/views.html#generate_pdf_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.views.generate_pdf_report" title="Link to this definition"></a></dt>
+<dd><p>Generates a PDF report for transactions.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reports.views.generate_report">
+<span class="sig-prename descclassname"><span class="pre">reports.views.</span></span><span class="sig-name descname"><span class="pre">generate_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/views.html#generate_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.views.generate_report" title="Link to this definition"></a></dt>
+<dd><p>Handles report generation in PDF, Excel or CSV format.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reports.views.report_history">
+<span class="sig-prename descclassname"><span class="pre">reports.views.</span></span><span class="sig-name descname"><span class="pre">report_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/reports/views.html#report_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reports.views.report_history" title="Link to this definition"></a></dt>
+<dd><p>Displays a user's report history.</p>
+</dd></dl>
+
+</section>
+<section id="module-reports">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-reports" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="financial_services.migrations.html" class="btn btn-neutral float-left" title="financial_services.migrations package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reports.migrations.html" class="btn btn-neutral float-right" title="reports.migrations package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Gems.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

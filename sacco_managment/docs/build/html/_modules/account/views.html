@@ -1,0 +1,980 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="English" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>account.views &mdash; SACCO Management System 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=cd5f4460"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SACCO Management System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../core.html">core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_auths.html">user_auths package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../account.html">account package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../financial_services.html">financial_services package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reports.html">reports package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../support.html">support package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SACCO Management System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">account.views</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for account.views</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">render</span><span class="p">,</span> <span class="n">redirect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">account.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">KYC</span><span class="p">,</span> <span class="n">Account</span><span class="p">,</span> <span class="n">AuditLog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">account.forms</span><span class="w"> </span><span class="kn">import</span> <span class="n">KYCForm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib</span><span class="w"> </span><span class="kn">import</span> <span class="n">messages</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">login_required</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">core.forms</span><span class="w"> </span><span class="kn">import</span> <span class="n">CreditCardForm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">core.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">CreditCard</span><span class="p">,</span> <span class="n">Notification</span><span class="p">,</span> <span class="n">Transaction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">authenticate</span><span class="p">,</span> <span class="n">login</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">core.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">staff_required</span><span class="p">,</span> <span class="n">admin_required</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">StaffPermission</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">user_auths.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.views.generic</span><span class="w"> </span><span class="kn">import</span> <span class="n">FormView</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth.forms</span><span class="w"> </span><span class="kn">import</span> <span class="n">AuthenticationForm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">login</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.urls</span><span class="w"> </span><span class="kn">import</span> <span class="n">reverse_lazy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">authenticate</span><span class="p">,</span> <span class="n">login</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth.views</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoginView</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">redirect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Count</span><span class="p">,</span> <span class="n">Sum</span><span class="p">,</span> <span class="n">Q</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">render</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">get_object_or_404</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">core.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transaction</span><span class="p">,</span> <span class="n">MobileMoneyTransaction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib</span><span class="w"> </span><span class="kn">import</span> <span class="n">messages</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoginHistory</span>  <span class="c1"># Add this import</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.core.paginator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Paginator</span>
+<span class="c1"># from django.db.models import Count, Q </span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
+
+
+<div class="viewcode-block" id="account">
+<a class="viewcode-back" href="../../account.html#account.views.account">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">account</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">kyc</span> <span class="o">=</span> <span class="n">KYC</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">KYC</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;You need to submit your KYC&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">&quot;account:kyc-reg&quot;</span><span class="p">)</span>
+
+        <span class="n">account</span> <span class="o">=</span> <span class="n">Account</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;You need to login to access the dashboard&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">&quot;user_auths:login&quot;</span><span class="p">)</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;kyc&quot;</span><span class="p">:</span> <span class="n">kyc</span><span class="p">,</span>
+        <span class="s2">&quot;account&quot;</span><span class="p">:</span> <span class="n">account</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;account/account.html&quot;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="kyc_registration">
+<a class="viewcode-back" href="../../account.html#account.views.kyc_registration">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">kyc_registration</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">Account</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">kyc</span> <span class="o">=</span> <span class="n">KYC</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">KYC</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+        <span class="n">kyc</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;POST&quot;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">KYCForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">FILES</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="n">kyc</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">new_form</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">new_form</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">user</span>
+            <span class="n">new_form</span><span class="o">.</span><span class="n">account</span> <span class="o">=</span> <span class="n">account</span>
+            <span class="n">new_form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span>
+                <span class="n">request</span><span class="p">,</span> <span class="s2">&quot;KYC Form submitted successfully, In review now.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">&quot;account:account&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">KYCForm</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">kyc</span><span class="p">)</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;account&quot;</span><span class="p">:</span> <span class="n">account</span><span class="p">,</span>
+        <span class="s2">&quot;form&quot;</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span>
+        <span class="s2">&quot;kyc&quot;</span><span class="p">:</span> <span class="n">kyc</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;account/kyc-form.html&quot;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="dashboard">
+<a class="viewcode-back" href="../../account.html#account.views.dashboard">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dashboard</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">kyc</span> <span class="o">=</span> <span class="n">KYC</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">KYC</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;You need to submit your KYC&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">&quot;account:kyc-reg&quot;</span><span class="p">)</span>
+
+        <span class="n">recent_transfer</span> <span class="o">=</span> <span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">sender</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">transaction_type</span><span class="o">=</span><span class="s2">&quot;transfer&quot;</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s2">&quot;completed&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-id&quot;</span><span class="p">)[:</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">recent_received_transfer</span> <span class="o">=</span> <span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">receiver</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">transaction_type</span><span class="o">=</span><span class="s2">&quot;transfer&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-id&quot;</span><span class="p">)[:</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">sender_transaction</span> <span class="o">=</span> <span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">sender</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">transaction_type</span><span class="o">=</span><span class="s2">&quot;transfer&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-id&quot;</span><span class="p">)</span>
+        <span class="n">receiver_transaction</span> <span class="o">=</span> <span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">receiver</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">transaction_type</span><span class="o">=</span><span class="s2">&quot;transfer&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-id&quot;</span><span class="p">)</span>
+
+        <span class="n">request_sender_transaction</span> <span class="o">=</span> <span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">sender</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">transaction_type</span><span class="o">=</span><span class="s2">&quot;request&quot;</span><span class="p">)</span>
+        <span class="n">request_receiver_transaction</span> <span class="o">=</span> <span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">receiver</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">transaction_type</span><span class="o">=</span><span class="s2">&quot;request&quot;</span><span class="p">)</span>
+
+        <span class="n">withdrawal_transactions</span> <span class="o">=</span> <span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">sender</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">transaction_type</span><span class="o">=</span><span class="s2">&quot;withdrawal&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-id&quot;</span><span class="p">)</span>
+
+        <span class="n">account</span> <span class="o">=</span> <span class="n">Account</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+        <span class="n">credit_card</span> <span class="o">=</span> <span class="n">CreditCard</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-id&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Fetch notifications for the logged-in user</span>
+        <span class="n">notifications</span> <span class="o">=</span> <span class="n">Notification</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-date&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;POST&quot;</span><span class="p">:</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="n">CreditCardForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+                <span class="n">new_form</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">new_form</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+                <span class="n">new_form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+                <span class="n">Notification</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                    <span class="n">notification_type</span><span class="o">=</span><span class="s2">&quot;Added Credit Card&quot;</span>
+                <span class="p">)</span>
+
+                <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;Card Added Successfully.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">&quot;account:dashboard&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="n">CreditCardForm</span><span class="p">()</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;You need to login to access the dashboard&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">&quot;user_auths:login&quot;</span><span class="p">)</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;kyc&quot;</span><span class="p">:</span> <span class="n">kyc</span><span class="p">,</span>
+        <span class="s2">&quot;account&quot;</span><span class="p">:</span> <span class="n">account</span><span class="p">,</span>
+        <span class="s2">&quot;form&quot;</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span>
+        <span class="s2">&quot;credit_card&quot;</span><span class="p">:</span> <span class="n">credit_card</span><span class="p">,</span>
+        <span class="s2">&quot;sender_transaction&quot;</span><span class="p">:</span> <span class="n">sender_transaction</span><span class="p">,</span>
+        <span class="s2">&quot;receiver_transaction&quot;</span><span class="p">:</span> <span class="n">receiver_transaction</span><span class="p">,</span>
+        <span class="s2">&quot;request_sender_transaction&quot;</span><span class="p">:</span> <span class="n">request_sender_transaction</span><span class="p">,</span>
+        <span class="s2">&quot;request_receiver_transaction&quot;</span><span class="p">:</span> <span class="n">request_receiver_transaction</span><span class="p">,</span>
+        <span class="s2">&quot;recent_transfer&quot;</span><span class="p">:</span> <span class="n">recent_transfer</span><span class="p">,</span>
+        <span class="s2">&quot;recent_received_transfer&quot;</span><span class="p">:</span> <span class="n">recent_received_transfer</span><span class="p">,</span>
+        <span class="s2">&quot;withdrawal_transactions&quot;</span><span class="p">:</span> <span class="n">withdrawal_transactions</span><span class="p">,</span>
+        <span class="s2">&quot;notifications&quot;</span><span class="p">:</span> <span class="n">notifications</span><span class="p">,</span>  <span class="c1"># Pass notifications to the template</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;account/dashboard.html&quot;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+
+
+
+<div class="viewcode-block" id="all_credit_cards">
+<a class="viewcode-back" href="../../account.html#account.views.all_credit_cards">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">all_credit_cards</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">cards</span> <span class="o">=</span> <span class="n">CreditCard</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;credit_card/all-card.html&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;credit_cards&quot;</span><span class="p">:</span> <span class="n">cards</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="mobile_money_deposit">
+<a class="viewcode-back" href="../../account.html#account.views.mobile_money_deposit">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">mobile_money_deposit</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">MobileMoneyDepositForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="c1"># Initiate payment via Flutterwave/Yo! API</span>
+            <span class="c1"># This is a simulation - replace with actual API call</span>
+            <span class="n">ref</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;MMD-</span><span class="si">{</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+            
+            <span class="c1"># Create pending transaction</span>
+            <span class="n">transaction</span> <span class="o">=</span> <span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                <span class="n">amount</span><span class="o">=</span><span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;amount&#39;</span><span class="p">],</span>
+                <span class="n">transaction_type</span><span class="o">=</span><span class="s2">&quot;mobile_money_deposit&quot;</span><span class="p">,</span>
+                <span class="n">status</span><span class="o">=</span><span class="s2">&quot;pending&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Mobile Money Deposit to </span><span class="si">{</span><span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;phone_number&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            
+            <span class="n">MobileMoneyTransaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">transaction</span><span class="o">=</span><span class="n">transaction</span><span class="p">,</span>
+                <span class="n">provider</span><span class="o">=</span><span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;provider&#39;</span><span class="p">],</span>
+                <span class="n">phone_number</span><span class="o">=</span><span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;phone_number&#39;</span><span class="p">],</span>
+                <span class="n">transaction_ref</span><span class="o">=</span><span class="n">ref</span>
+            <span class="p">)</span>
+            
+            <span class="c1"># Simulate API response</span>
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;mobile_money/payment_prompt.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+                <span class="s1">&#39;phone&#39;</span><span class="p">:</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;phone_number&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;amount&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;ref&#39;</span><span class="p">:</span> <span class="n">ref</span>
+            <span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">MobileMoneyDepositForm</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;mobile_money/deposit.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span></div>
+
+
+  
+  
+<div class="viewcode-block" id="calendar">
+<a class="viewcode-back" href="../../account.html#account.views.calendar">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calendar</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;breadcrumb&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;parent&quot;</span><span class="p">:</span> <span class="s2">&quot;Calendar&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;child&quot;</span><span class="p">:</span> <span class="s2">&quot;Calendar Basic&quot;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;calendar/calendar-basic.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">admin_dashboard</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="c1"># Calculate time periods</span>
+    <span class="n">today</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    <span class="n">month_ago</span> <span class="o">=</span> <span class="n">today</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    
+    <span class="c1"># Staff statistics</span>
+    <span class="n">total_staff</span> <span class="o">=</span> <span class="n">StaffPermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">active_staff</span> <span class="o">=</span> <span class="n">StaffPermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">user__is_active</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    
+    <span class="c1"># Financial statistics</span>
+    <span class="n">total_deposits</span> <span class="o">=</span> <span class="n">Account</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span>
+        <span class="n">total</span><span class="o">=</span><span class="n">Sum</span><span class="p">(</span><span class="s1">&#39;account_balance&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">Sum</span><span class="p">(</span><span class="s1">&#39;mobile_money_balance&#39;</span><span class="p">)</span>
+    <span class="p">)[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+    
+    <span class="c1"># Member growth</span>
+    <span class="n">member_growth</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">role</span><span class="o">=</span><span class="s1">&#39;MEMBER&#39;</span><span class="p">,</span>
+        <span class="n">date_joined__gte</span><span class="o">=</span><span class="n">month_ago</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    
+    <span class="c1"># System activities</span>
+    <span class="n">admin_actions</span> <span class="o">=</span> <span class="n">AuditLog</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">action__in</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;USER_CREATE&#39;</span><span class="p">,</span> <span class="s1">&#39;USER_EDIT&#39;</span><span class="p">,</span> <span class="s1">&#39;KYC_APPROVE&#39;</span><span class="p">],</span>
+        <span class="n">timestamp__gte</span><span class="o">=</span><span class="n">month_ago</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-timestamp&#39;</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Admin Dashboard&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;breadcrumb&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;parent&#39;</span><span class="p">:</span> <span class="s1">&#39;Dashboard&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;child&#39;</span><span class="p">:</span> <span class="s1">&#39;Admin Portal&#39;</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;stats&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;total_staff&#39;</span><span class="p">:</span> <span class="n">total_staff</span><span class="p">,</span>
+            <span class="s1">&#39;active_staff&#39;</span><span class="p">:</span> <span class="n">active_staff</span><span class="p">,</span>
+            <span class="s1">&#39;total_deposits&#39;</span><span class="p">:</span> <span class="n">total_deposits</span><span class="p">,</span>
+            <span class="s1">&#39;member_growth&#39;</span><span class="p">:</span> <span class="n">member_growth</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;admin_actions&#39;</span><span class="p">:</span> <span class="n">admin_actions</span><span class="p">,</span>
+        <span class="s1">&#39;current_date&#39;</span><span class="p">:</span> <span class="n">today</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%B </span><span class="si">%d</span><span class="s2">, %Y&quot;</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/dashboard.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+<span class="c1"># STAFF</span>
+<span class="nd">@staff_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">staff_dashboard</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="c1"># Calculate statistics</span>
+    <span class="n">today</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    <span class="n">week_ago</span> <span class="o">=</span> <span class="n">today</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+    
+    <span class="c1"># Member statistics</span>
+    <span class="n">total_members</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="s1">&#39;MEMBER&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">new_members_week</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">role</span><span class="o">=</span><span class="s1">&#39;MEMBER&#39;</span><span class="p">,</span> 
+        <span class="n">date_joined__gte</span><span class="o">=</span><span class="n">week_ago</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    
+    <span class="c1"># KYC statistics - fixed to use account relationship</span>
+    <span class="n">pending_kyc</span> <span class="o">=</span> <span class="n">Account</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">kyc_submitted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kyc_confirmed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">approved_kyc</span> <span class="o">=</span> <span class="n">Account</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">kyc_confirmed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    
+    <span class="c1"># Transaction statistics</span>
+    <span class="n">recent_transactions</span> <span class="o">=</span> <span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span>
+        <span class="s1">&#39;sender&#39;</span><span class="p">,</span> <span class="s1">&#39;receiver&#39;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-date&#39;</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
+    
+    <span class="c1"># Recent activities</span>
+    <span class="n">activities</span> <span class="o">=</span> <span class="n">AuditLog</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">timestamp__gte</span><span class="o">=</span><span class="n">week_ago</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-timestamp&#39;</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Staff Dashboard&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;breadcrumb&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;parent&#39;</span><span class="p">:</span> <span class="s1">&#39;Dashboard&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;child&#39;</span><span class="p">:</span> <span class="s1">&#39;Staff Portal&#39;</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;stats&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;total_members&#39;</span><span class="p">:</span> <span class="n">total_members</span><span class="p">,</span>
+            <span class="s1">&#39;new_members_week&#39;</span><span class="p">:</span> <span class="n">new_members_week</span><span class="p">,</span>
+            <span class="s1">&#39;pending_kyc&#39;</span><span class="p">:</span> <span class="n">pending_kyc</span><span class="p">,</span>
+            <span class="s1">&#39;approved_kyc&#39;</span><span class="p">:</span> <span class="n">approved_kyc</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;recent_transactions&#39;</span><span class="p">:</span> <span class="n">recent_transactions</span><span class="p">,</span>
+        <span class="s1">&#39;activities&#39;</span><span class="p">:</span> <span class="n">activities</span><span class="p">,</span>
+        <span class="s1">&#39;current_date&#39;</span><span class="p">:</span> <span class="n">today</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%B </span><span class="si">%d</span><span class="s2">, %Y&quot;</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/staff/dashboard.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+    
+
+<span class="nd">@staff_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">user_profiles</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">accounts</span> <span class="o">=</span> <span class="n">Account</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">user__role</span><span class="o">=</span><span class="s1">&#39;MEMBER&#39;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/staff/user_profiles.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;accounts&#39;</span><span class="p">:</span> <span class="n">accounts</span>
+    <span class="p">})</span>
+
+<span class="nd">@staff_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">password_resets</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="c1"># Placeholder - would integrate with actual password reset system</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/staff/password_resets.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;reset_requests&#39;</span><span class="p">:</span> <span class="p">[]</span>
+    <span class="p">})</span>
+
+
+<span class="nd">@staff_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">kyc_review</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">pending_kyc</span> <span class="o">=</span> <span class="n">KYC</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">kyc_confirmed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;account&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">kyc_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;kyc_id&#39;</span><span class="p">)</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">kyc</span> <span class="o">=</span> <span class="n">KYC</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">kyc_id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;approve&#39;</span><span class="p">:</span>
+                <span class="n">kyc</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">kyc_confirmed</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">kyc</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;KYC for </span><span class="si">{</span><span class="n">kyc</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2"> approved.&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;reject&#39;</span><span class="p">:</span>
+                <span class="n">messages</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;KYC for </span><span class="si">{</span><span class="n">kyc</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2"> rejected.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;account:kyc_review&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">KYC</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;KYC record not found.&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/staff/kyc_review.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;pending_kyc&#39;</span><span class="p">:</span> <span class="n">pending_kyc</span>
+    <span class="p">})</span>
+    
+    
+
+<span class="c1"># staff functions</span>
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_staff</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">StaffCreationForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            
+            <span class="c1"># Create StaffPermission entry</span>
+            <span class="n">StaffPermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+                <span class="n">role</span><span class="o">=</span><span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">],</span>
+                <span class="n">can_view_balances</span><span class="o">=</span><span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;can_view_balances&#39;</span><span class="p">],</span>
+                <span class="n">can_reset_passwords</span><span class="o">=</span><span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;can_reset_passwords&#39;</span><span class="p">],</span>
+                <span class="n">can_approve_loans</span><span class="o">=</span><span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;can_approve_loans&#39;</span><span class="p">],</span>
+                <span class="n">can_edit_kyc</span><span class="o">=</span><span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;can_edit_kyc&#39;</span><span class="p">]</span>
+            <span class="p">)</span>
+            
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;account:manage_staff&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">StaffCreationForm</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/add_staff.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span>
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">edit_staff</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">staff_id</span><span class="p">):</span>
+    <span class="n">staff_permission</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">StaffPermission</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">staff_id</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">StaffEditForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            
+            <span class="c1"># Update StaffPermission</span>
+            <span class="n">staff_permission</span><span class="o">.</span><span class="n">role</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span>
+            <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_view_balances</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;can_view_balances&#39;</span><span class="p">]</span>
+            <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_reset_passwords</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;can_reset_passwords&#39;</span><span class="p">]</span>
+            <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_approve_loans</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;can_approve_loans&#39;</span><span class="p">]</span>
+            <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_edit_kyc</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;can_edit_kyc&#39;</span><span class="p">]</span>
+            <span class="n">staff_permission</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;account:manage_staff&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Initialize form with existing data</span>
+        <span class="n">initial_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="n">staff_permission</span><span class="o">.</span><span class="n">role</span><span class="p">,</span>
+            <span class="s1">&#39;can_view_balances&#39;</span><span class="p">:</span> <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_view_balances</span><span class="p">,</span>
+            <span class="s1">&#39;can_reset_passwords&#39;</span><span class="p">:</span> <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_reset_passwords</span><span class="p">,</span>
+            <span class="s1">&#39;can_approve_loans&#39;</span><span class="p">:</span> <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_approve_loans</span><span class="p">,</span>
+            <span class="s1">&#39;can_edit_kyc&#39;</span><span class="p">:</span> <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_edit_kyc</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">StaffEditForm</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="n">initial_data</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/edit_staff.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span>
+        <span class="s1">&#39;staff&#39;</span><span class="p">:</span> <span class="n">staff_permission</span>
+    <span class="p">})</span>
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">activate_staff</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">staff_id</span><span class="p">):</span>
+    <span class="n">staff_permission</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">StaffPermission</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">staff_id</span><span class="p">)</span>
+    <span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_active</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;account:manage_staff&#39;</span><span class="p">)</span>
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">deactivate_staff</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">staff_id</span><span class="p">):</span>
+    <span class="n">staff_permission</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">StaffPermission</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">staff_id</span><span class="p">)</span>
+    <span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_active</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;account:manage_staff&#39;</span><span class="p">)</span>
+
+
+
+<span class="c1">#manage staff</span>
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">manage_staff</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">staff_members</span> <span class="o">=</span> <span class="n">StaffPermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/manage_staff.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;staff_members&#39;</span><span class="p">:</span> <span class="n">staff_members</span>
+    <span class="p">})</span>
+
+
+<span class="c1"># staff login</span>
+<div class="viewcode-block" id="StaffLoginView">
+<a class="viewcode-back" href="../../account.html#account.views.StaffLoginView">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StaffLoginView</span><span class="p">(</span><span class="n">FormView</span><span class="p">):</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;registration/staff_login.html&#39;</span>
+    <span class="n">form_class</span> <span class="o">=</span> <span class="n">AuthenticationForm</span>
+    <span class="n">success_url</span> <span class="o">=</span> <span class="n">reverse_lazy</span><span class="p">(</span><span class="s1">&#39;account:staff_dashboard&#39;</span><span class="p">)</span>  <span class="c1"># Default fallback</span>
+    
+<div class="viewcode-block" id="StaffLoginView.form_valid">
+<a class="viewcode-back" href="../../account.html#account.views.StaffLoginView.form_valid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">form_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">):</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">)</span>
+        <span class="n">password</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;password&#39;</span><span class="p">)</span>
+        <span class="n">login_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;login_type&#39;</span><span class="p">,</span> <span class="s1">&#39;staff&#39;</span><span class="p">)</span>
+        
+        <span class="n">user</span> <span class="o">=</span> <span class="n">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Check user role and login type match</span>
+            <span class="k">if</span> <span class="n">login_type</span> <span class="o">==</span> <span class="s1">&#39;admin&#39;</span> <span class="ow">and</span> <span class="n">user</span><span class="o">.</span><span class="n">role</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ADMIN&#39;</span><span class="p">,</span> <span class="s1">&#39;SUPER_ADMIN&#39;</span><span class="p">]:</span>
+                <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;You don&#39;t have admin privileges&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">form_invalid</span><span class="p">(</span><span class="n">form</span><span class="p">)</span>
+                
+            <span class="k">if</span> <span class="n">login_type</span> <span class="o">==</span> <span class="s1">&#39;staff&#39;</span> <span class="ow">and</span> <span class="n">user</span><span class="o">.</span><span class="n">role</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;STAFF&#39;</span><span class="p">,</span> <span class="s1">&#39;ADMIN&#39;</span><span class="p">,</span> <span class="s1">&#39;SUPER_ADMIN&#39;</span><span class="p">]:</span>
+                <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;You don&#39;t have staff privileges&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">form_invalid</span><span class="p">(</span><span class="n">form</span><span class="p">)</span>
+            
+            <span class="n">login</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span>
+            
+            <span class="c1"># Redirect based on role</span>
+            <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">role</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ADMIN&#39;</span><span class="p">,</span> <span class="s1">&#39;SUPER_ADMIN&#39;</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;account:admin_dashboard&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">user</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s1">&#39;STAFF&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;account:staff_dashboard&#39;</span><span class="p">)</span>
+        
+        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;Invalid username or password&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">form_invalid</span><span class="p">(</span><span class="n">form</span><span class="p">)</span></div>
+</div>
+
+
+<span class="c1"># ADMIN</span>
+
+<div class="viewcode-block" id="staff_login">
+<a class="viewcode-back" href="../../account.html#account.views.staff_login">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">staff_login</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span>
+        <span class="n">password</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">]</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">authenticate</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">user</span> <span class="ow">and</span> <span class="n">user</span><span class="o">.</span><span class="n">role</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;STAFF&#39;</span><span class="p">,</span> <span class="s1">&#39;ADMIN&#39;</span><span class="p">,</span> <span class="s1">&#39;SUPER_ADMIN&#39;</span><span class="p">]:</span>
+            <span class="n">login</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s1">&#39;STAFF&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;staff_dashboard&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">user</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s1">&#39;ADMIN&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;admin_dashboard&#39;</span><span class="p">)</span>
+            <span class="c1"># SUPER_ADMIN uses Django admin</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Invalid credentials or access rights&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/staff_login.html&#39;</span><span class="p">)</span></div>
+
+
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">admin_dashboard</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">total_staff</span> <span class="o">=</span> <span class="n">StaffPermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    
+    <span class="c1"># Placeholder values - integrate with actual models</span>
+    <span class="n">active_loans</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">total_deposits</span> <span class="o">=</span> <span class="n">Account</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span>
+        <span class="n">total</span><span class="o">=</span><span class="n">Sum</span><span class="p">(</span><span class="s1">&#39;account_balance&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">Sum</span><span class="p">(</span><span class="s1">&#39;mobile_money_balance&#39;</span><span class="p">)</span>
+    <span class="p">)[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+    
+    <span class="c1"># Staff activity (last active within 24 hours)</span>
+    <span class="n">staff_activity</span> <span class="o">=</span> <span class="n">StaffPermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">user__last_login__gte</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-user__last_login&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/dashboard.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;total_staff&#39;</span><span class="p">:</span> <span class="n">total_staff</span><span class="p">,</span>
+        <span class="s1">&#39;active_loans&#39;</span><span class="p">:</span> <span class="n">active_loans</span><span class="p">,</span>
+        <span class="s1">&#39;total_deposits&#39;</span><span class="p">:</span> <span class="n">total_deposits</span><span class="p">,</span>
+        <span class="s1">&#39;staff_activity&#39;</span><span class="p">:</span> <span class="n">staff_activity</span>
+    <span class="p">})</span>
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">manage_staff</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">staff_members</span> <span class="o">=</span> <span class="n">StaffPermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/manage_staff.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;staff_members&#39;</span><span class="p">:</span> <span class="n">staff_members</span><span class="p">,</span>
+        <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="s1">&#39;staff_management&#39;</span>
+    <span class="p">})</span>
+    
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_staff</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">StaffCreationForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            
+            <span class="c1"># Log the action</span>
+            <span class="n">AuditLog</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                <span class="n">action</span><span class="o">=</span><span class="s1">&#39;STAFF_CREATE&#39;</span><span class="p">,</span>
+                <span class="n">details</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Created staff account for </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">ip_address</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;REMOTE_ADDR&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+            
+            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Staff account for </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">get_full_name</span><span class="p">()</span><span class="si">}</span><span class="s2"> created successfully!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;account:manage_staff&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">StaffCreationForm</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/add_staff.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span>
+        <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="s1">&#39;staff_management&#39;</span>
+    <span class="p">})</span>
+
+
+
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">edit_staff</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">staff_id</span><span class="p">):</span>
+    <span class="n">staff_permission</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">StaffPermission</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">staff_id</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">StaffEditForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            
+            <span class="c1"># Update StaffPermission</span>
+            <span class="n">staff_permission</span><span class="o">.</span><span class="n">role</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span>
+            <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_view_balances</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;can_view_balances&#39;</span><span class="p">]</span>
+            <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_reset_passwords</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;can_reset_passwords&#39;</span><span class="p">]</span>
+            <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_approve_loans</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;can_approve_loans&#39;</span><span class="p">]</span>
+            <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_approve_withdrawals</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;can_approve_withdrawals&#39;</span><span class="p">]</span>
+            <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_edit_kyc</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;can_edit_kyc&#39;</span><span class="p">]</span>
+            <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_manage_staff</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;can_manage_staff&#39;</span><span class="p">]</span>
+            <span class="n">staff_permission</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            
+            <span class="c1"># Log the action</span>
+            <span class="n">AuditLog</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                <span class="n">action</span><span class="o">=</span><span class="s1">&#39;STAFF_EDIT&#39;</span><span class="p">,</span>
+                <span class="n">details</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Edited staff account </span><span class="si">{</span><span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">ip_address</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;REMOTE_ADDR&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+            
+            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;Staff member updated successfully!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;account:manage_staff&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Initialize form with existing data</span>
+        <span class="n">initial_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="n">staff_permission</span><span class="o">.</span><span class="n">role</span><span class="p">,</span>
+            <span class="s1">&#39;can_view_balances&#39;</span><span class="p">:</span> <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_view_balances</span><span class="p">,</span>
+            <span class="s1">&#39;can_reset_passwords&#39;</span><span class="p">:</span> <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_reset_passwords</span><span class="p">,</span>
+            <span class="s1">&#39;can_approve_loans&#39;</span><span class="p">:</span> <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_approve_loans</span><span class="p">,</span>
+            <span class="s1">&#39;can_approve_withdrawals&#39;</span><span class="p">:</span> <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_approve_withdrawals</span><span class="p">,</span>
+            <span class="s1">&#39;can_edit_kyc&#39;</span><span class="p">:</span> <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_edit_kyc</span><span class="p">,</span>
+            <span class="s1">&#39;can_manage_staff&#39;</span><span class="p">:</span> <span class="n">staff_permission</span><span class="o">.</span><span class="n">can_manage_staff</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">StaffEditForm</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="n">initial_data</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/edit_staff.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span>
+        <span class="s1">&#39;staff&#39;</span><span class="p">:</span> <span class="n">staff_permission</span><span class="p">,</span>
+        <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="s1">&#39;staff_management&#39;</span>
+    <span class="p">})</span>
+
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">activate_staff</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">staff_id</span><span class="p">):</span>
+    <span class="n">staff_permission</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">StaffPermission</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">staff_id</span><span class="p">)</span>
+    <span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_active</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    
+    <span class="c1"># Log the action</span>
+    <span class="n">AuditLog</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;STAFF_ACTIVATE&#39;</span><span class="p">,</span>
+        <span class="n">details</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Activated staff account </span><span class="si">{</span><span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">ip_address</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;REMOTE_ADDR&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+    
+    <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">get_full_name</span><span class="p">()</span><span class="si">}</span><span class="s2"> has been activated&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;account:manage_staff&#39;</span><span class="p">)</span>
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">deactivate_staff</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">staff_id</span><span class="p">):</span>
+    <span class="n">staff_permission</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">StaffPermission</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">staff_id</span><span class="p">)</span>
+    <span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_active</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    
+    <span class="c1"># Log the action</span>
+    <span class="n">AuditLog</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;STAFF_DEACTIVATE&#39;</span><span class="p">,</span>
+        <span class="n">details</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Deactivated staff account </span><span class="si">{</span><span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">ip_address</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;REMOTE_ADDR&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+    
+    <span class="n">messages</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">get_full_name</span><span class="p">()</span><span class="si">}</span><span class="s2"> has been deactivated&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;account:manage_staff&#39;</span><span class="p">)</span>
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_staff</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">staff_id</span><span class="p">):</span>
+    <span class="n">staff_permission</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">StaffPermission</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">staff_id</span><span class="p">)</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+    
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;confirmation&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;DELETE&#39;</span><span class="p">:</span>
+            <span class="n">staff_permission</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+            
+            <span class="c1"># Log the action</span>
+            <span class="n">AuditLog</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                <span class="n">action</span><span class="o">=</span><span class="s1">&#39;STAFF_DELETE&#39;</span><span class="p">,</span>
+                <span class="n">details</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Deleted staff account </span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">ip_address</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;REMOTE_ADDR&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+            
+            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Staff account </span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2"> has been permanently deleted&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;account:manage_staff&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/delete_staff.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;staff&#39;</span><span class="p">:</span> <span class="n">staff_permission</span><span class="p">,</span>
+        <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="s1">&#39;staff_management&#39;</span>
+    <span class="p">})</span>
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">staff_activity</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">active_staff</span> <span class="o">=</span> <span class="n">StaffPermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">user__is_active</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-last_active&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/staff_activity.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;active_staff&#39;</span><span class="p">:</span> <span class="n">active_staff</span><span class="p">,</span>
+        <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="s1">&#39;staff_monitoring&#39;</span>
+    <span class="p">})</span>
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">staff_action_logs</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">action_logs</span> <span class="o">=</span> <span class="n">AuditLog</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">user__staff_permissions__isnull</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-timestamp&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/staff_action_logs.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;action_logs&#39;</span><span class="p">:</span> <span class="n">action_logs</span><span class="p">,</span>
+        <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="s1">&#39;staff_monitoring&#39;</span>
+    <span class="p">})</span>
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">user_login_history</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">login_history</span> <span class="o">=</span> <span class="n">LoginHistory</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-login_time&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/user_login_history.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;login_history&#39;</span><span class="p">:</span> <span class="n">login_history</span><span class="p">,</span>
+        <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="s1">&#39;user_monitoring&#39;</span>
+    <span class="p">})</span>
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">daily_logins</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">today</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    <span class="n">week_ago</span> <span class="o">=</span> <span class="n">today</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+    
+    <span class="n">daily_counts</span> <span class="o">=</span> <span class="n">LoginHistory</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">timestamp__gte</span><span class="o">=</span><span class="n">week_ago</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">extra</span><span class="p">({</span>
+        <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="s2">&quot;date(timestamp)&quot;</span>
+    <span class="p">})</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+        <span class="n">count</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">),</span>
+        <span class="n">success</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">Q</span><span class="p">(</span><span class="n">successful</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
+        <span class="n">failed</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">Q</span><span class="p">(</span><span class="n">successful</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Calculate login_change with absolute value</span>
+    <span class="n">login_change</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>  <span class="c1"># Example negative value - replace with your actual calculation</span>
+    <span class="n">abs_login_change</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">login_change</span><span class="p">)</span>  <span class="c1"># Calculate absolute value in Python</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;daily_counts&#39;</span><span class="p">:</span> <span class="n">daily_counts</span><span class="p">,</span>
+        <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="s1">&#39;user_monitoring&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;login_change&#39;</span><span class="p">:</span> <span class="n">login_change</span><span class="p">,</span>
+        <span class="s1">&#39;abs_login_change&#39;</span><span class="p">:</span> <span class="n">abs_login_change</span><span class="p">,</span>  <span class="c1"># Send both original and absolute values</span>
+        <span class="s1">&#39;total_logins&#39;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">daily_counts</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/daily_logins.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">financial_reports</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="c1"># Placeholder - integrate with financial models</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/financial_reports.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;reports&#39;</span><span class="p">:</span> <span class="p">[]</span>
+    <span class="p">})</span>
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">audit_logs</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">logs</span> <span class="o">=</span> <span class="n">AuditLog</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-timestamp&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/audit_logs.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;logs&#39;</span><span class="p">:</span> <span class="n">logs</span>
+    <span class="p">})</span>
+    
+    
+<div class="viewcode-block" id="check_payment_status">
+<a class="viewcode-back" href="../../account.html#account.views.check_payment_status">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_payment_status</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">mm_tx</span> <span class="o">=</span> <span class="n">MobileMoneyTransaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">transaction_ref</span><span class="o">=</span><span class="n">ref</span><span class="p">)</span>
+        <span class="n">transaction</span> <span class="o">=</span> <span class="n">mm_tx</span><span class="o">.</span><span class="n">transaction</span>
+        <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="n">transaction</span><span class="o">.</span><span class="n">status</span><span class="p">})</span>
+    <span class="k">except</span> <span class="n">MobileMoneyTransaction</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;not_found&#39;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="mi">404</span><span class="p">)</span> </div>
+
+    
+
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">pending_withdrawals</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">pending_txs</span> <span class="o">=</span> <span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">transaction_type</span><span class="o">=</span><span class="s1">&#39;mobile_money_withdrawal&#39;</span><span class="p">,</span>
+        <span class="n">status</span><span class="o">=</span><span class="s1">&#39;pending_approval&#39;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;mobile_money&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/pending_withdrawals.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;pending_withdrawals&#39;</span><span class="p">:</span> <span class="n">pending_txs</span><span class="p">,</span>
+        <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="s1">&#39;withdrawals&#39;</span>
+    <span class="p">})</span>
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">approve_withdrawal</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">tx_id</span><span class="p">):</span>
+    <span class="n">tx</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Transaction</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">tx_id</span><span class="p">)</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">tx</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">account</span>
+    
+    <span class="c1"># Process with mobile money API here (pseudo-code)</span>
+    <span class="c1"># if api_process_withdrawal(tx.mobile_money.phone_number, tx.amount):</span>
+    
+    <span class="c1"># Mark as completed</span>
+    <span class="n">tx</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;completed&#39;</span>
+    <span class="n">tx</span><span class="o">.</span><span class="n">admin_approved</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">tx</span><span class="o">.</span><span class="n">admin_processed_by</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+    <span class="n">tx</span><span class="o">.</span><span class="n">admin_processed_at</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="n">tx</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    
+    <span class="c1"># Deduct from account (was previously locked)</span>
+    <span class="n">account</span><span class="o">.</span><span class="n">account_balance</span> <span class="o">-=</span> <span class="n">tx</span><span class="o">.</span><span class="n">amount</span>
+    <span class="n">account</span><span class="o">.</span><span class="n">locked_funds</span> <span class="o">-=</span> <span class="n">tx</span><span class="o">.</span><span class="n">amount</span>
+    <span class="n">account</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    
+    <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Withdrawal of UGX </span><span class="si">{</span><span class="n">tx</span><span class="o">.</span><span class="n">amount</span><span class="si">}</span><span class="s2"> approved&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;account:pending_withdrawals&#39;</span><span class="p">)</span>
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">reject_withdrawal</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">tx_id</span><span class="p">):</span>
+    <span class="n">tx</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Transaction</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">tx_id</span><span class="p">)</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">tx</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">account</span>
+    
+    <span class="c1"># Return locked funds</span>
+    <span class="n">account</span><span class="o">.</span><span class="n">locked_funds</span> <span class="o">-=</span> <span class="n">tx</span><span class="o">.</span><span class="n">amount</span>
+    <span class="n">account</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    
+    <span class="c1"># Mark as rejected</span>
+    <span class="n">tx</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;rejected&#39;</span>
+    <span class="n">tx</span><span class="o">.</span><span class="n">admin_processed_by</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+    <span class="n">tx</span><span class="o">.</span><span class="n">admin_processed_at</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="n">tx</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    
+    <span class="n">messages</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Withdrawal of UGX </span><span class="si">{</span><span class="n">tx</span><span class="o">.</span><span class="n">amount</span><span class="si">}</span><span class="s2"> rejected&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;account:pending_withdrawals&#39;</span><span class="p">)</span>
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">user_login_history</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="c1"># Get filter parameters from request</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">)</span>
+    <span class="n">period</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;period&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    
+    <span class="c1"># Base queryset</span>
+    <span class="n">login_history</span> <span class="o">=</span> <span class="n">LoginHistory</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-timestamp&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Apply filters</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;success&#39;</span><span class="p">:</span>
+        <span class="n">login_history</span> <span class="o">=</span> <span class="n">login_history</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">successful</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;failed&#39;</span><span class="p">:</span>
+        <span class="n">login_history</span> <span class="o">=</span> <span class="n">login_history</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">successful</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">period</span> <span class="o">==</span> <span class="s1">&#39;today&#39;</span><span class="p">:</span>
+        <span class="n">today</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+        <span class="n">login_history</span> <span class="o">=</span> <span class="n">login_history</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">timestamp__date</span><span class="o">=</span><span class="n">today</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">period</span> <span class="o">==</span> <span class="s1">&#39;week&#39;</span><span class="p">:</span>
+        <span class="n">week_ago</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+        <span class="n">login_history</span> <span class="o">=</span> <span class="n">login_history</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">timestamp__gte</span><span class="o">=</span><span class="n">week_ago</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">period</span> <span class="o">==</span> <span class="s1">&#39;month&#39;</span><span class="p">:</span>
+        <span class="n">month_ago</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+        <span class="n">login_history</span> <span class="o">=</span> <span class="n">login_history</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">timestamp__gte</span><span class="o">=</span><span class="n">month_ago</span><span class="p">)</span>
+    
+    <span class="c1"># Pagination</span>
+    <span class="n">paginator</span> <span class="o">=</span> <span class="n">Paginator</span><span class="p">(</span><span class="n">login_history</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>  <span class="c1"># Show 25 logins per page</span>
+    <span class="n">page_number</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;page&#39;</span><span class="p">)</span>
+    <span class="n">page_obj</span> <span class="o">=</span> <span class="n">paginator</span><span class="o">.</span><span class="n">get_page</span><span class="p">(</span><span class="n">page_number</span><span class="p">)</span>
+    
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;login_history&#39;</span><span class="p">:</span> <span class="n">page_obj</span><span class="p">,</span>
+        <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="s1">&#39;user_monitoring&#39;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/user_login_history.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+<span class="nd">@admin_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">daily_logins</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">today</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    <span class="n">week_ago</span> <span class="o">=</span> <span class="n">today</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+    
+    <span class="n">daily_counts</span> <span class="o">=</span> <span class="n">LoginHistory</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">timestamp__gte</span><span class="o">=</span><span class="n">week_ago</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">extra</span><span class="p">({</span>
+        <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="s2">&quot;date(timestamp)&quot;</span>
+    <span class="p">})</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+        <span class="n">count</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">),</span>
+        <span class="n">success</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">successful</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
+        <span class="n">failed</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">successful</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">)</span>
+    
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;daily_counts&#39;</span><span class="p">:</span> <span class="n">daily_counts</span><span class="p">,</span>
+        <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="s1">&#39;user_monitoring&#39;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;account/admin/daily_logins.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Gems.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

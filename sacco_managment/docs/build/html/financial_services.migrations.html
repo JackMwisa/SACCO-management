@@ -1,0 +1,185 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="English" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>financial_services.migrations package &mdash; SACCO Management System 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=cd5f4460"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="reports package" href="reports.html" />
+    <link rel="prev" title="financial_services package" href="financial_services.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SACCO Management System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_auths.html">user_auths package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="account.html">account package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="financial_services.html">financial_services package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="financial_services.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">financial_services.migrations package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-financial_services.migrations.0001_initial">financial_services.migrations.0001_initial module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-financial_services.migrations.0002_alter_cryptotransaction_options_and_more">financial_services.migrations.0002_alter_cryptotransaction_options_and_more module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-financial_services.migrations">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="financial_services.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="financial_services.html#module-financial_services.admin">financial_services.admin module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="financial_services.html#module-financial_services.apps">financial_services.apps module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="financial_services.html#module-financial_services.forms">financial_services.forms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="financial_services.html#module-financial_services.models">financial_services.models module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="financial_services.html#module-financial_services.tests">financial_services.tests module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="financial_services.html#module-financial_services.urls">financial_services.urls module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="financial_services.html#module-financial_services.views">financial_services.views module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="financial_services.html#module-financial_services">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">reports package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">support package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SACCO Management System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="financial_services.html">financial_services package</a></li>
+      <li class="breadcrumb-item active">financial_services.migrations package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/financial_services.migrations.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="financial-services-migrations-package">
+<h1>financial_services.migrations package<a class="headerlink" href="#financial-services-migrations-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-financial_services.migrations.0001_initial">
+<span id="financial-services-migrations-0001-initial-module"></span><h2>financial_services.migrations.0001_initial module<a class="headerlink" href="#module-financial_services.migrations.0001_initial" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="financial_services.migrations.0001_initial.Migration">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">financial_services.migrations.0001_initial.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/migrations/0001_initial.html#Migration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.migrations.0001_initial.Migration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.migrations.0001_initial.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('user_auths',</span> <span class="pre">'__first__')]</span></em><a class="headerlink" href="#financial_services.migrations.0001_initial.Migration.dependencies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.migrations.0001_initial.Migration.initial">
+<span class="sig-name descname"><span class="pre">initial</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#financial_services.migrations.0001_initial.Migration.initial" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.migrations.0001_initial.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;CreateModel</span>&#160; <span class="pre">name='CryptoWallet',</span> <span class="pre">fields=[('id',</span> <span class="pre">&lt;django.db.models.fields.BigAutoField&gt;),</span> <span class="pre">('wallet_type',</span> <span class="pre">&lt;django.db.models.fields.CharField&gt;),</span> <span class="pre">('balance',</span> <span class="pre">&lt;django.db.models.fields.DecimalField&gt;),</span> <span class="pre">('created_at',</span> <span class="pre">&lt;django.db.models.fields.DateTimeField&gt;),</span> <span class="pre">('user',</span> <span class="pre">&lt;django.db.models.fields.related.ForeignKey&gt;)],</span> <span class="pre">options={'unique_together':</span> <span class="pre">{('user',</span> <span class="pre">'wallet_type')}}&gt;,</span> <span class="pre">&lt;CreateModel</span>&#160; <span class="pre">name='CryptoTransaction',</span> <span class="pre">fields=[('id',</span> <span class="pre">&lt;django.db.models.fields.BigAutoField&gt;),</span> <span class="pre">('transaction_type',</span> <span class="pre">&lt;django.db.models.fields.CharField&gt;),</span> <span class="pre">('amount',</span> <span class="pre">&lt;django.db.models.fields.DecimalField&gt;),</span> <span class="pre">('status',</span> <span class="pre">&lt;django.db.models.fields.CharField&gt;),</span> <span class="pre">('timestamp',</span> <span class="pre">&lt;django.db.models.fields.DateTimeField&gt;),</span> <span class="pre">('description',</span> <span class="pre">&lt;django.db.models.fields.TextField&gt;),</span> <span class="pre">('wallet',</span> <span class="pre">&lt;django.db.models.fields.related.ForeignKey&gt;)],</span> <span class="pre">options={'ordering':</span> <span class="pre">['-timestamp']}&gt;]</span></em><a class="headerlink" href="#financial_services.migrations.0001_initial.Migration.operations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-financial_services.migrations.0002_alter_cryptotransaction_options_and_more">
+<span id="financial-services-migrations-0002-alter-cryptotransaction-options-and-more-module"></span><h2>financial_services.migrations.0002_alter_cryptotransaction_options_and_more module<a class="headerlink" href="#module-financial_services.migrations.0002_alter_cryptotransaction_options_and_more" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="financial_services.migrations.0002_alter_cryptotransaction_options_and_more.Migration">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">financial_services.migrations.0002_alter_cryptotransaction_options_and_more.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/financial_services/migrations/0002_alter_cryptotransaction_options_and_more.html#Migration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#financial_services.migrations.0002_alter_cryptotransaction_options_and_more.Migration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.migrations.0002_alter_cryptotransaction_options_and_more.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('financial_services',</span> <span class="pre">'0001_initial'),</span> <span class="pre">('user_auths',</span> <span class="pre">'__first__')]</span></em><a class="headerlink" href="#financial_services.migrations.0002_alter_cryptotransaction_options_and_more.Migration.dependencies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="financial_services.migrations.0002_alter_cryptotransaction_options_and_more.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;AlterModelOptions</span>&#160; <span class="pre">name='cryptotransaction',</span> <span class="pre">options={'ordering':</span> <span class="pre">['-timestamp'],</span> <span class="pre">'verbose_name':</span> <span class="pre">'Crypto</span> <span class="pre">Transaction',</span> <span class="pre">'verbose_name_plural':</span> <span class="pre">'Crypto</span> <span class="pre">Transactions'}&gt;,</span> <span class="pre">&lt;AlterModelOptions</span>&#160; <span class="pre">name='cryptowallet',</span> <span class="pre">options={'verbose_name':</span> <span class="pre">'Crypto</span> <span class="pre">Wallet',</span> <span class="pre">'verbose_name_plural':</span> <span class="pre">'Crypto</span> <span class="pre">Wallets'}&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='cryptotransaction',</span> <span class="pre">name='related_transaction',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='cryptowallet',</span> <span class="pre">name='updated_at',</span> <span class="pre">field=&lt;django.db.models.fields.DateTimeField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='cryptotransaction',</span> <span class="pre">name='amount',</span> <span class="pre">field=&lt;django.db.models.fields.DecimalField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='cryptotransaction',</span> <span class="pre">name='status',</span> <span class="pre">field=&lt;django.db.models.fields.CharField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='cryptotransaction',</span> <span class="pre">name='timestamp',</span> <span class="pre">field=&lt;django.db.models.fields.DateTimeField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='cryptotransaction',</span> <span class="pre">name='wallet',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='cryptowallet',</span> <span class="pre">name='user',</span> <span class="pre">field=&lt;django.db.models.fields.related.ForeignKey&gt;&gt;]</span></em><a class="headerlink" href="#financial_services.migrations.0002_alter_cryptotransaction_options_and_more.Migration.operations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-financial_services.migrations">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-financial_services.migrations" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="financial_services.html" class="btn btn-neutral float-left" title="financial_services package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reports.html" class="btn btn-neutral float-right" title="reports package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Gems.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

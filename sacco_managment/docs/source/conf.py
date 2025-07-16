@@ -10,7 +10,7 @@ import sys
 import django
 
 # Add project path and set DJANGO_SETTINGS_MODULE
-sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath('../../'))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'sacco_managment.settings'
 django.setup()
 

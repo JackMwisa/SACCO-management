@@ -1,0 +1,279 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="English" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>support package &mdash; SACCO Management System 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=cd5f4460"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="support.migrations package" href="support.migrations.html" />
+    <link rel="prev" title="reports.migrations package" href="reports.migrations.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SACCO Management System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_auths.html">user_auths package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="account.html">account package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="financial_services.html">financial_services package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">reports package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">support package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="support.migrations.html">support.migrations package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-support.admin">support.admin module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-support.apps">support.apps module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#support.apps.SupportConfig"><code class="docutils literal notranslate"><span class="pre">SupportConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#support.apps.SupportConfig.default_auto_field"><code class="docutils literal notranslate"><span class="pre">SupportConfig.default_auto_field</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#support.apps.SupportConfig.name"><code class="docutils literal notranslate"><span class="pre">SupportConfig.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-support.models">support.models module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-support.test_openai">support.test_openai module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#support.test_openai.test_gemini"><code class="docutils literal notranslate"><span class="pre">test_gemini()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-support.tests">support.tests module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#support.tests.SupportViewsTests"><code class="docutils literal notranslate"><span class="pre">SupportViewsTests</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#support.tests.SupportViewsTests.setUp"><code class="docutils literal notranslate"><span class="pre">SupportViewsTests.setUp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#support.tests.SupportViewsTests.test_chatbot_get"><code class="docutils literal notranslate"><span class="pre">SupportViewsTests.test_chatbot_get()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#support.tests.SupportViewsTests.test_chatbot_multilingual_prompt_luganda"><code class="docutils literal notranslate"><span class="pre">SupportViewsTests.test_chatbot_multilingual_prompt_luganda()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#support.tests.SupportViewsTests.test_chatbot_post_no_message"><code class="docutils literal notranslate"><span class="pre">SupportViewsTests.test_chatbot_post_no_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#support.tests.SupportViewsTests.test_chatbot_post_success"><code class="docutils literal notranslate"><span class="pre">SupportViewsTests.test_chatbot_post_success()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#support.tests.SupportViewsTests.test_chatbot_rate_limiting"><code class="docutils literal notranslate"><span class="pre">SupportViewsTests.test_chatbot_rate_limiting()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#support.tests.SupportViewsTests.test_faq_view"><code class="docutils literal notranslate"><span class="pre">SupportViewsTests.test_faq_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#support.tests.SupportViewsTests.test_tutorial_view"><code class="docutils literal notranslate"><span class="pre">SupportViewsTests.test_tutorial_view()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-support.urls">support.urls module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-support.views">support.views module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#support.views.chatbot"><code class="docutils literal notranslate"><span class="pre">chatbot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#support.views.faq"><code class="docutils literal notranslate"><span class="pre">faq()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#support.views.tutorial"><code class="docutils literal notranslate"><span class="pre">tutorial()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-support">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SACCO Management System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">support package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/support.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="support-package">
+<h1>support package<a class="headerlink" href="#support-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="support.migrations.html">support.migrations package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="support.migrations.html#module-support.migrations">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-support.admin">
+<span id="support-admin-module"></span><h2>support.admin module<a class="headerlink" href="#module-support.admin" title="Link to this heading"></a></h2>
+</section>
+<section id="module-support.apps">
+<span id="support-apps-module"></span><h2>support.apps module<a class="headerlink" href="#module-support.apps" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="support.apps.SupportConfig">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">support.apps.</span></span><span class="sig-name descname"><span class="pre">SupportConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/support/apps.html#SupportConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#support.apps.SupportConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AppConfig</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="support.apps.SupportConfig.default_auto_field">
+<span class="sig-name descname"><span class="pre">default_auto_field</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'django.db.models.BigAutoField'</span></em><a class="headerlink" href="#support.apps.SupportConfig.default_auto_field" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="support.apps.SupportConfig.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'support'</span></em><a class="headerlink" href="#support.apps.SupportConfig.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-support.models">
+<span id="support-models-module"></span><h2>support.models module<a class="headerlink" href="#module-support.models" title="Link to this heading"></a></h2>
+</section>
+<section id="module-support.test_openai">
+<span id="support-test-openai-module"></span><h2>support.test_openai module<a class="headerlink" href="#module-support.test_openai" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="support.test_openai.test_gemini">
+<span class="sig-prename descclassname"><span class="pre">support.test_openai.</span></span><span class="sig-name descname"><span class="pre">test_gemini</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/support/test_openai.html#test_gemini"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#support.test_openai.test_gemini" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-support.tests">
+<span id="support-tests-module"></span><h2>support.tests module<a class="headerlink" href="#module-support.tests" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="support.tests.SupportViewsTests">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">support.tests.</span></span><span class="sig-name descname"><span class="pre">SupportViewsTests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/support/tests.html#SupportViewsTests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#support.tests.SupportViewsTests" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="support.tests.SupportViewsTests.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/support/tests.html#SupportViewsTests.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#support.tests.SupportViewsTests.setUp" title="Link to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="support.tests.SupportViewsTests.test_chatbot_get">
+<span class="sig-name descname"><span class="pre">test_chatbot_get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/support/tests.html#SupportViewsTests.test_chatbot_get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#support.tests.SupportViewsTests.test_chatbot_get" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="support.tests.SupportViewsTests.test_chatbot_multilingual_prompt_luganda">
+<span class="sig-name descname"><span class="pre">test_chatbot_multilingual_prompt_luganda</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/support/tests.html#SupportViewsTests.test_chatbot_multilingual_prompt_luganda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#support.tests.SupportViewsTests.test_chatbot_multilingual_prompt_luganda" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="support.tests.SupportViewsTests.test_chatbot_post_no_message">
+<span class="sig-name descname"><span class="pre">test_chatbot_post_no_message</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/support/tests.html#SupportViewsTests.test_chatbot_post_no_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#support.tests.SupportViewsTests.test_chatbot_post_no_message" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="support.tests.SupportViewsTests.test_chatbot_post_success">
+<span class="sig-name descname"><span class="pre">test_chatbot_post_success</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/support/tests.html#SupportViewsTests.test_chatbot_post_success"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#support.tests.SupportViewsTests.test_chatbot_post_success" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="support.tests.SupportViewsTests.test_chatbot_rate_limiting">
+<span class="sig-name descname"><span class="pre">test_chatbot_rate_limiting</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/support/tests.html#SupportViewsTests.test_chatbot_rate_limiting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#support.tests.SupportViewsTests.test_chatbot_rate_limiting" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="support.tests.SupportViewsTests.test_faq_view">
+<span class="sig-name descname"><span class="pre">test_faq_view</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/support/tests.html#SupportViewsTests.test_faq_view"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#support.tests.SupportViewsTests.test_faq_view" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="support.tests.SupportViewsTests.test_tutorial_view">
+<span class="sig-name descname"><span class="pre">test_tutorial_view</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/support/tests.html#SupportViewsTests.test_tutorial_view"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#support.tests.SupportViewsTests.test_tutorial_view" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-support.urls">
+<span id="support-urls-module"></span><h2>support.urls module<a class="headerlink" href="#module-support.urls" title="Link to this heading"></a></h2>
+</section>
+<section id="module-support.views">
+<span id="support-views-module"></span><h2>support.views module<a class="headerlink" href="#module-support.views" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="support.views.chatbot">
+<span class="sig-prename descclassname"><span class="pre">support.views.</span></span><span class="sig-name descname"><span class="pre">chatbot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/support/views.html#chatbot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#support.views.chatbot" title="Link to this definition"></a></dt>
+<dd><p>Gemini-powered chatbot with basic multilingual support and rate limiting.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="support.views.faq">
+<span class="sig-prename descclassname"><span class="pre">support.views.</span></span><span class="sig-name descname"><span class="pre">faq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/support/views.html#faq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#support.views.faq" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="support.views.tutorial">
+<span class="sig-prename descclassname"><span class="pre">support.views.</span></span><span class="sig-name descname"><span class="pre">tutorial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/support/views.html#tutorial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#support.views.tutorial" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-support">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-support" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="reports.migrations.html" class="btn btn-neutral float-left" title="reports.migrations package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="support.migrations.html" class="btn btn-neutral float-right" title="support.migrations package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Gems.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

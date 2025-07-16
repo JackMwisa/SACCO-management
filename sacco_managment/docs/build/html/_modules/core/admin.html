@@ -1,0 +1,329 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="English" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>core.admin &mdash; SACCO Management System 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=cd5f4460"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SACCO Management System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../core.html">core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_auths.html">user_auths package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../account.html">account package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../financial_services.html">financial_services package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reports.html">reports package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../support.html">support package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SACCO Management System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">core.admin</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for core.admin</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib</span><span class="w"> </span><span class="kn">import</span> <span class="n">admin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">core.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transaction</span><span class="p">,</span> <span class="n">CreditCard</span><span class="p">,</span> <span class="n">Notification</span><span class="p">,</span> <span class="n">MobileMoneyTransaction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">account.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Account</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoanApplication</span><span class="p">,</span> <span class="n">LoanRepayment</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TransactionAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">list_editable</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;amount&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;transaction_type&#39;</span><span class="p">]</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;transaction_type&#39;</span><span class="p">,</span> <span class="s1">&#39;receiver&#39;</span><span class="p">,</span> <span class="s1">&#39;sender&#39;</span><span class="p">]</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;transaction_type&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">]</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;user__username&#39;</span><span class="p">,</span> <span class="s1">&#39;receiver__username&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;sender__username&#39;</span><span class="p">,</span> <span class="s1">&#39;transaction_id&#39;</span><span class="p">]</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;process_withdrawals&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_withdrawals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="n">withdrawals</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">transaction_type</span><span class="o">=</span><span class="s1">&#39;mobile_money_withdrawal&#39;</span><span class="p">,</span>
+            <span class="n">status</span><span class="o">=</span><span class="s1">&#39;pending&#39;</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">transaction</span> <span class="ow">in</span> <span class="n">withdrawals</span><span class="p">:</span>
+            <span class="n">mm_trans</span> <span class="o">=</span> <span class="n">transaction</span><span class="o">.</span><span class="n">mobile_money</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">mm_trans</span><span class="p">:</span>
+                <span class="c1"># In production: Call Flutterwave Payout API</span>
+                <span class="c1"># Simulate success</span>
+                <span class="n">transaction</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;completed&#39;</span>
+                <span class="n">transaction</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+                <span class="c1"># Release locked funds</span>
+                <span class="n">account</span> <span class="o">=</span> <span class="n">transaction</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">account</span>
+                <span class="n">account</span><span class="o">.</span><span class="n">locked_funds</span> <span class="o">-=</span> <span class="n">transaction</span><span class="o">.</span><span class="n">amount</span>
+                <span class="n">account</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+                <span class="n">Notification</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">=</span><span class="n">transaction</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                    <span class="n">notification_type</span><span class="o">=</span><span class="s2">&quot;Withdrawal Processed&quot;</span><span class="p">,</span>
+                    <span class="n">amount</span><span class="o">=</span><span class="n">transaction</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span>
+                    <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Withdrawal of UGX </span><span class="si">{</span><span class="n">transaction</span><span class="o">.</span><span class="n">amount</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">mm_trans</span><span class="o">.</span><span class="n">phone_number</span><span class="si">}</span><span class="s2"> completed&quot;</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span>
+            <span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Processed </span><span class="si">{</span><span class="n">withdrawals</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2"> withdrawals&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">change</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle deposit and withdrawal logic in the admin panel.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">change</span><span class="p">:</span>  <span class="c1"># Only handle new transactions</span>
+            <span class="n">account</span> <span class="o">=</span> <span class="n">Account</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">transaction_type</span> <span class="o">==</span> <span class="s2">&quot;deposit&quot;</span><span class="p">:</span>
+                <span class="n">account</span><span class="o">.</span><span class="n">account_balance</span> <span class="o">+=</span> <span class="n">obj</span><span class="o">.</span><span class="n">amount</span>
+                <span class="n">account</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">obj</span><span class="o">.</span><span class="n">transaction_type</span> <span class="o">==</span> <span class="s2">&quot;withdrawal&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">account</span><span class="o">.</span><span class="n">account_balance</span> <span class="o">&gt;=</span> <span class="n">obj</span><span class="o">.</span><span class="n">amount</span><span class="p">:</span>
+                    <span class="n">account</span><span class="o">.</span><span class="n">account_balance</span> <span class="o">-=</span> <span class="n">obj</span><span class="o">.</span><span class="n">amount</span>
+                    <span class="n">account</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Insufficient balance for withdrawal.&quot;</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">change</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="CreditCardAdmin">
+<a class="viewcode-back" href="../../core.html#core.admin.CreditCardAdmin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CreditCardAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">list_editable</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;amount&#39;</span><span class="p">,</span> <span class="s1">&#39;card_type&#39;</span><span class="p">]</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">,</span> <span class="s1">&#39;card_type&#39;</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="NotificationAdmin">
+<a class="viewcode-back" href="../../core.html#core.admin.NotificationAdmin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NotificationAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;notification_type&#39;</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="LoanRepaymentInline">
+<a class="viewcode-back" href="../../core.html#core.admin.LoanRepaymentInline">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LoanRepaymentInline</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">TabularInline</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">LoanRepayment</span>
+    <span class="n">extra</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;payment_date&#39;</span><span class="p">,</span> <span class="s1">&#39;transaction&#39;</span><span class="p">)</span>
+    <span class="n">can_delete</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="LoanApplicationAdmin">
+<a class="viewcode-back" href="../../core.html#core.admin.LoanApplicationAdmin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LoanApplicationAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;loan_type&#39;</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;duration_months&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;date_applied&#39;</span><span class="p">)</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;loan_type&#39;</span><span class="p">,</span> <span class="s1">&#39;date_applied&#39;</span><span class="p">)</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;user__username&#39;</span><span class="p">,</span> <span class="s1">&#39;account__account_number&#39;</span><span class="p">)</span>
+    <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;date_applied&#39;</span><span class="p">,</span> <span class="s1">&#39;date_approved&#39;</span><span class="p">,</span> <span class="s1">&#39;date_disbursed&#39;</span><span class="p">)</span>
+    <span class="n">inlines</span> <span class="o">=</span> <span class="p">[</span><span class="n">LoanRepaymentInline</span><span class="p">]</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;approve_loans&#39;</span><span class="p">,</span> <span class="s1">&#39;reject_loans&#39;</span><span class="p">,</span> <span class="s1">&#39;disburse_loans&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="LoanApplicationAdmin.approve_loans">
+<a class="viewcode-back" href="../../core.html#core.admin.LoanApplicationAdmin.approve_loans">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">approve_loans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">loan</span> <span class="ow">in</span> <span class="n">queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;pending&#39;</span><span class="p">):</span>
+            <span class="n">loan</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;approved&#39;</span>
+            <span class="n">loan</span><span class="o">.</span><span class="n">date_approved</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">loan</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+            <span class="n">Notification</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">loan</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                <span class="n">notification_type</span><span class="o">=</span><span class="s2">&quot;Loan Approved&quot;</span><span class="p">,</span>
+                <span class="n">amount</span><span class="o">=</span><span class="n">loan</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Your </span><span class="si">{</span><span class="n">loan</span><span class="o">.</span><span class="n">loan_type</span><span class="si">}</span><span class="s2"> loan has been approved&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">queryset</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2"> loans approved&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LoanApplicationAdmin.reject_loans">
+<a class="viewcode-back" href="../../core.html#core.admin.LoanApplicationAdmin.reject_loans">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reject_loans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">loan</span> <span class="ow">in</span> <span class="n">queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;pending&#39;</span><span class="p">):</span>
+            <span class="n">loan</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;rejected&#39;</span>
+            <span class="n">loan</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+            <span class="n">Notification</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">loan</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                <span class="n">notification_type</span><span class="o">=</span><span class="s2">&quot;Loan Rejected&quot;</span><span class="p">,</span>
+                <span class="n">amount</span><span class="o">=</span><span class="n">loan</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Your </span><span class="si">{</span><span class="n">loan</span><span class="o">.</span><span class="n">loan_type</span><span class="si">}</span><span class="s2"> loan has been rejected&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">queryset</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2"> loans rejected&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LoanApplicationAdmin.disburse_loans">
+<a class="viewcode-back" href="../../core.html#core.admin.LoanApplicationAdmin.disburse_loans">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">disburse_loans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">loan</span> <span class="ow">in</span> <span class="n">queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;approved&#39;</span><span class="p">):</span>
+            <span class="n">loan</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;disbursed&#39;</span>
+            <span class="n">loan</span><span class="o">.</span><span class="n">date_disbursed</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">loan</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+            <span class="c1"># Credit the user&#39;s account</span>
+            <span class="n">account</span> <span class="o">=</span> <span class="n">loan</span><span class="o">.</span><span class="n">account</span>
+            <span class="n">account</span><span class="o">.</span><span class="n">account_balance</span> <span class="o">+=</span> <span class="n">loan</span><span class="o">.</span><span class="n">amount</span>
+            <span class="n">account</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+            <span class="c1"># Create transaction record</span>
+            <span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">loan</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                <span class="n">amount</span><span class="o">=</span><span class="n">loan</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span>
+                <span class="n">transaction_type</span><span class="o">=</span><span class="s2">&quot;loan_disbursement&quot;</span><span class="p">,</span>
+                <span class="n">status</span><span class="o">=</span><span class="s2">&quot;completed&quot;</span><span class="p">,</span>
+                <span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># System generated</span>
+                <span class="n">receiver</span><span class="o">=</span><span class="n">loan</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                <span class="n">sender_account</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">receiver_account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Loan disbursement for </span><span class="si">{</span><span class="n">loan</span><span class="o">.</span><span class="n">loan_type</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+            <span class="n">Notification</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">loan</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                <span class="n">notification_type</span><span class="o">=</span><span class="s2">&quot;Loan Disbursed&quot;</span><span class="p">,</span>
+                <span class="n">amount</span><span class="o">=</span><span class="n">loan</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Your </span><span class="si">{</span><span class="n">loan</span><span class="o">.</span><span class="n">loan_type</span><span class="si">}</span><span class="s2"> loan has been disbursed&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">queryset</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2"> loans disbursed&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MobileMoneyTransactionInline">
+<a class="viewcode-back" href="../../core.html#core.admin.MobileMoneyTransactionInline">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MobileMoneyTransactionInline</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">TabularInline</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">MobileMoneyTransaction</span>
+    <span class="n">extra</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;provider&#39;</span><span class="p">,</span> <span class="s1">&#39;phone_number&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;transaction_ref&#39;</span><span class="p">,</span> <span class="s1">&#39;is_reconciled&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="TransactionAdmin">
+<a class="viewcode-back" href="../../core.html#core.admin.TransactionAdmin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TransactionAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">inlines</span> <span class="o">=</span> <span class="p">[</span><span class="n">MobileMoneyTransactionInline</span><span class="p">]</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;transaction_type&#39;</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">)</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;transaction_type&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">)</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;transaction_type&#39;</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="MobileMoneyTransactionAdmin">
+<a class="viewcode-back" href="../../core.html#core.admin.MobileMoneyTransactionAdmin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MobileMoneyTransactionAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;transaction_ref&#39;</span><span class="p">,</span> <span class="s1">&#39;provider&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;phone_number&#39;</span><span class="p">,</span> <span class="s1">&#39;amount&#39;</span><span class="p">,</span> <span class="s1">&#39;is_reconciled&#39;</span><span class="p">]</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;provider&#39;</span><span class="p">,</span> <span class="s1">&#39;is_reconciled&#39;</span><span class="p">]</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;phone_number&#39;</span><span class="p">,</span> <span class="s1">&#39;transaction_ref&#39;</span><span class="p">]</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;reconcile_transactions&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="MobileMoneyTransactionAdmin.amount">
+<a class="viewcode-back" href="../../core.html#core.admin.MobileMoneyTransactionAdmin.amount">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">amount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">transaction</span><span class="o">.</span><span class="n">amount</span></div>
+
+
+<div class="viewcode-block" id="MobileMoneyTransactionAdmin.reconcile_transactions">
+<a class="viewcode-back" href="../../core.html#core.admin.MobileMoneyTransactionAdmin.reconcile_transactions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reconcile_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">transaction</span> <span class="ow">in</span> <span class="n">queryset</span><span class="p">:</span>
+            <span class="n">transaction</span><span class="o">.</span><span class="n">is_reconciled</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">transaction</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span>
+            <span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">queryset</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2"> transactions reconciled&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">MobileMoneyTransaction</span><span class="p">,</span> <span class="n">MobileMoneyTransactionAdmin</span><span class="p">)</span>
+
+
+<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">LoanApplication</span><span class="p">,</span> <span class="n">LoanApplicationAdmin</span><span class="p">)</span>
+<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">Transaction</span><span class="p">,</span> <span class="n">TransactionAdmin</span><span class="p">)</span>
+<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">CreditCard</span><span class="p">,</span> <span class="n">CreditCardAdmin</span><span class="p">)</span>
+<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">Notification</span><span class="p">,</span> <span class="n">NotificationAdmin</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Gems.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

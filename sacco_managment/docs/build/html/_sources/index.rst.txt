@@ -15,3 +15,9 @@ documentation for details.
    :maxdepth: 2
    :caption: Contents:
 
+   core
+   user_auths
+   account
+   financial_services
+   reports
+   support
