@@ -30,7 +30,7 @@ from django.db import transaction as db_transaction
 from .utils.momo import MTNMomoAPI
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.middleware.csrf import get_token
-
+from django.db import transaction
 
 
 
@@ -52,7 +52,7 @@ def apply_for_loan(request):
     # Check eligibility
     eligibility = {
         'has_min_savings': account.account_balance >= 50000,
-        'is_member_long_enough': (timezone.now() - request.user.date_joined).days > 90,
+        'is_member_long_enough': (timezone.now() - request.user.date_joined).days > 30,
         'has_no_defaulted_loans': not LoanApplication.objects.filter(
             user=request.user, status='defaulted').exists(),
         'active_loans': LoanApplication.objects.filter(
