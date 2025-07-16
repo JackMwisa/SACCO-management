@@ -1,0 +1,204 @@
+{% extends "partials/dashboard-base.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+<section class="dashboard-section body-collapse pay step step-2">
+  <div class="overlay pt-120">
+    <div class="container-fruid">
+      <div class="main-content">
+        <div class="payment-confirmation text-center">
+          <div class="icon-area mb-4">
+            <img src="{% static 'assets1/images/icon/'|add:provider|lower|add:'-large.png' %}" 
+                 alt="{{ provider }}" width="120">
+            <div class="provider-badge mt-2">
+              <span class="badge bg-primary">{{ provider }}</span>
+            </div>
+          </div>
+          
+          <h4>Complete Your Payment</h4>
+          <p class="text-muted">Follow the instructions below to complete your deposit</p>
+          
+          <div class="payment-details card mt-4">
+            <div class="card-body">
+              <div class="detail-item d-flex justify-content-between mb-3">
+                <span class="text-muted">Recipient Account:</span>
+                <strong>{% firstof user_name request.user.get_full_name "GEMS SACCO" %}</strong>
+              </div>
+              <div class="detail-item d-flex justify-content-between mb-3">
+                <span class="text-muted">Phone Number:</span>
+                <strong>{{ phone }}</strong>
+              </div>
+              <div class="detail-item d-flex justify-content-between mb-3">
+                <span class="text-muted">Amount:</span>
+                <strong class="text-success">UGX {{ amount|intcomma }}</strong>
+              </div>
+              <div class="detail-item d-flex justify-content-between">
+                <span class="text-muted">Reference:</span>
+                <strong class="text-primary">{{ ref }}</strong>
+              </div>
+            </div>
+          </div>
+          
+          <div class="payment-instructions mt-4">
+            <div class="card">
+              <div class="card-header bg-light">
+                <h5 class="mb-0">Payment Instructions</h5>
+              </div>
+              <div class="card-body text-start">
+                {% if provider == 'MTN' %}
+                <ol>
+                  <li>You will receive a payment request on your phone</li>
+                  <li>Open your MTN Mobile Money menu</li>
+                  <li>Select <strong>"Pay Bill"</strong> or <strong>"Pay Merchant"</strong></li>
+                  <li>Enter your PIN when prompted</li>
+                  <li>Wait for confirmation SMS</li>
+                </ol>
+                <div class="alert alert-info mt-3">
+                  <i class="fas fa-info-circle me-2"></i>
+                  The payment will appear as <strong>{% firstof user_name request.user.get_full_name "GEMS SACCO" %}</strong> on your phone
+                </div>
+                {% else %}
+                <!-- Similar instructions for other providers -->
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          
+          <div class="processing-section mt-4">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex justify-content-center mb-3">
+                  <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                </div>
+                <h5 class="text-center mb-2" id="status-message">Waiting for payment confirmation...</h5>
+                <div class="progress mb-3">
+                  <div id="payment-progress" class="progress-bar progress-bar-striped progress-bar-animated" 
+                       role="progressbar" style="width: 0%"></div>
+                </div>
+                <p class="text-center text-muted small">
+                  <i class="fas fa-clock me-2"></i>
+                  This may take up to 2 minutes
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="help-section mt-4">
+            <div class="accordion" id="paymentHelp">
+              <div class="accordion-item border-0">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" 
+                          data-bs-toggle="collapse" data-bs-target="#helpCollapse"
+                          aria-expanded="false" aria-controls="helpCollapse">
+                    <i class="fas fa-question-circle me-2 text-primary"></i>
+                    Need help with your payment?
+                  </button>
+                </h2>
+                <div id="helpCollapse" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <ul class="list-unstyled">
+                      <li class="mb-2">
+                        <i class="fas fa-wifi me-2 text-muted"></i>
+                        Ensure your phone has network connection
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-lock me-2 text-muted"></i>
+                        Check your mobile money PIN is correct
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-money-bill-wave me-2 text-muted"></i>
+                        Ensure you have sufficient balance
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-history me-2 text-muted"></i>
+                        Wait 2 minutes and try again if needed
+                      </li>
+                      <li>
+                        <i class="fas fa-phone me-2 text-muted"></i>
+                        Contact support if issues persist
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="action-buttons mt-4 d-flex justify-content-center gap-3">
+            <a href="{% url 'account:account' %}" class="btn btn-outline-secondary">
+              <i class="fas fa-home me-2"></i> Back to Account
+            </a>
+            <a href="{% url 'core:mobile-money-deposit' %}" class="btn btn-primary">
+              <i class="fas fa-sync-alt me-2"></i> Try Again
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  const maxAttempts = 24; // 2 minutes (5s intervals)
+  let attempts = 0;
+  
+  const statusEl = document.getElementById('status-message');
+  const progressEl = document.getElementById('payment-progress');
+  
+  const checkStatus = setInterval(() => {
+    attempts++;
+    const progress = Math.min(100, (attempts / maxAttempts) * 100);
+    progressEl.style.width = `${progress}%`;
+    
+    fetch(`/mobile-money/status/{{ ref }}/`, {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': csrfToken
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'completed') {
+        // Success state
+        statusEl.innerHTML = `
+          <i class="fas fa-check-circle text-success me-2"></i>
+          Payment confirmed! Redirecting...
+        `;
+        progressEl.classList.remove('progress-bar-animated', 'progress-bar-striped');
+        progressEl.classList.add('bg-success');
+        clearInterval(checkStatus);
+        
+        setTimeout(() => {
+          window.location.href = "{% url 'core:mobile-money-transactions' %}";
+        }, 2000);
+      } 
+      else if (attempts >= maxAttempts) {
+        // Timeout state
+        statusEl.innerHTML = `
+          <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+          Payment taking longer than expected
+        `;
+        progressEl.classList.remove('progress-bar-animated', 'progress-bar-striped');
+        progressEl.classList.add('bg-warning');
+        clearInterval(checkStatus);
+      }
+      else {
+        // In progress
+        statusEl.innerHTML = `
+          <i class="fas fa-spinner fa-spin me-2"></i>
+          Checking status... (${attempts}/${maxAttempts})
+        `;
+      }
+    })
+    .catch(error => {
+      console.error('Status check error:', error);
+    });
+  }, 5000); // Check every 5 seconds
+});
+</script>
+{% endblock %}

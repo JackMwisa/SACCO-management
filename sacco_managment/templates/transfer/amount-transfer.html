@@ -79,7 +79,7 @@
             </div>
             <p>
               Available Balance<b
-                >${{request.user.account.account_balance|intcomma}}</b
+                >UGX{{request.user.account.account_balance|intcomma}}</b
               >
             </p>
             <p id="new_balance"></p>
@@ -115,17 +115,17 @@
               console.log(new_bal);
 
               // new_balance.innerHTML = `New Balance $${new_bal.toString().replace(/\B(?))}`
-              new_balance.innerHTML = `New Balance <b> $${new_bal
+              new_balance.innerHTML = `New Balance <b>ugx${new_bal
                 .toString()
                 .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} </b>`;
-              total_to_pay.innerHTML = `USD <b> $${sendAmount
+              total_to_pay.innerHTML = `USD <b> ugx${sendAmount
                 .toString()
                 .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} </b>`;
 
               if (new_bal < 0) {
                 new_balance.style.color = "red";
                 alert(
-                  "You can only send $" +
+                  "You can only send ugx" +
                     available_balance
                       .toString()
                       .replace(/\B(?=(\d{3})+(?!\d))/g, ",")

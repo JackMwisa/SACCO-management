@@ -62,7 +62,7 @@ class MTNMomoAPI:
     #             return info_response.json()
     #     return None
     def verify_user(self, phone_number):
-        """Verify mobile money user by checking if active"""
+        """Fetch MTN user name using MoMo API before sending money"""
         token = self._get_auth_token(
             settings.MTN_MOMO_API['COLLECTION_PRIMARY_KEY'],
             settings.MTN_MOMO_API['COLLECTION_SECONDARY_KEY']
@@ -77,16 +77,25 @@ class MTNMomoAPI:
             'X-Target-Environment': self.environment
         }
 
-        response = requests.get(
-            f"{self.base_url}/v1_0/accountholder/msisdn/{phone_number}/active",
+        # Optional: First check if number is active
+        active_check = requests.get(
+            f"{self.base_url}/collection/v1_0/accountholder/msisdn/{phone_number}/active",
             headers=headers
         )
 
-        if response.status_code == 200 and response.json().get('result') == 'active':
-            # Simulate a name (since MTN API doesn't provide it)
-            return {"name": "Verified MTN User"}
+        if active_check.status_code != 200 or active_check.json().get('result') != 'active':
+            return None
 
+        # Now fetch basic user info (name)
+        info_response = requests.get(
+            f"{self.base_url}/collection/v1_0/accountholder/msisdn/{phone_number}/basicuserinfo",
+            headers=headers
+        )
+
+        if info_response.status_code == 200:
+            return info_response.json()  # Will include user's name
         return None
+
 
     def request_payment(self, amount, phone_number, external_id, payee_note="", payer_message=""):
         """Initiate mobile money payment request"""
