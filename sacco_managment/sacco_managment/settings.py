@@ -47,14 +47,11 @@ LANGUAGES = [
     ('fr', 'French'),
     ('sw', 'Swahili'),
     ('lg', 'Luganda'),
-    
 ]
 
 LOCALE_PATHS = [
     BASE_DIR / 'locale', 
-    
 ]
-
 
 MTN_MOMO_API = {
     'COLLECTION_PRIMARY_KEY': config('MTN_COLLECTION_PRIMARY_KEY', default="123456789"),
