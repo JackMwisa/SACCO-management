@@ -3,14 +3,14 @@ from user_auths.models import User
 from account.models import Account
 from shortuuid.django_fields import ShortUUIDField
 
-# User = get_user_model() 
+# User = get_user_model()
 
 TRANSACTION_TYPE = (
     ("transfer", "Transfer"),
     ("received", "Received"),
-    ("withdraw", "withdraw"),        
-    ("deposit", "Deposit"),   
-    ("loan_disbursement", "Loan Disbursement"),  
+    ("withdraw", "withdraw"),
+    ("deposit", "Deposit"),
+    ("loan_disbursement", "Loan Disbursement"),
     ("refund", "Refund"),
     ("request", "Payment Request"),
     ("mobile_money_deposit", "Mobile Money Deposit"),
@@ -53,8 +53,8 @@ NOTIFICATION_TYPE = (
 )
 
 PROVIDER_CHOICES = (
-        ("MTN", "MTN"),
-        ("Airtel", "Airtel"),
+    ("MTN", "MTN"),
+    ("Airtel", "Airtel"),
 )
 
 # loan model
@@ -74,9 +74,12 @@ LOAN_STATUS = (
     ('disbursed', 'Disbursed'),
     ('completed', 'Completed'),
 )
+
+
 class LoanApplication(models.Model):
     loan_type = models.CharField(max_length=20, choices=LOAN_TYPES)
-    status = models.CharField(max_length=20, choices=LOAN_STATUS, default='pending')
+    status = models.CharField(
+        max_length=20, choices=LOAN_STATUS, default='pending')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=12, decimal_places=2)
@@ -88,24 +91,27 @@ class LoanApplication(models.Model):
     date_disbursed = models.DateTimeField(null=True, blank=True)
     admin_comment = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
-    monthly_repayment = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    total_repayment = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    total_interest = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    
+    monthly_repayment = models.DecimalField(
+        max_digits=12, decimal_places=2, default=0.00)
+    total_repayment = models.DecimalField(
+        max_digits=12, decimal_places=2, default=0.00)
+    total_interest = models.DecimalField(
+        max_digits=12, decimal_places=2, default=0.00)
+
     def __str__(self):
         return f"{self.user.username} - {self.loan_type} - {self.amount}"
-    
+
     @property
     def monthly_repayment(self):
         monthly_rate = self.interest_rate / 100 / 12
         numerator = monthly_rate * (1 + monthly_rate) ** self.duration_months
         denominator = (1 + monthly_rate) ** self.duration_months - 1
         return self.amount * (numerator / denominator)
-    
+
     @property
     def total_repayment(self):
         return self.monthly_repayment * self.duration_months
-    
+
     @property
     def total_interest(self):
         return self.total_repayment - self.amount
@@ -118,28 +124,31 @@ class LoanRepayment(models.Model):
         ('card', 'Credit/Debit Card'),
         ('bank', 'Bank Transfer'),
     )
-    
+
     PAYMENT_STATUS = (
         ('pending', 'Pending'),
         ('completed', 'Completed'),
         ('failed', 'Failed'),
     )
-    
-    
-    loan = models.ForeignKey(LoanApplication, on_delete=models.CASCADE, related_name='repayments')
+
+    loan = models.ForeignKey(
+        LoanApplication, on_delete=models.CASCADE, related_name='repayments')
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     payment_date = models.DateTimeField(auto_now_add=True)
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, default='wallet')
-    transaction = models.ForeignKey('Transaction', on_delete=models.SET_NULL, null=True, blank=True)
-    status = models.CharField(max_length=20, choices=PAYMENT_STATUS, default='pending')
+    payment_method = models.CharField(
+        max_length=20, choices=PAYMENT_METHODS, default='wallet')
+    transaction = models.ForeignKey(
+        'Transaction', on_delete=models.SET_NULL, null=True, blank=True)
+    status = models.CharField(
+        max_length=20, choices=PAYMENT_STATUS, default='pending')
     is_paid = models.BooleanField(default=False)
-    
+
     def save(self, *args, **kwargs):
         if not self.pk:  # Only on creation
             if self.payment_method == 'wallet':
                 self.status = 'completed'
         super().save(*args, **kwargs)
-    
+
     def __str__(self):
         return f"Repayment for {self.loan} - {self.amount}"
 
@@ -155,11 +164,13 @@ class Transaction(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     description = models.CharField(max_length=1000, null=True, blank=True)
 
-    receiver = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="receiver")
-    sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="sender")
-    receiver_account = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, related_name="receiver_account")
-    
-    
+    receiver = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name="receiver")
+    sender = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name="sender")
+    receiver_account = models.ForeignKey(
+        Account, on_delete=models.SET_NULL, null=True, related_name="receiver_account")
+
     sender_account = models.ForeignKey(
         Account, on_delete=models.SET_NULL, null=True, related_name="sender_account")
 
@@ -208,8 +219,9 @@ class Notification(models.Model):
     amount = models.IntegerField(default=0)
     is_read = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now_add=True)
-    nid = ShortUUIDField(length=10, max_length=25, alphabet="abcdefghijklmnopqrstuvxyz")
-    message = models.TextField(blank=True, null=True)  
+    nid = ShortUUIDField(length=10, max_length=25,
+                         alphabet="abcdefghijklmnopqrstuvxyz")
+    message = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ["-date"]
@@ -219,17 +231,19 @@ class Notification(models.Model):
         return f"Notification({self.user if self.user else 'Unknown User'} - {self.notification_type} - {self.date})"
 
 
-
-#MOBILE MONEY MODEL
+# MOBILE MONEY MODEL
 class MobileMoneyTransaction(models.Model):
-    transaction = models.OneToOneField(Transaction, on_delete=models.CASCADE, related_name='mobile_money')
+    transaction = models.OneToOneField(
+        Transaction, on_delete=models.CASCADE, related_name='mobile_money')
     provider = models.CharField(max_length=20, choices=PROVIDER_CHOICES)
     phone_number = models.CharField(max_length=15)
     transaction_ref = models.CharField(max_length=50, unique=True)
-    momo_transaction_id = models.CharField(max_length=50, null=True, blank=True)  # For MTN transaction ID
+    momo_transaction_id = models.CharField(
+        max_length=50, null=True, blank=True)  # For MTN transaction ID
     is_reconciled = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
-    verified_name = models.CharField(max_length=100, null=True, blank=True)  # Store verified name
+    verified_name = models.CharField(
+        max_length=100, null=True, blank=True)  # Store verified name
 
     def __str__(self):
         return f"{self.provider} - {self.phone_number} - {self.transaction.amount}"

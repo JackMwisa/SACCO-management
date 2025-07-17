@@ -212,7 +212,7 @@ def loan_detail(request, loan_id):
 @login_required
 def repay_loan(request, loan_id):
     loan = get_object_or_404(LoanApplication, id=loan_id, user=request.user)
-    account = request.user.account  # Get the user's account
+    account = request.user.account
 
     if loan.status not in ['approved', 'disbursed']:
         messages.error(request, "This loan is not currently active for repayment")
@@ -232,21 +232,21 @@ def repay_loan(request, loan_id):
             if amount > remaining_balance:
                 raise ValidationError(f"Amount cannot exceed remaining balance of UGX {remaining_balance:,.2f}")
 
-            with db_transaction.atomic():  # Ensure all operations succeed or fail together
+            with transaction.atomic():  # Use Django's transaction module
                 # Process payment based on method
                 if payment_method == 'wallet':
                     if account.account_balance < amount:
                         raise ValidationError("Insufficient funds in your wallet")
 
-                    # DEDUCT FROM ACCOUNT - THIS WAS MISSING
+                    # Deduct from account
                     account.account_balance -= amount
-                    account.save()  # MUST save the changes
+                    account.save()
                     payment_status = 'completed'
                 else:
                     payment_status = 'pending'
 
-                # Create transaction record
-                transaction = Transaction.objects.create(
+                # Create transaction record first
+                transaction_obj = Transaction.objects.create(
                     user=request.user,
                     amount=amount,
                     transaction_type="loan_repayment",
@@ -258,12 +258,12 @@ def repay_loan(request, loan_id):
                     receiver_account=None  # System account
                 )
 
-                # Create repayment record
+                # Then create repayment record
                 repayment = LoanRepayment.objects.create(
                     loan=loan,
                     amount=amount,
                     payment_method=payment_method,
-                    transaction=transaction,
+                    transaction=transaction_obj,
                     is_paid=(payment_status == 'completed')
                 )
 
