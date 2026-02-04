@@ -1,11 +1,13 @@
 {% load static %}
-{% load sass_tags %}
-<footer class="footer {{footer}}">
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-md-12 footer-copyright text-center">
-        <p class="mb-0">Copyright 2025 © SACCO theme by GEMS </p>
-      </div>
+
+<footer class="footer {{ footer }}" role="contentinfo">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12 footer-copyright text-center">
+                <p class="mb-0">
+                    <small>&copy; {% now "Y" %} Gems SACCO. All rights reserved.</small>
+                </p>
+            </div>
+        </div>
     </div>
-  </div>
 </footer>

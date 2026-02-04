@@ -254,18 +254,17 @@
                           <td>
                             <p>+UGX{{s.amount|intcomma}}</p>
                           </td>
-                          <<td>
+                          <td>
                               {% if s.status == "request_sent" or s.status == "request_processing" %}
-                                <a href="{% url 'core:transaction-detail' s.transaction_id %}" class="btn btn-primary">
-                                  <i class="fas fa-eye"></i> View
+                                <a href="{% url 'core:transaction-detail' s.transaction_id %}" class="btn btn-primary btn-sm">
+                                  <i class="fas fa-eye" aria-hidden="true"></i> <span class="visually-hidden">View transaction</span>View
                                 </a>
-                                <a href="{% url 'core:delete-request' s.sender.account.account_number s.transaction_id %}" class="btn btn-danger">
-                                  <i class="fas fa-x"></i> Delete
+                                <a href="{% url 'core:delete-request' s.sender.account.account_number s.transaction_id %}" class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Are you sure you want to delete this request?');">
+                                  <i class="fas fa-times" aria-hidden="true"></i> Delete
                                 </a>
-                              {% else %}
-                                {% if s.status == "request_settled" %}
-                                  <a class="btn btn-success"><i class="fas fa-check-circle"></i> Settled</a>
-                                {% endif %}
+                              {% elif s.status == "request_settled" %}
+                                <span class="btn btn-success btn-sm disabled"><i class="fas fa-check-circle" aria-hidden="true"></i> Settled</span>
                               {% endif %}
                             </td>
 
@@ -330,7 +329,7 @@
                           </td>
                         </tr>
                         {% empty %}
-                        <li>No Received Requests</li>
+                        <tr><td colspan="5" class="text-center text-muted py-4">No received requests</td></tr>
                         {% endfor %}
                       </tbody>
                     </table>
@@ -436,14 +435,14 @@
               <div class="section-text d-flex align-items-center justify-content-between">
                 <h6>Notification ({{notifications.count}})</h6>
                 <div class="view-all d-flex align-items-center">
-                  <a href="javascript:void(0)">View All</a>
-                  <img src="{% static 'assets1/images/icon/right-arrow.png' %}" alt="icon" />
+                  <a href="{% url 'core:notifications' %}">View All</a>
+                  <img src="{% static 'assets1/images/icon/right-arrow.png' %}" alt="" aria-hidden="true">
                 </div>
               </div>
               <ul class="recipients-item">
                 {% for n in notifications %}
                 <li>
-                  <a href="javascript:void(0)" class="d-flex">
+                  <div class="d-flex notification-item">
                     <div class="text-area">
                       {% if n.notification_type == "Credit Alert" %}
                       <p class="mdr">
@@ -484,8 +483,8 @@
                       {% endif %}
                       <p class="mdr time-area">{{ n.date }}</p>
                     </div>
-                  </a>
-                  <i class="fa-solid fa-caret-right"></i>
+                  </div>
+                  <i class="fa-solid fa-caret-right" aria-hidden="true"></i>
                 </li>
                 {% endfor %}
               </ul>

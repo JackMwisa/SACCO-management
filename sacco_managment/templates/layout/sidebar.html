@@ -1,252 +1,135 @@
 {% load static %}
-{% load sass_tags %}
 
-<style>
-/* Base Sidebar Styles */
-.sidebar-wrapper {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 250px;
-    z-index: 1001;
-    background: #fff;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, width 0.3s ease;
-    overflow-y: auto;
-}
+<!-- Sidebar Overlay for Mobile -->
+<div class="sidebar-overlay" aria-hidden="true"></div>
 
-/* Desktop Collapsed State - Now completely hidden */
-.sidebar-collapsed .sidebar-wrapper {
-    transform: translateX(-100%);
-    width: 0;
-}
-
-/* Adjust main content when sidebar is hidden */
-.sidebar-collapsed .page-body-wrapper {
-    margin-left: 0;
-}
-
-/* Mobile Behavior */
-@media (max-width: 768px) {
-    .sidebar-wrapper {
-        transform: translateX(-100%);
-        width: 280px;
-    }
-    
-    .sidebar-wrapper.mobile-collapsed {
-        transform: translateX(0);
-    }
-    
-    .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-    }
-    
-    .sidebar-overlay.active {
-        opacity: 1;
-        visibility: visible;
-    }
-    
-    /* Keep margin for mobile */
-    .sidebar-collapsed .page-body-wrapper {
-        margin-left: 0;
-    }
-}
-
-/* Submenu Styles */
-.sidebar-submenu {
-    display: none;
-    padding-left: 20px;
-}
-
-.sidebar-list.active .sidebar-submenu {
-    display: block;
-}
-
-.sidebar-link {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    text-decoration: none;
-    color: inherit;
-}
-
-.sidebar-link .toggle-icon {
-    font-size: 12px;
-    transition: transform 0.3s ease;
-    margin-left: 8px;
-}
-
-.sidebar-list.active > .sidebar-link .toggle-icon {
-    transform: rotate(180deg);
-}
-</style>
-
-
-
-<div class="sidebar-overlay"></div>
-<div class="sidebar-wrapper" id="sidebar">
-    <div>
+<!-- Sidebar Navigation -->
+<aside class="sidebar-wrapper" id="sidebar" aria-label="Main navigation">
+    <div class="sidebar-inner">
+        <!-- Logo -->
         <div class="logo-wrapper">
-            <a href="{% url 'account:dashboard' %}">
-                <img class="img-fluid for-light" src="{% static 'assets1/images/logo1.png' %}" alt="Logo" />
-                <img class="img-fluid for-dark" src="{% static 'assets1/images/logo1.png' %}" alt="Logo" />
-            </a>
-            <!-- <div class="toggle-back-btn  "><i class="fa fa-angle-left"></i></div> -->
-        </div>
-        <div class="logo-icon-wrapper ">
-            <a href="{% url 'account:dashboard' %}">
-                <img class="img-fluid" src="{% static 'assets1/images/logo1.png' %}" alt="Logo" />
+            <a href="{% url 'account:dashboard' %}" aria-label="Gems SACCO - Go to Dashboard">
+                <img class="img-fluid for-light" src="{% static 'assets1/images/logo1.png' %}" alt="Gems SACCO Logo">
+                <img class="img-fluid for-dark" src="{% static 'assets1/images/logo1.png' %}" alt="Gems SACCO Logo">
             </a>
         </div>
+        <div class="logo-icon-wrapper">
+            <a href="{% url 'account:dashboard' %}" aria-label="Gems SACCO - Go to Dashboard">
+                <img class="img-fluid" src="{% static 'assets1/images/logo1.png' %}" alt="Gems SACCO">
+            </a>
+        </div>
+
+        <!-- Main Navigation -->
         <nav class="sidebar-main">
-            <div class="left-arrow" id="left-arrow">
-                <i data-feather="arrow-left"></i>
+            <div class="left-arrow" id="left-arrow" role="button" aria-label="Scroll left" tabindex="0">
+                <i data-feather="arrow-left" aria-hidden="true"></i>
             </div>
+
             <div id="sidebar-menu">
                 <ul class="sidebar-links" id="simple-bar">
                     <li class="back-btn">
                         <a href="{% url 'account:dashboard' %}">
-                            <img class="img-fluid" src="{% static 'assets1/images/logo1.png' %}" alt="Logo" />
+                            <img class="img-fluid" src="{% static 'assets1/images/logo1.png' %}" alt="Logo">
                         </a>
                         <div class="mobile-back text-end">
-                            <span>Back</span><i class="fa fa-angle-right ps-2" aria-hidden="true"></i>
+                            <span>Back</span>
+                            <i class="fa fa-angle-right ps-2" aria-hidden="true"></i>
                         </div>
                     </li>
-                    
+
                     <!-- Dashboard -->
-                     <li class="sidebar-list {% if request.resolver_match.url_name in 'dashboard account' %}active{% endif %}">
+                    <li class="sidebar-list {% if request.resolver_match.url_name in 'dashboard account' %}active{% endif %}">
                         <a class="sidebar-link sidebar-title link-nav" href="{% url 'account:dashboard' %}">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g>
-                                    <g>
-                                        <path d="M9.07861 16.1355H14.8936" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M2.3999 13.713C2.3999 8.082 3.0139 8.475 6.3189 5.41C7.7649 4.246 10.0149 2 11.9579 2C13.8999 2 16.1949 4.235 17.6539 5.41C20.9589 8.475 21.5719 8.082 21.5719 13.713C21.5719 22 19.6129 22 11.9859 22C4.3589 22 2.3999 22 2.3999 13.713Z" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </g>
-                                </g>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M9.07861 16.1355H14.8936" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M2.3999 13.713C2.3999 8.082 3.0139 8.475 6.3189 5.41C7.7649 4.246 10.0149 2 11.9579 2C13.8999 2 16.1949 4.235 17.6539 5.41C20.9589 8.475 21.5719 8.082 21.5719 13.713C21.5719 22 19.6129 22 11.9859 22C4.3589 22 2.3999 22 2.3999 13.713Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                             <span>Dashboard</span>
-                            <span class="toggle-icon"><i class="fa fa-chevron-down"></i></span>
+                            <span class="toggle-icon" aria-hidden="true"><i class="fa fa-chevron-down"></i></span>
                         </a>
                         <ul class="sidebar-submenu">
                             <li><a href="{% url 'account:dashboard' %}">Home</a></li>
-                            <!-- <li><a href="{% url 'account:account' %}">Account Overview</a></li> -->
-                        
                         </ul>
                     </li>
-                    
+
                     <!-- Transactions -->
                     <li class="sidebar-list {% if request.resolver_match.url_name == 'transactions' %}active{% endif %}">
                         <a class="sidebar-link sidebar-title link-nav" href="{% url 'core:transactions' %}">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g>
-                                    <g>
-                                        <path d="M15.596 15.6963H8.37598" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path d="M15.596 11.9365H8.37598" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path d="M11.1312 8.17725H8.37622" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M3.61011 12C3.61011 18.937 5.70811 21.25 12.0011 21.25C18.2951 21.25 20.3921 18.937 20.3921 12C20.3921 5.063 18.2951 2.75 12.0011 2.75C5.70811 2.75 3.61011 5.063 3.61011 12Z" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </g>
-                                </g>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M15.596 15.6963H8.37598" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path d="M15.596 11.9365H8.37598" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path d="M11.1312 8.17725H8.37622" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M3.61011 12C3.61011 18.937 5.70811 21.25 12.0011 21.25C18.2951 21.25 20.3921 18.937 20.3921 12C20.3921 5.063 18.2951 2.75 12.0011 2.75C5.70811 2.75 3.61011 5.063 3.61011 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                             <span>Transactions</span>
                         </a>
                     </li>
-                    
-                    <!-- Pay & Receive -->
+
+                    <!-- Payments -->
                     <li class="sidebar-list {% if request.resolver_match.url_name in 'search-account request-search-account' %}active{% endif %}">
-                        <a class="sidebar-link sidebar-title" href="#">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g>
-                                    <g>
-                                        <path d="M8.54248 9.21777H15.3975" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M11.9702 2.5C5.58324 2.5 4.50424 3.432 4.50424 10.929C4.50424 19.322 4.34724 21.5 5.94324 21.5C7.53824 21.5 10.1432 17.816 11.9702 17.816C13.7972 17.816 16.4022 21.5 17.9972 21.5C19.5932 21.5 19.4362 19.322 19.4362 10.929C19.4362 3.432 18.3572 2.5 11.9702 2.5Z" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </g>
-                                </g>
+                        <button type="button" class="sidebar-link sidebar-title" aria-expanded="false">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M8.54248 9.21777H15.3975" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M11.9702 2.5C5.58324 2.5 4.50424 3.432 4.50424 10.929C4.50424 19.322 4.34724 21.5 5.94324 21.5C7.53824 21.5 10.1432 17.816 11.9702 17.816C13.7972 17.816 16.4022 21.5 17.9972 21.5C19.5932 21.5 19.4362 19.322 19.4362 10.929C19.4362 3.432 18.3572 2.5 11.9702 2.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                             <span>Payments</span>
-                             <span class="toggle-icon"><i class="fa fa-chevron-down"></i></span>
-                        </a>
+                            <span class="toggle-icon" aria-hidden="true"><i class="fa fa-chevron-down"></i></span>
+                        </button>
                         <ul class="sidebar-submenu">
                             <li><a href="{% url 'core:search-account' %}">Send Money</a></li>
                             <li><a href="{% url 'core:request-search-account' %}">Request Money</a></li>
                         </ul>
                     </li>
-                    
+
                     <!-- Mobile Money -->
                     <li class="sidebar-list {% if request.resolver_match.url_name in 'mobile-money-deposit mobile-money-withdrawal mobile-money-transactions' %}active{% endif %}">
-                        <a class="sidebar-link sidebar-title" href="#">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g>
-                                    <g>
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M2.75024 12.7755C2.75024 5.81947 5.06876 3.50146 12.0238 3.50146C18.9798 3.50146 21.2988 5.81947 21.2988 12.7755C21.2988 19.7315 18.9798 22.0495 12.0238 22.0495C5.06876 22.0495 2.75024 19.7315 2.75024 12.7755Z" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path d="M3.02515 9.32397H21.0331" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </g>
-                                </g>
+                        <button type="button" class="sidebar-link sidebar-title" aria-expanded="false">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M2.75024 12.7755C2.75024 5.81947 5.06876 3.50146 12.0238 3.50146C18.9798 3.50146 21.2988 5.81947 21.2988 12.7755C21.2988 19.7315 18.9798 22.0495 12.0238 22.0495C5.06876 22.0495 2.75024 19.7315 2.75024 12.7755Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path d="M3.02515 9.32397H21.0331" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                             <span>Mobile Money</span>
-                            <span class="toggle-icon"><i class="fa fa-chevron-down"></i></span>
-                        </a>
+                            <span class="toggle-icon" aria-hidden="true"><i class="fa fa-chevron-down"></i></span>
+                        </button>
                         <ul class="sidebar-submenu">
                             <li><a href="{% url 'core:mobile-money-deposit' %}">Deposit Funds</a></li>
                             <li><a href="{% url 'core:mobile-money-withdrawal' %}">Withdraw Funds</a></li>
                             <li><a href="{% url 'core:mobile-money-transactions' %}">Transaction History</a></li>
                         </ul>
                     </li>
-                    
+
                     <!-- Loans -->
-                    <li class="sidebar-list">
-                        <a class="sidebar-link sidebar-title" href="#">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g>
-                                    <g>
-                                        <path d="M7.4831 10.261V16.9547" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M19.6671 2.3501C20.7291 2.3501 21.5891 3.2101 21.5891 4.2721C21.5891 5.3331 20.7291 6.1941 19.6671 6.1941C18.6051 6.1941 17.7451 5.3331 17.7451 4.2721C17.7451 3.2101 18.6051 2.3501 19.6671 2.3501Z" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path d="M20.7555 9.26898C20.8885 10.164 20.9495 11.172 20.9495 12.303C20.9495 19.241 18.6375 21.553 11.6995 21.553C4.76246 21.553 2.44946 19.241 2.44946 12.303C2.44946 5.36598 4.76246 3.05298 11.6995 3.05298C12.8095 3.05298 13.8005 3.11198 14.6825 3.23998" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </g>
-                                </g>
+                    <li class="sidebar-list {% if request.resolver_match.url_name in 'apply-loan loan-status loan-history repayment-history repay-loan' %}active{% endif %}">
+                        <button type="button" class="sidebar-link sidebar-title" aria-expanded="false">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M7.4831 10.261V16.9547" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M19.6671 2.3501C20.7291 2.3501 21.5891 3.2101 21.5891 4.2721C21.5891 5.3331 20.7291 6.1941 19.6671 6.1941C18.6051 6.1941 17.7451 5.3331 17.7451 4.2721C17.7451 3.2101 18.6051 2.3501 19.6671 2.3501Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path d="M20.7555 9.26898C20.8885 10.164 20.9495 11.172 20.9495 12.303C20.9495 19.241 18.6375 21.553 11.6995 21.553C4.76246 21.553 2.44946 19.241 2.44946 12.303C2.44946 5.36598 4.76246 3.05298 11.6995 3.05298C12.8095 3.05298 13.8005 3.11198 14.6825 3.23998" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                             <span>Loans</span>
-                            <span class="toggle-icon"><i class="fa fa-chevron-down"></i></span>
-                        </a>
+                            <span class="toggle-icon" aria-hidden="true"><i class="fa fa-chevron-down"></i></span>
+                        </button>
                         <ul class="sidebar-submenu">
                             <li><a href="{% url 'core:apply-loan' %}">Apply for Loan</a></li>
                             <li><a href="{% url 'core:loan-status' %}">Loan Status</a></li>
                             <li><a href="{% url 'core:loan-history' %}">Loan History</a></li>
                             <li><a href="{% url 'core:repayment-history' %}">Repayment History</a></li>
                             {% if active_loan %}
-                            <li>
-                                <a href="{% url 'core:repay-loan' active_loan.id %}">
-                                Make Repayment
-                                </a>
-                            </li>
+                            <li><a href="{% url 'core:repay-loan' active_loan.id %}">Make Repayment</a></li>
                             {% endif %}
                         </ul>
                     </li>
-                    
+
                     <!-- Crypto -->
-                    <li class="sidebar-list">
-                        <a class="sidebar-link sidebar-title" href="#">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g>
-                                    <g>
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M11.2753 2.71436C16.0029 2.71436 19.8363 6.54674 19.8363 11.2753C19.8363 16.0039 16.0029 19.8363 11.2753 19.8363C6.54674 19.8363 2.71436 16.0039 2.71436 11.2753C2.71436 6.54674 6.54674 2.71436 11.2753 2.71436Z" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M19.8987 18.4878C20.6778 18.4878 21.3092 19.1202 21.3092 19.8983C21.3092 20.6783 20.6778 21.3097 19.8987 21.3097C19.1197 21.3097 18.4873 20.6783 18.4873 19.8983C18.4873 19.1202 19.1197 18.4878 19.8987 18.4878Z" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </g>
-                                </g>
+                    <li class="sidebar-list {% if 'financial_services' in request.resolver_match.app_names %}active{% endif %}">
+                        <button type="button" class="sidebar-link sidebar-title" aria-expanded="false">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M11.2753 2.71436C16.0029 2.71436 19.8363 6.54674 19.8363 11.2753C19.8363 16.0039 16.0029 19.8363 11.2753 19.8363C6.54674 19.8363 2.71436 16.0039 2.71436 11.2753C2.71436 6.54674 6.54674 2.71436 11.2753 2.71436Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M19.8987 18.4878C20.6778 18.4878 21.3092 19.1202 21.3092 19.8983C21.3092 20.6783 20.6778 21.3097 19.8987 21.3097C19.1197 21.3097 18.4873 20.6783 18.4873 19.8983C18.4873 19.1202 19.1197 18.4878 19.8987 18.4878Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                             <span>Crypto</span>
-                            <span class="toggle-icon"><i class="fa fa-chevron-down"></i></span>
-                        </a>
+                            <span class="toggle-icon" aria-hidden="true"><i class="fa fa-chevron-down"></i></span>
+                        </button>
                         <ul class="sidebar-submenu">
                             <li><a href="{% url 'financial_services:crypto_dashboard' %}">Dashboard</a></li>
                             <li><a href="{% url 'financial_services:create_transaction' %}">Create Transaction</a></li>
@@ -254,137 +137,120 @@
                             <li><a href="{% url 'financial_services:generate_report' %}">Generate Report</a></li>
                         </ul>
                     </li>
-                    
+
                     <!-- My Cards -->
-                    <li class="sidebar-list">
+                    <li class="sidebar-list {% if request.resolver_match.url_name == 'all-credit-cards' %}active{% endif %}">
                         <a class="sidebar-link sidebar-title link-nav" href="{% url 'account:all-credit-cards' %}">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g>
-                                    <g>
-                                        <path d="M15.7499 9.47167V6.43967C15.7549 4.35167 14.0659 2.65467 11.9779 2.64967C9.88887 2.64567 8.19287 4.33467 8.18787 6.42267V9.47167" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M2.94995 14.2074C2.94995 8.91344 5.20495 7.14844 11.969 7.14844C18.733 7.14844 20.988 8.91344 20.988 14.2074C20.988 19.5004 18.733 21.2654 11.969 21.2654C5.20495 21.2654 2.94995 19.5004 2.94995 14.2074Z" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </g>
-                                </g>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M15.7499 9.47167V6.43967C15.7549 4.35167 14.0659 2.65467 11.9779 2.64967C9.88887 2.64567 8.19287 4.33467 8.18787 6.42267V9.47167" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M2.94995 14.2074C2.94995 8.91344 5.20495 7.14844 11.969 7.14844C18.733 7.14844 20.988 8.91344 20.988 14.2074C20.988 19.5004 18.733 21.2654 11.969 21.2654C5.20495 21.2654 2.94995 19.5004 2.94995 14.2074Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                             <span>My Cards</span>
                         </a>
                     </li>
-                    
+
                     <!-- Account -->
                     <li class="sidebar-list {% if request.resolver_match.url_name == 'account' %}active{% endif %}">
                         <a class="sidebar-link sidebar-title link-nav" href="{% url 'account:account' %}">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g>
-                                    <g>
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M9.55851 21.4562C5.88651 21.4562 2.74951 20.9012 2.74951 18.6772C2.74951 16.4532 5.86651 14.4492 9.55851 14.4492C13.2305 14.4492 16.3665 16.4342 16.3665 18.6572C16.3665 20.8802 13.2505 21.4562 9.55851 21.4562Z" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M9.55849 11.2776C11.9685 11.2776 13.9225 9.32356 13.9225 6.91356C13.9225 4.50356 11.9685 2.54956 9.55849 2.54956C7.14849 2.54956 5.19449 4.50356 5.19449 6.91356C5.18549 9.31556 7.12649 11.2696 9.52749 11.2776H9.55849Z" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path d="M16.8013 10.0789C18.2043 10.0605 19.2383 8.93254 19.2383 7.58954C19.2393 6.18854 18.1123 5.01854 16.6143 4.74854" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path d="M17.4608 13.6536C20.6978 13.6536 22.1958 15.0016 22.1958 16.2046C22.1958 16.9136 21.6788 17.6416 20.8948 17.2856" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </g>
-                                </g>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M9.55851 21.4562C5.88651 21.4562 2.74951 20.9012 2.74951 18.6772C2.74951 16.4532 5.86651 14.4492 9.55851 14.4492C13.2305 14.4492 16.3665 16.4342 16.3665 18.6572C16.3665 20.8802 13.2505 21.4562 9.55851 21.4562Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M9.55849 11.2776C11.9685 11.2776 13.9225 9.32356 13.9225 6.91356C13.9225 4.50356 11.9685 2.54956 9.55849 2.54956C7.14849 2.54956 5.19449 4.50356 5.19449 6.91356C5.18549 9.31556 7.12649 11.2696 9.52749 11.2776H9.55849Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path d="M16.8013 10.0789C18.2043 10.0605 19.2383 8.93254 19.2383 7.58954C19.2393 6.18854 18.1123 5.01854 16.6143 4.74854" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path d="M17.4608 13.6536C20.6978 13.6536 22.1958 15.0016 22.1958 16.2046C22.1958 16.9136 21.6788 17.6416 20.8948 17.2856" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                             <span>Account</span>
-                            <span class="toggle-icon"><i class="fa fa-chevron-down"></i></span>
+                            <span class="toggle-icon" aria-hidden="true"><i class="fa fa-chevron-down"></i></span>
                         </a>
-                         <ul class="sidebar-submenu">
+                        <ul class="sidebar-submenu">
                             <li><a href="{% url 'account:account' %}">My Account</a></li>
-                              <li><a href="{% url 'account:calendar' %}">Calendar</a></li>
+                            <li><a href="{% url 'account:calendar' %}">Calendar</a></li>
                         </ul>
                     </li>
 
-                    <!-- Reports Section -->
+                    <!-- Reports -->
                     <li class="sidebar-list {% if 'reports' in request.resolver_match.app_names %}active{% endif %}">
-                        <a class="sidebar-link sidebar-title" href="#">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g>
-                                    <g>
-                                        <path d="M8.54248 9.21777H15.3975" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M11.9702 2.5C5.58324 2.5 4.50424 3.432 4.50424 10.929C4.50424 19.322 4.34724 21.5 5.94324 21.5C7.53824 21.5 10.1432 17.816 11.9702 17.816C13.7972 17.816 16.4022 21.5 17.9972 21.5C19.5932 21.5 19.4362 19.322 19.4362 10.929C19.4362 3.432 18.3572 2.5 11.9702 2.5Z" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </g>
-                                </g>
+                        <button type="button" class="sidebar-link sidebar-title" aria-expanded="false">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M8.54248 9.21777H15.3975" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M11.9702 2.5C5.58324 2.5 4.50424 3.432 4.50424 10.929C4.50424 19.322 4.34724 21.5 5.94324 21.5C7.53824 21.5 10.1432 17.816 11.9702 17.816C13.7972 17.816 16.4022 21.5 17.9972 21.5C19.5932 21.5 19.4362 19.322 19.4362 10.929C19.4362 3.432 18.3572 2.5 11.9702 2.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                             <span>Reports</span>
-                            <span class="toggle-icon"><i class="fa fa-chevron-down"></i></span>
-                        </a>
+                            <span class="toggle-icon" aria-hidden="true"><i class="fa fa-chevron-down"></i></span>
+                        </button>
                         <ul class="sidebar-submenu">
                             <li><a href="{% url 'reports:generate_report' %}">Generate Report</a></li>
                             <li><a href="{% url 'reports:report_history' %}">Report History</a></li>
-                            <!-- <li><a href="{% url 'financial_services:generate_report' %}">Crypto Reports</a></li> -->
                         </ul>
                     </li>
 
-                    
                     <!-- Support -->
-                    <li class="sidebar-list">
-                        <a class="sidebar-link sidebar-title link-nav" href="javascript:void(0)">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g>
-                                    <g>
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M21.4399 13.9939C18.7789 13.9939 18.7789 9.87952 21.4399 9.87952C21.4399 5.11236 21.4399 3.41089 12.0449 3.41089C2.6499 3.41089 2.6499 5.11236 2.6499 9.87952C5.3109 9.87952 5.3109 13.9939 2.6499 13.9939C2.6499 18.762 2.6499 20.4635 12.0449 20.4635C21.4399 20.4635 21.4399 18.762 21.4399 13.9939Z" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12.0449 9.17114C11.3619 9.17114 11.2969 10.2606 10.8909 10.6462C10.4839 11.0308 9.22087 10.5912 9.04487 11.2743C8.86987 11.9583 10.0069 12.1904 10.1479 12.7768C10.2879 13.3632 9.59387 14.1875 10.1869 14.5986C10.7809 15.0079 11.4199 14.0804 12.0449 14.0804C12.6699 14.0804 13.3089 15.0079 13.9029 14.5986C14.4969 14.1875 13.8019 13.3632 13.9419 12.7768C14.0829 12.1904 15.2199 11.9583 15.0449 11.2743C14.8689 10.5912 13.6059 11.0308 13.1989 10.6462C12.7929 10.2606 12.7279 9.17114 12.0449 9.17114Z" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </g>
-                                </g>
+                    <li class="sidebar-list {% if 'support' in request.resolver_match.app_names %}active{% endif %}">
+                        <button type="button" class="sidebar-link sidebar-title" aria-expanded="false">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M21.4399 13.9939C18.7789 13.9939 18.7789 9.87952 21.4399 9.87952C21.4399 5.11236 21.4399 3.41089 12.0449 3.41089C2.6499 3.41089 2.6499 5.11236 2.6499 9.87952C5.3109 9.87952 5.3109 13.9939 2.6499 13.9939C2.6499 18.762 2.6499 20.4635 12.0449 20.4635C21.4399 20.4635 21.4399 18.762 21.4399 13.9939Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M12.0449 9.17114C11.3619 9.17114 11.2969 10.2606 10.8909 10.6462C10.4839 11.0308 9.22087 10.5912 9.04487 11.2743C8.86987 11.9583 10.0069 12.1904 10.1479 12.7768C10.2879 13.3632 9.59387 14.1875 10.1869 14.5986C10.7809 15.0079 11.4199 14.0804 12.0449 14.0804C12.6699 14.0804 13.3089 15.0079 13.9029 14.5986C14.4969 14.1875 13.8019 13.3632 13.9419 12.7768C14.0829 12.1904 15.2199 11.9583 15.0449 11.2743C14.8689 10.5912 13.6059 11.0308 13.1989 10.6462C12.7929 10.2606 12.7279 9.17114 12.0449 9.17114Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                             <span>Support</span>
-                             <span class="toggle-icon"><i class="fa fa-chevron-down"></i></span>
-                        </a>
+                            <span class="toggle-icon" aria-hidden="true"><i class="fa fa-chevron-down"></i></span>
+                        </button>
                         <ul class="sidebar-submenu">
-                         
-                            <li><a href="{% url 'support:chatbot' %}">GEM AI</a></li> 
+                            <li><a href="{% url 'support:chatbot' %}">GEM AI</a></li>
                             <li><a href="{% url 'support:faq' %}">FAQ</a></li>
-                            <li><a href="{% url 'support:tutorial' %}">Tutorial</a></li> 
+                            <li><a href="{% url 'support:tutorial' %}">Tutorial</a></li>
                         </ul>
                     </li>
-
-
-
-                    
                 </ul>
-                
-                <!-- Invite Now Section -->
+
+                <!-- Help Section -->
                 <div class="sidebar-img-section">
                     <div class="sidebar-img-content">
-                        <img class="img-fluid" src="{% static 'assets3/images/side-bar.png' %}" alt="" />
+                        <img class="img-fluid" src="{% static 'assets3/images/side-bar.png' %}" alt="">
                         <h4>Need Help?</h4>
-                        <a class="txt" href="mailto:support@example.com">Contact support</a>
-                        <a class="btn btn-secondary" href="javascript:void(0)">Invite Friends</a>
+                        <a class="txt" href="{% url 'support:faq' %}">Visit our FAQ</a>
+                        <a class="btn btn-secondary" href="{% url 'core:contact' %}">Contact Us</a>
                     </div>
                 </div>
             </div>
-            <div class="right-arrow" id="right-arrow">
-                <i data-feather="arrow-right"></i>
+
+            <div class="right-arrow" id="right-arrow" role="button" aria-label="Scroll right" tabindex="0">
+                <i data-feather="arrow-right" aria-hidden="true"></i>
             </div>
         </nav>
     </div>
-</div>
+</aside>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // Toggle submenus
+    // Toggle submenus and update aria-expanded
     document.querySelectorAll(".sidebar-link").forEach(function(menuItem) {
         menuItem.addEventListener("click", function(e) {
             const parentLi = this.closest(".sidebar-list");
-            const hasSubmenu = this.nextElementSibling && 
-                              this.nextElementSibling.classList.contains("sidebar-submenu");
-            
-            if (hasSubmenu) {
+            const submenu = parentLi.querySelector(".sidebar-submenu");
+
+            if (submenu) {
                 e.preventDefault();
-                
+
                 // Collapse others
                 document.querySelectorAll(".sidebar-list").forEach(function(item) {
                     if (item !== parentLi) {
                         item.classList.remove("active");
+                        const btn = item.querySelector(".sidebar-link[aria-expanded]");
+                        if (btn) btn.setAttribute("aria-expanded", "false");
                     }
                 });
-                
-                parentLi.classList.toggle("active");
+
+                // Toggle current
+                const isActive = parentLi.classList.toggle("active");
+                if (this.hasAttribute("aria-expanded")) {
+                    this.setAttribute("aria-expanded", isActive ? "true" : "false");
+                }
             }
         });
     });
+
+    // Set initial aria-expanded state for active items
+    document.querySelectorAll(".sidebar-list.active .sidebar-link[aria-expanded]").forEach(function(btn) {
+        btn.setAttribute("aria-expanded", "true");
+    });
 });
-
- 
 </script>
-
-
- 

@@ -1,62 +1,135 @@
 {% extends './login-base.html' %}
 {% load static %}
+
+{% block title %}Create Account - Gems SACCO{% endblock %}
+
 {% block content %}
-<!-- Register Section -->
-<section class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
+<section class="min-vh-100 d-flex align-items-center justify-content-center bg-light py-4">
+    <!-- Back to Home -->
     <div class="position-absolute top-0 start-0 p-3">
-        <a href="{% url 'core:index' %}" class="btn btn-outline-success btn-sm rounded-pill">← Back to Home</a>
+        <a href="{% url 'core:index' %}" class="btn btn-outline-success btn-sm rounded-pill">
+            <i class="fas fa-arrow-left me-1" aria-hidden="true"></i> Back to Home
+        </a>
     </div>
+
     <div class="container-fluid">
         <div class="row g-0 align-items-center justify-content-center">
             <div class="col-xl-8 col-lg-10 col-md-12">
                 <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
                     <div class="row g-0">
+                        <!-- Left side image -->
                         <div class="col-lg-6 d-none d-lg-flex bg-success text-white align-items-center justify-content-center p-5">
-                            <img src="{% static 'assets/images/login-reg-bg.png' %}" alt="Register Image" class="img-fluid">
+                            <img src="{% static 'assets/images/login-reg-bg.png' %}" alt="" class="img-fluid" aria-hidden="true">
                         </div>
+
+                        <!-- Registration Form -->
                         <div class="col-lg-6 bg-white p-5">
                             <div class="text-center mb-4">
-                                <h2 class="mb-2">Create Your Account</h2>
-                                <p class="text-muted">Join SACCO and manage your finances smartly</p>
+                                <h1 class="h2 mb-2">Create Your Account</h1>
+                                <p class="text-muted">Join Gems SACCO and manage your finances smartly</p>
                             </div>
 
+                            <!-- Form Errors -->
                             {% if form.errors %}
-                                <div class="alert alert-danger">
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Please fix the following errors:</strong>
+                                <ul class="mb-0 mt-2">
                                     {% for field in form %}
                                         {% for error in field.errors %}
-                                            <p>{{ error }}</p>
+                                        <li>{{ error }}</li>
                                         {% endfor %}
                                     {% endfor %}
-                                </div>
+                                    {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
                             {% endif %}
 
-                            <form method="POST">
+                            <form method="POST" id="registerForm" class="needs-validation" novalidate>
                                 {% csrf_token %}
+
                                 <div class="mb-3">
-                                    {{ form.username.label_tag }}
-                                    {{ form.username }}
+                                    <label for="id_username" class="form-label">Username <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+                                           id="id_username" name="username" value="{{ form.username.value|default:'' }}"
+                                           placeholder="Choose a username" required autocomplete="username"
+                                           minlength="3" maxlength="150" pattern="[a-zA-Z0-9_]+">
+                                    <div class="form-text">Letters, numbers, and underscores only.</div>
+                                    <div class="invalid-feedback">
+                                        {% if form.username.errors %}{{ form.username.errors.0 }}{% else %}Please enter a valid username.{% endif %}
+                                    </div>
                                 </div>
+
                                 <div class="mb-3">
-                                    {{ form.email.label_tag }}
-                                    {{ form.email }}
+                                    <label for="id_email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                                           id="id_email" name="email" value="{{ form.email.value|default:'' }}"
+                                           placeholder="you@example.com" required autocomplete="email">
+                                    <div class="invalid-feedback">
+                                        {% if form.email.errors %}{{ form.email.errors.0 }}{% else %}Please enter a valid email address.{% endif %}
+                                    </div>
                                 </div>
+
                                 <div class="mb-3">
-                                    {{ form.password1.label_tag }}
-                                    {{ form.password1 }}
+                                    <label for="id_password1" class="form-label">Password <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control {% if form.password1.errors %}is-invalid{% endif %}"
+                                               id="id_password1" name="password1" placeholder="Create a strong password"
+                                               required autocomplete="new-password" minlength="8">
+                                        <button type="button" class="btn btn-outline-secondary toggle-password"
+                                                data-target="id_password1" aria-label="Toggle password visibility">
+                                            <i class="fas fa-eye" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                    <div id="passwordStrength" class="form-text"></div>
+                                    <div class="invalid-feedback">
+                                        {% if form.password1.errors %}{{ form.password1.errors.0 }}{% else %}Password must be at least 8 characters.{% endif %}
+                                    </div>
                                 </div>
+
                                 <div class="mb-3">
-                                    {{ form.password2.label_tag }}
-                                    {{ form.password2 }}
+                                    <label for="id_password2" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control {% if form.password2.errors %}is-invalid{% endif %}"
+                                               id="id_password2" name="password2" placeholder="Confirm your password"
+                                               required autocomplete="new-password">
+                                        <button type="button" class="btn btn-outline-secondary toggle-password"
+                                                data-target="id_password2" aria-label="Toggle password visibility">
+                                            <i class="fas fa-eye" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                    <div class="invalid-feedback">
+                                        {% if form.password2.errors %}{{ form.password2.errors.0 }}{% else %}Please confirm your password.{% endif %}
+                                    </div>
                                 </div>
+
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="termsCheck" required>
+                                    <label class="form-check-label" for="termsCheck">
+                                        I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms of Service</a>
+                                        and <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
+                                    </label>
+                                    <div class="invalid-feedback">You must agree to the terms before registering.</div>
+                                </div>
+
                                 <div class="d-grid mb-3">
-                                    <button type="submit" class="btn btn-success rounded-pill">Sign Up</button>
+                                    <button type="submit" class="btn btn-success rounded-pill btn-with-loading" id="registerBtn">
+                                        <span class="btn-text">Create Account</span>
+                                        <span class="btn-loading d-none">
+                                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                            Creating account...
+                                        </span>
+                                    </button>
                                 </div>
                             </form>
 
                             <div class="text-center">
-                                <small class="text-muted">Already have an account? <a href="{% url 'user_auths:login' %}">Login</a></small>
+                                <p class="text-muted mb-0">
+                                    <small>Already have an account? <a href="{% url 'user_auths:login' %}">Sign in</a></small>
+                                </p>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -64,4 +137,136 @@
         </div>
     </div>
 </section>
+
+<!-- Terms Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="termsModalLabel">Terms of Service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>By creating an account with Gems SACCO, you agree to:</p>
+                <ul>
+                    <li>Provide accurate and truthful information</li>
+                    <li>Keep your account credentials secure</li>
+                    <li>Use the platform for lawful purposes only</li>
+                    <li>Comply with all applicable laws and regulations</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Privacy Modal -->
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="privacyModalLabel">Privacy Policy</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Gems SACCO is committed to protecting your privacy. We collect and use your data only to:</p>
+                <ul>
+                    <li>Provide and improve our services</li>
+                    <li>Process your transactions securely</li>
+                    <li>Communicate important account information</li>
+                    <li>Comply with legal requirements</li>
+                </ul>
+                <p>We do not sell or share your personal information with third parties for marketing purposes.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('registerForm');
+    var password1 = document.getElementById('id_password1');
+    var password2 = document.getElementById('id_password2');
+    var strengthIndicator = document.getElementById('passwordStrength');
+
+    // Password strength checker
+    password1.addEventListener('input', function() {
+        var password = this.value;
+        var strength = 0;
+        var feedback = [];
+
+        if (password.length >= 8) strength++;
+        else feedback.push('at least 8 characters');
+
+        if (/[a-z]/.test(password)) strength++;
+        else feedback.push('lowercase letter');
+
+        if (/[A-Z]/.test(password)) strength++;
+        else feedback.push('uppercase letter');
+
+        if (/[0-9]/.test(password)) strength++;
+        else feedback.push('number');
+
+        if (/[^a-zA-Z0-9]/.test(password)) strength++;
+        else feedback.push('special character');
+
+        var colors = ['text-danger', 'text-danger', 'text-warning', 'text-info', 'text-success'];
+        var labels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+
+        strengthIndicator.className = 'form-text ' + colors[strength];
+        if (password.length > 0) {
+            strengthIndicator.textContent = 'Strength: ' + labels[strength];
+            if (feedback.length > 0 && strength < 4) {
+                strengthIndicator.textContent += ' (add: ' + feedback.slice(0, 2).join(', ') + ')';
+            }
+        } else {
+            strengthIndicator.textContent = '';
+        }
+    });
+
+    // Password match validation
+    password2.addEventListener('input', function() {
+        if (password1.value !== password2.value) {
+            password2.setCustomValidity('Passwords do not match');
+        } else {
+            password2.setCustomValidity('');
+        }
+    });
+
+    // Form validation
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+
+    // Toggle password visibility
+    document.querySelectorAll('.toggle-password').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var targetId = this.getAttribute('data-target');
+            var input = document.getElementById(targetId);
+            var icon = this.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

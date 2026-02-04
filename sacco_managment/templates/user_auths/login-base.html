@@ -1,115 +1,73 @@
 {% load static %}
-{% load sass_tags %}
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>SACCO Management - Portal</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
- <!-- Font Awesome CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Gems SACCO - Secure login portal for savings and credit cooperative members.">
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <title>{% block title %}Gems SACCO - Member Portal{% endblock %}</title>
+
+    <!-- Favicon -->
     <link rel="shortcut icon" href="{% static 'assets/images/favicon-32x32.png' %}" type="image/x-icon">
-    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/fontawesome.min.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/jquery-ui.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/plugin/nice-select.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/plugin/magnific-popup.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/plugin/slick.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/arafat-font.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/plugin/animate.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
-
-
-
-    <!-- Custom CSS -->
-
-    <!-- Web App Manifest -->
-    <link rel="manifest" href="{% static 'manifest.json' %}">
-
-
-
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#4a90e2">
     <link rel="apple-touch-icon" href="{% static 'assets/images/apple-touch-icon.png' %}">
 
-    <script src="https://unpkg.com/pwacompat" async></script>
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo16qeRV/Xhp0jP9ZZJLty7hS6RZRQ4dRVLGO1HQ==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+
+    <!-- PWA -->
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#4a90e2">
+
+    {% block extra_css %}{% endblock %}
 
     <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('{% static "serviceworker.js" %}')
-                .then((registration) => {
-                    console.log('Service Worker registered with scope:', registration.scope);
-                })
-                .catch((error) => {
-                    console.error('Service Worker registration failed:', error);
-                });
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('{% static "serviceworker.js" %}')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registered');
+                    })
+                    .catch(function(error) {
+                        console.log('ServiceWorker registration failed');
+                    });
+            });
         }
     </script>
-
-      <style>
-        .whatsapp-float {
-            position: fixed;
-            bottom: 80px;
-            right: 30px;
-            background-color: #25d366;
-            color: white;
-            border-radius: 50%;
-            padding: 15px;
-            z-index: 1000;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            transition: background 0.3s;
-        }
-
-        .whatsapp-float:hover {
-            background-color: #1ebea5;
-            color: white;
-            text-decoration: none;
-        }
-
-        .whatsapp-icon {
-            font-size: 24px;
-        }
-    </style>
-
 </head>
 
+<body class="auth-page">
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
 
-
-<body>
- 
-
-    {% block content %}
-
-    {% endblock content %}
-
-
-
-    <!--==================================================================-->
-    <script src="{% static 'assets/js/jquery.min.js' %}"></script>
-    <script src="{% static 'assets/js/jquery-ui.js' %}"></script>
-    <script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'assets/js/fontawesome.js' %}"></script>
-    <script src="{% static 'assets/js/plugin/slick.js' %}"></script>
-    <script src="{% static 'assets/js/plugin/jquery.nice-select.min.js' %}"></script>
-    <script src="{% static 'assets/js/plugin/counter.js' %}"></script>
-    <script src="{% static 'assets/js/plugin/waypoint.min.js' %}"></script>
-    <script src="{% static 'assets/js/plugin/jquery.magnific-popup.min.js' %}"></script>
-    <script src="{% static 'assets/js/plugin/wow.min.js' %}"></script>
-    <script src="{% static 'assets/js/plugin/plugin.js' %}"></script>
-    <script src="{% static 'assets/js/main.js' %}"></script>
-
-  
+    <main id="main-content">
+        {% block content %}{% endblock %}
+    </main>
 
     <!-- WhatsApp Floating Button -->
-    <a href="https://wa.me/256705756582" class="whatsapp-float" target="_blank" title="Chat with The SACCO Team On WhatsApp">
-        <i class="fab fa-whatsapp whatsapp-icon"></i>
+    <a href="https://wa.me/256705756582" class="whatsapp-float" target="_blank" rel="noopener noreferrer"
+       aria-label="Chat with us on WhatsApp" title="Chat with Gems SACCO on WhatsApp">
+        <i class="fab fa-whatsapp" aria-hidden="true"></i>
     </a>
-</body>
 
+    <!-- JavaScript -->
+    <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/form-utils.js' %}"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
 </html>

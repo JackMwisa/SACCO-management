@@ -11,7 +11,7 @@
                         <div class="owner-details">
                             <div class="profile-area">
                                 <div class="profile-img">
-                                    <img style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" src="{{ kyc.image.url }}" alt="image">
+                                    <img class="profile-img-round" src="{{ kyc.image.url }}" alt="image">
                                 </div>
                                 <div class="name-area">
                                     <h6>{{kyc.full_name|title}}</h6>
@@ -53,10 +53,10 @@
                                     <img src="{% static 'assets1/images/icon/logout.png' %}" alt="image">
                                     Logout
                                 </a>
-                                <a href="javascript:void(0)" class="delete">
-                                    <img src="{% static 'assets1/images/icon/delete-2.png' %}" alt="image">
+                                <button type="button" class="delete" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                    <img src="{% static 'assets1/images/icon/delete-2.png' %}" alt="" aria-hidden="true">
                                     Delete Account
-                                </a>
+                                </button>
                                 {% endif %}
                             </div>
                         </div>
@@ -92,7 +92,7 @@
                                         <div class="avatar-left d-flex align-items-center">
                                             <div class="profile-img">
                                                 <!-- <img src="{% static 'assets1/images/owner-profile-2.png' %}" alt="image"> -->
-                                                <img style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" src="{{ kyc.image.url }}" alt="image">
+                                                <img class="profile-img-round" src="{{ kyc.image.url }}" alt="image">
                                             </div>
                                             <div class="instraction">
                                                 <h6>Your Profile</h6>
@@ -120,56 +120,56 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="single-input">
-                                                    <label for="lName">Email</label>
-                                                    <input type="text" id="lName" placeholder="Davis" value="{{ kyc.user.email }}">
+                                                    <label for="email">Email</label>
+                                                    <input type="email" id="email" readonly value="{{ kyc.user.email }}">
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="single-input">
-                                                    <label for="lName">Gender</label>
-                                                    <input type="text" id="lName" placeholder="Davis" value="{{ kyc.gender|title }}">
+                                                    <label for="gender">Gender</label>
+                                                    <input type="text" id="gender" readonly value="{{ kyc.gender|title }}">
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="single-input">
-                                                    <label for="lName">Marrital</label>
-                                                    <input type="text" id="lName" placeholder="Davis" value="{{ kyc.marrital_status|title }}">
+                                                    <label for="marital">Marital Status</label>
+                                                    <input type="text" id="marital" readonly value="{{ kyc.marrital_status|title }}">
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="single-input">
-                                                    <label for="lName">Date of Birth</label>
-                                                    <input type="text" id="lName" placeholder="Davis" value="{{ kyc.date_of_birth|date:'d M, Y' }}">
+                                                    <label for="dob">Date of Birth</label>
+                                                    <input type="text" id="dob" readonly value="{{ kyc.date_of_birth|date:'d M, Y' }}">
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="single-input">
-                                                    <label for="lName">Mobile</label>
-                                                    <input type="text" id="lName" placeholder="Davis" value="{{ kyc.mobile }}">
+                                                    <label for="mobile">Mobile</label>
+                                                    <input type="tel" id="mobile" readonly value="{{ kyc.mobile }}">
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="single-input">
-                                                    <label for="lName">Identity Type</label>
-                                                    <input type="text" id="lName" placeholder="Davis" value="{{ kyc.identity_type|title }}">
+                                                    <label for="idType">Identity Type</label>
+                                                    <input type="text" id="idType" readonly value="{{ kyc.identity_type|title }}">
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="single-input">
-                                                    <label for="lName">Country</label>
-                                                    <input type="text" id="lName" placeholder="Davis" value="{{ kyc.country|title }}">
+                                                    <label for="country">Country</label>
+                                                    <input type="text" id="country" readonly value="{{ kyc.country|title }}">
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="single-input">
-                                                    <label for="lName">State</label>
-                                                    <input type="text" id="lName" placeholder="Davis" value="{{ kyc.state|title }}">
+                                                    <label for="state">State</label>
+                                                    <input type="text" id="state" readonly value="{{ kyc.state|title }}">
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="single-input">
-                                                    <label for="lName">City</label>
-                                                    <input type="text" id="lName" placeholder="Davis" value="{{ kyc.city|title }}">
+                                                    <label for="city">City</label>
+                                                    <input type="text" id="city" readonly value="{{ kyc.city|title }}">
                                                 </div>
                                             </div>
                                             <div class="col-md-6 ">
@@ -177,7 +177,7 @@
                                                     <label for="fName">{{ kyc.identity_type|title }}</label>
                                                     
                                                     {% if kyc.identity_image %}
-                                                    <img src="{{ kyc.identity_image.url }}" style="width: 100%; height: 200px; border-radius: 10px; object-fit: cover; padding-top: 10px;" alt="">
+                                                    <img src="{{ kyc.identity_image.url }}" class="kyc-document-img" alt="">
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -185,7 +185,7 @@
                                                 <div class="single-input">
                                                     <label for="fName">Signature</label>
                                                     {% if kyc.signature %}
-                                                        <img src="{{ kyc.signature.url }}" style="width: 100%; height: 200px; border-radius: 10px; object-fit: cover; padding-top: 10px;" alt="">
+                                                        <img src="{{ kyc.signature.url }}" class="kyc-document-img" alt="">
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -213,7 +213,7 @@
                                             <div class="col-sm-6">
                                                 <h5>Change Password</h5>
                                                 <p>You can always change your password for security reasons or reset your password in case you forgot it.</p>
-                                                <a href="javascript:void(0)">Forgot password?</a>
+                                                <a href="{% url 'user_auths:login' %}">Forgot password?</a>
                                             </div>
                                             <div class="col-sm-6">
                                                 <form action="{% url 'account:change-password' %}" method="POST">
@@ -280,7 +280,7 @@
                                     <div class="single-content your-devices">
                                         <div class="head-item d-flex align-items-center justify-content-between">
                                             <h5>Your devices</h5>
-                                            <a href="javascript:void(0)">Log out on all devices</a>
+                                            <button type="button" class="btn btn-link p-0">Log out on all devices</button>
                                         </div>
                                         <div class="single-setting">
                                             <div class="left">
@@ -503,10 +503,10 @@
                                                     <img src="{% static 'assets1/images/icon/mastercard.png' %}" alt="image">
                                                     <span>5880 **** **** 8854</span>
                                                 </div>
-                                                <a href="javascript:void(0)">
-                                                    <i class="icon-h-edit"></i>
+                                                <button type="button" class="btn btn-link p-0">
+                                                    <i class="icon-h-edit" aria-hidden="true"></i>
                                                     Edit
-                                                </a>
+                                                </button>
                                             </div>
                                             <ul class="payment-details">
                                                 <li>

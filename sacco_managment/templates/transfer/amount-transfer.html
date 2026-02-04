@@ -28,16 +28,8 @@
               <div class="left d-flex align-items-center">
                 <div class="img-area">
                   <!-- <img src="{{ a.user.kyc.image.url }}" alt="image"> -->
-                  <img
-                    src="{{ account.user.kyc.image.url }}"
-                    style="
-                      width: 100px;
-                      height: 100px;
-                      border-radius: 50%;
-                      object-fit: cover;
-                    "
-                    alt="image"
-                  />
+                  <img src="{{ account.user.kyc.image.url }}" class="profile-img-round"
+                    alt="Profile photo of {{ account.user.kyc.full_name }}">
                 </div>
                 <div class="text-area">
                   <p>{{ account.user.kyc.full_name|title }}</p>
@@ -144,19 +136,10 @@
             <li><h5>Total To Pay</h5></li>
             <li><h5 id="total-to-pay">USD 0.00</h5></li>
           </ul>
-          <div class="footer-area mt-40">
-            <a href="pay-step-1.html">Previous Step</a>
-            <button
-              type="submit"
-              style="
-                padding: 10px 30px;
-                border-radius: 10px;
-                background: rgb(98, 0, 255);
-                color: #fff;
-              "
-              class="active"
-            >
-              Next
+          <div class="footer-area mt-40 d-flex justify-content-between">
+            <a href="{% url 'core:search-account' %}" class="btn btn-outline-secondary">Previous Step</a>
+            <button type="submit" class="btn btn-primary">
+              Next <i class="fas fa-arrow-right ms-1" aria-hidden="true"></i>
             </button>
           </div>
         </form>

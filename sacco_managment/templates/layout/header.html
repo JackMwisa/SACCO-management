@@ -1,373 +1,214 @@
 {% load static %}
 {% load sass_tags %}
 
-<div class="page-header">
+<header class="page-header" role="banner">
     <div class="header-wrapper row m-0">
+        <!-- Logo and Toggle -->
         <div class="header-logo-wrapper col-auto p-0">
-            <!-- <div class="logo-wrapper">
-                <a href="/"><img class="img-fluid" src="{% static 'assets3/images/logo/logo.png' %}" alt="" /></a>
-            </div> -->
             <div class="toggle-sidebar">
-                <div class="status_toggle sidebar-toggle d-flex">
-                    <svg id="sidebarToggle" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
+                <button type="button" class="status_toggle sidebar-toggle d-flex" id="sidebarToggle"
+                        aria-label="Toggle sidebar" aria-expanded="true" aria-controls="sidebar">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <g>
-                            <g>
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M21.0003 6.6738C21.0003 8.7024 19.3551 10.3476 17.3265 10.3476C15.2979 10.3476 13.6536 8.7024 13.6536 6.6738C13.6536 4.6452 15.2979 3 17.3265 3C19.3551 3 21.0003 4.6452 21.0003 6.6738Z"
-                                    stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                </path>
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M10.3467 6.6738C10.3467 8.7024 8.7024 10.3476 6.6729 10.3476C4.6452 10.3476 3 8.7024 3 6.6738C3 4.6452 4.6452 3 6.6729 3C8.7024 3 10.3467 4.6452 10.3467 6.6738Z"
-                                    stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                </path>
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M21.0003 17.2619C21.0003 19.2905 19.3551 20.9348 17.3265 20.9348C15.2979 20.9348 13.6536 19.2905 13.6536 17.2619C13.6536 15.2333 15.2979 13.5881 17.3265 13.5881C19.3551 13.5881 21.0003 15.2333 21.0003 17.2619Z"
-                                    stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                </path>
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M10.3467 17.2619C10.3467 19.2905 8.7024 20.9348 6.6729 20.9348C4.6452 20.9348 3 19.2905 3 17.2619C3 15.2333 4.6452 13.5881 6.6729 13.5881C8.7024 13.5881 10.3467 15.2333 10.3467 17.2619Z"
-                                    stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                </path>
-                            </g>
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M21.0003 6.6738C21.0003 8.7024 19.3551 10.3476 17.3265 10.3476C15.2979 10.3476 13.6536 8.7024 13.6536 6.6738C13.6536 4.6452 15.2979 3 17.3265 3C19.3551 3 21.0003 4.6452 21.0003 6.6738Z"
+                                stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M10.3467 6.6738C10.3467 8.7024 8.7024 10.3476 6.6729 10.3476C4.6452 10.3476 3 8.7024 3 6.6738C3 4.6452 4.6452 3 6.6729 3C8.7024 3 10.3467 4.6452 10.3467 6.6738Z"
+                                stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M21.0003 17.2619C21.0003 19.2905 19.3551 20.9348 17.3265 20.9348C15.2979 20.9348 13.6536 19.2905 13.6536 17.2619C13.6536 15.2333 15.2979 13.5881 17.3265 13.5881C19.3551 13.5881 21.0003 15.2333 21.0003 17.2619Z"
+                                stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M10.3467 17.2619C10.3467 19.2905 8.7024 20.9348 6.6729 20.9348C4.6452 20.9348 3 19.2905 3 17.2619C3 15.2333 4.6452 13.5881 6.6729 13.5881C8.7024 13.5881 10.3467 15.2333 10.3467 17.2619Z"
+                                stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                         </g>
                     </svg>
-                </div>
+                </button>
             </div>
         </div>
 
-
+        <!-- Search Bar (Desktop) -->
         <div class="left-side-header col ps-0 d-none d-md-block">
-            <div class="input-group">
-                <span class="input-group-text" id="basic-addon1">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g>
-                            <g>
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M11.2753 2.71436C16.0029 2.71436 19.8363 6.54674 19.8363 11.2753C19.8363 16.0039 16.0029 19.8363 11.2753 19.8363C6.54674 19.8363 2.71436 16.0039 2.71436 11.2753C2.71436 6.54674 6.54674 2.71436 11.2753 2.71436Z"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M19.8987 18.4878C20.6778 18.4878 21.3092 19.1202 21.3092 19.8983C21.3092 20.6783 20.6778 21.3097 19.8987 21.3097C19.1197 21.3097 18.4873 20.6783 18.4873 19.8983C18.4873 19.1202 19.1197 18.4878 19.8987 18.4878Z"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                            </g>
-                        </g>
-                    </svg></span>
-                <input class="form-control" type="text" placeholder="Search here.." aria-label="search"
-                    aria-describedby="basic-addon1" />
-            </div>
+            <form class="input-group" action="{% url 'account:search' %}" method="GET" role="search">
+                <span class="input-group-text" id="search-addon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M11.2753 2.71436C16.0029 2.71436 19.8363 6.54674 19.8363 11.2753C19.8363 16.0039 16.0029 19.8363 11.2753 19.8363C6.54674 19.8363 2.71436 16.0039 2.71436 11.2753C2.71436 6.54674 6.54674 2.71436 11.2753 2.71436Z"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M19.8987 18.4878C20.6778 18.4878 21.3092 19.1202 21.3092 19.8983C21.3092 20.6783 20.6778 21.3097 19.8987 21.3097C19.1197 21.3097 18.4873 20.6783 18.4873 19.8983C18.4873 19.1202 19.1197 18.4878 19.8987 18.4878Z"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </span>
+                <input class="form-control" type="search" name="q" placeholder="Search here..."
+                       aria-label="Search" aria-describedby="search-addon">
+            </form>
         </div>
-        <div class="nav-right col-10 col-sm-6 pull-right right-header p-0">
+
+        <!-- Right Side Navigation -->
+        <nav class="nav-right col-10 col-sm-6 pull-right right-header p-0" aria-label="User navigation">
             <ul class="nav-menus">
+                <!-- Dark Mode Toggle -->
                 <li>
-                    <div class="mode animated backOutRight">
-                        <svg class="lighticon" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <g>
-                                <g>
-                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                        d="M18.1377 13.7902C19.2217 14.8742 16.3477 21.0542 10.6517 21.0542C6.39771 21.0542 2.94971 17.6062 2.94971 13.3532C2.94971 8.05317 8.17871 4.66317 9.67771 6.16217C10.5407 7.02517 9.56871 11.0862 11.1167 12.6352C12.6647 14.1842 17.0537 12.7062 18.1377 13.7902Z"
-                                        stroke="#130F26" stroke-width="1.5" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
-                                </g>
-                            </g>
+                    <button type="button" class="mode animated backOutRight" aria-label="Toggle dark mode">
+                        <svg class="lighticon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M18.1377 13.7902C19.2217 14.8742 16.3477 21.0542 10.6517 21.0542C6.39771 21.0542 2.94971 17.6062 2.94971 13.3532C2.94971 8.05317 8.17871 4.66317 9.67771 6.16217C10.5407 7.02517 9.56871 11.0862 11.1167 12.6352C12.6647 14.1842 17.0537 12.7062 18.1377 13.7902Z"
+                                stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                         </svg>
-                        <svg class="darkicon" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12C7 9.23858 9.23858 7 12 7C14.7614 7 17 9.23858 17 12Z">
-                            </path>
-                            <path
-                                d="M18.3117 5.68834L18.4286 5.57143M5.57144 18.4286L5.68832 18.3117M12 3.07394V3M21 12H20.9261M5.68831 5.68834L5.5714 5.57143M18.4286 18.4286L18.3117 18.3117"
+                        <svg class="darkicon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path d="M17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12C7 9.23858 9.23858 7 12 7C14.7614 7 17 9.23858 17 12Z"></path>
+                            <path d="M18.3117 5.68834L18.4286 5.57143M5.57144 18.4286L5.68832 18.3117M12 3.07394V3M21 12H20.9261M5.68831 5.68834L5.5714 5.57143M18.4286 18.4286L18.3117 18.3117"
                                 stroke-linecap="round" stroke-linejoin="round"></path>
                         </svg>
-                    </div>
-                </li>
-                <li class="d-md-none resp-serch-input">
-                    <div class="resp-serch-box"><i data-feather="search"></i></div>
-                    <div class="form-group search-form">
-                        <input type="text" placeholder="Search here..." />
-                    </div>
+                    </button>
                 </li>
 
+                <!-- Mobile Search -->
+                <li class="d-md-none resp-serch-input">
+                    <button type="button" class="resp-serch-box" aria-label="Open search">
+                        <i data-feather="search" aria-hidden="true"></i>
+                    </button>
+                    <form class="form-group search-form" action="{% url 'account:search' %}" method="GET">
+                        <input type="search" name="q" placeholder="Search here..." aria-label="Search">
+                    </form>
+                </li>
+
+                <!-- Notifications -->
                 <li class="onhover-dropdown">
-                    <div class="notification-box">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <g>
-                                <g>
-                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                        d="M11.9961 2.51416C7.56185 2.51416 5.63519 6.5294 5.63519 9.18368C5.63519 11.1675 5.92281 10.5837 4.82471 13.0037C3.48376 16.4523 8.87614 17.8618 11.9961 17.8618C15.1152 17.8618 20.5076 16.4523 19.1676 13.0037C18.0695 10.5837 18.3571 11.1675 18.3571 9.18368C18.3571 6.5294 16.4295 2.51416 11.9961 2.51416Z"
-                                        stroke="#130F26" stroke-width="1.5" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
-                                    <path d="M14.306 20.5122C13.0117 21.9579 10.9927 21.9751 9.68604 20.5122"
-                                        stroke="#130F26" stroke-width="1.5" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
-                                </g>
-                            </g>
-                        </svg><span class="badge rounded-pill badge-warning">{{ notifications.count }}</span>
-                    </div>
-                    <div class="onhover-show-div notification-dropdown">
+                    <button type="button" class="notification-box" aria-label="Notifications" aria-haspopup="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M11.9961 2.51416C7.56185 2.51416 5.63519 6.5294 5.63519 9.18368C5.63519 11.1675 5.92281 10.5837 4.82471 13.0037C3.48376 16.4523 8.87614 17.8618 11.9961 17.8618C15.1152 17.8618 20.5076 16.4523 19.1676 13.0037C18.0695 10.5837 18.3571 11.1675 18.3571 9.18368C18.3571 6.5294 16.4295 2.51416 11.9961 2.51416Z"
+                                stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M14.306 20.5122C13.0117 21.9579 10.9927 21.9751 9.68604 20.5122"
+                                stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        {% if notifications.count > 0 %}
+                        <span class="badge rounded-pill badge-warning">{{ notifications.count }}</span>
+                        {% endif %}
+                    </button>
+                    <div class="onhover-show-div notification-dropdown" role="menu">
                         <div class="dropdown-title">
-                            <h3>Notification</h3>
-                            <a class="f-right" href="#">
-                                <i data-feather="bell"> </i></a>
+                            <h3>Notifications</h3>
+                            <a href="{% url 'core:notifications' %}" class="f-right" aria-label="View all notifications">
+                                <i data-feather="bell" aria-hidden="true"></i>
+                            </a>
                         </div>
-                        <ul class="custom-scrollbar">
+                        <ul class="custom-scrollbar" role="list">
                             {% for n in notifications %}
-                            <li>
+                            <li role="listitem">
                                 <div class="media">
                                     <div class="notification-img bg-light-primary">
-                                        <img src="{% static 'assets3/images/avtar/man.png' %}" alt="" />
+                                        <img src="{% static 'assets3/images/avtar/man.png' %}" alt="">
                                     </div>
                                     <div class="media-body">
                                         <h5>
-                                            <a class="f-14 m-0" href="#">
-                                                {% if n.notification_type == "Credit Alert" %}
-                                                Payment Received
-                                                {% elif n.notification_type == "Debit Alert" %}
-                                                Payment Sent
-                                                {% elif n.notification_type == "Sent Payment Request" %}
-                                                Payment Request Sent
-                                                {% elif n.notification_type == "Recieved Payment Request" %}
-                                                Payment Request Received
-                                                {% elif n.notification_type == "Funded Credit Card" %}
-                                                Credit Card Funded
-                                                {% elif n.notification_type == "Withdrew Credit Card Funds" %}
-                                                Credit Card Withdrawal
-                                                {% elif n.notification_type == "Deleted Credit Card" %}
-                                                Credit Card Deleted
-                                                {% elif n.notification_type == "Added Credit Card" %}
-                                                Credit Card Added
+                                            <span class="f-14 m-0">
+                                                {% if n.notification_type == "Credit Alert" %}Payment Received
+                                                {% elif n.notification_type == "Debit Alert" %}Payment Sent
+                                                {% elif n.notification_type == "Sent Payment Request" %}Request Sent
+                                                {% elif n.notification_type == "Recieved Payment Request" %}Request Received
+                                                {% elif n.notification_type == "Funded Credit Card" %}Card Funded
+                                                {% elif n.notification_type == "Withdrew Credit Card Funds" %}Card Withdrawal
+                                                {% else %}{{ n.notification_type }}
                                                 {% endif %}
-                                            </a>
+                                            </span>
                                         </h5>
                                         <p>
-                                            {% if n.notification_type == "Credit Alert" %}
-                                            You received a payment of <b>${{n.amount}}</b>
-                                            {% elif n.notification_type == "Debit Alert" %}
-                                            You sent a payment of <b>${{n.amount}}</b>
-                                            {% elif n.notification_type == "Sent Payment Request" %}
-                                            You sent a payment request of <b>${{n.amount}}</b>
-                                            {% elif n.notification_type == "Recieved Payment Request" %}
-                                            You received a payment request of <b>${{n.amount}}</b>
-                                            {% elif n.notification_type == "Funded Credit Card" %}
-                                            You funded your credit card with <b>${{n.amount}}</b>
-                                            {% elif n.notification_type == "Withdrew Credit Card Funds" %}
-                                            You withdrew <b>${{n.amount}}</b> from your credit card
-                                            {% elif n.notification_type == "Deleted Credit Card" %}
-                                            You deleted your credit card
-                                            {% elif n.notification_type == "Added Credit Card" %}
-                                            You added a new credit card
+                                            {% if n.message %}
+                                                {{ n.message|truncatewords:10 }}
+                                            {% else %}
+                                                Amount: <strong>UGX {{ n.amount|floatformat:0 }}</strong>
                                             {% endif %}
                                         </p>
-                                        <span>{{n.date}}</span>
-                                    </div>
-                                    <div class="notification-right">
-                                        <a href="#"><i data-feather="x"></i></a>
+                                        <span class="text-muted">{{ n.date|timesince }} ago</span>
                                     </div>
                                 </div>
                             </li>
-                            {% endfor %}
-                            <li class="p-0">
-                                <a class="btn btn-primary" href="#">View All</a>
+                            {% empty %}
+                            <li class="text-center py-3">
+                                <p class="text-muted mb-0">No new notifications</p>
                             </li>
+                            {% endfor %}
+                            {% if notifications %}
+                            <li class="p-0">
+                                <a class="btn btn-primary w-100" href="{% url 'core:notifications' %}">View All</a>
+                            </li>
+                            {% endif %}
                         </ul>
                     </div>
                 </li>
+
+                <!-- Fullscreen Toggle -->
                 <li class="maximize">
-                    <a class="text-dark" href="#!" onclick="javascript:toggleFullScreen()">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <g>
-                                <g>
-                                    <path d="M2.99609 8.71995C3.56609 5.23995 5.28609 3.51995 8.76609 2.94995"
-                                        stroke="#130F26" stroke-width="1.5" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
-                                    <path
-                                        d="M8.76616 20.99C5.28616 20.41 3.56616 18.7 2.99616 15.22L2.99516 15.224C2.87416 14.504 2.80516 13.694 2.78516 12.804"
-                                        stroke="#130F26" stroke-width="1.5" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
-                                    <path
-                                        d="M21.2446 12.804C21.2246 13.694 21.1546 14.504 21.0346 15.224L21.0366 15.22C20.4656 18.7 18.7456 20.41 15.2656 20.99"
-                                        stroke="#130F26" stroke-width="1.5" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
-                                    <path d="M15.2661 2.94995C18.7461 3.51995 20.4661 5.23995 21.0361 8.71995"
-                                        stroke="#130F26" stroke-width="1.5" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
-                                </g>
-                            </g>
-                        </svg></a>
+                    <button type="button" class="text-dark" id="fullscreenToggle" aria-label="Toggle fullscreen">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path d="M2.99609 8.71995C3.56609 5.23995 5.28609 3.51995 8.76609 2.94995" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M8.76616 20.99C5.28616 20.41 3.56616 18.7 2.99616 15.22L2.99516 15.224C2.87416 14.504 2.80516 13.694 2.78516 12.804" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M21.2446 12.804C21.2246 13.694 21.1546 14.504 21.0346 15.224L21.0366 15.22C20.4656 18.7 18.7456 20.41 15.2656 20.99" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M15.2661 2.94995C18.7461 3.51995 20.4661 5.23995 21.0361 8.71995" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </button>
                 </li>
+
+                <!-- User Profile Dropdown -->
                 <li class="profile-nav onhover-dropdown pe-0 py-0 me-0">
-                    <div class="media profile-media">
-                        {% if request.user.kyc.image.url %}
-                        <img style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;"
-                            src="{{ request.user.kyc.image.url }}" alt="User">
+                    <button type="button" class="media profile-media" aria-haspopup="true" aria-label="User menu">
+                        {% if request.user.kyc.image %}
+                        <img class="profile-img-sm" src="{{ request.user.kyc.image.url }}" alt="Profile photo of {{ request.user.get_full_name|default:request.user.username }}">
                         {% else %}
-                        <img src="{% static 'assets1/images/default.jpg' %}"
-                            style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" alt="User">
+                        <img class="profile-img-sm" src="{% static 'assets1/images/default.jpg' %}" alt="Default profile photo">
                         {% endif %}
-                    </div>
-                    <ul class="profile-dropdown onhover-show-div">
-                        <li>
+                    </button>
+                    <ul class="profile-dropdown onhover-show-div" role="menu">
+                        <li role="menuitem">
                             <div class="media profile-media">
-                                {% if request.user.kyc.image.url %}
-                                <img style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;"
-                                    src="{{ request.user.kyc.image.url }}" alt="User">
+                                {% if request.user.kyc.image %}
+                                <img class="profile-img-round" src="{{ request.user.kyc.image.url }}" alt="">
                                 {% else %}
-                                <img src="{% static 'assets1/images/default.jpg' %}"
-                                    style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;"
-                                    alt="User">
+                                <img class="profile-img-round" src="{% static 'assets1/images/default.jpg' %}" alt="">
                                 {% endif %}
                                 <div class="media-body">
-                                    <h5>{{kyc.full_name|title}}</h5>
-                                    <p>Account No. {{ request.user.account.account_number }}</p>
-                                    <p>Pin No. {{ request.user.account.pin_number }}</p>
+                                    <h5>{{ kyc.full_name|default:request.user.username|title }}</h5>
+                                    <p class="text-muted mb-0">Acc: {{ request.user.account.account_number }}</p>
+                                    <p class="text-muted mb-0">
+                                        <small>Member since {{ request.user.date_joined|date:"M Y" }}</small>
+                                    </p>
                                 </div>
                             </div>
                         </li>
-                        <li>
-                            <a href="{% url 'account:account' %}"><i data-feather="user"></i><span>Account</span></a>
+                        <li role="menuitem">
+                            <a href="{% url 'account:account' %}">
+                                <i data-feather="user" aria-hidden="true"></i>
+                                <span>My Account</span>
+                            </a>
                         </li>
-                        <li>
-                            <a href="{% url 'account:dashboard' %}"><i
-                                    data-feather="home"></i><span>Dashboard</span></a>
+                        <li role="menuitem">
+                            <a href="{% url 'account:dashboard' %}">
+                                <i data-feather="home" aria-hidden="true"></i>
+                                <span>Dashboard</span>
+                            </a>
                         </li>
-                        <li>
-                            <a href="#"><i data-feather="settings"></i><span>Settings</span></a>
+                        <li role="menuitem">
+                            <a href="{% url 'account:settings' %}">
+                                <i data-feather="settings" aria-hidden="true"></i>
+                                <span>Settings</span>
+                            </a>
                         </li>
-                        <li>
-                            <a href="{% url 'user_auths:logout' %}"><i
-                                    data-feather="log-out"></i><span>Logout</span></a>
+                        <li role="menuitem">
+                            <a href="{% url 'user_auths:logout' %}">
+                                <i data-feather="log-out" aria-hidden="true"></i>
+                                <span>Logout</span>
+                            </a>
                         </li>
                     </ul>
                 </li>
             </ul>
-        </div>
+        </nav>
     </div>
-</div>
+</header>
 
- 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    const toggleIcon = document.getElementById("sidebarToggle");
-    const sidebar = document.querySelector(".sidebar-wrapper");
-    const overlay = document.querySelector(".sidebar-overlay");
-    const body = document.body;
-
-    if (!toggleIcon || !sidebar) return;
-
-    // Toggle sidebar function
-    function toggleSidebar() {
-        if (window.innerWidth <= 768) {
-            // Mobile behavior
-            sidebar.classList.toggle("mobile-visible");
-            overlay.classList.toggle("active");
-            body.style.overflow = sidebar.classList.contains("mobile-visible") ? "hidden" : "";
-        } else {
-            // Desktop behavior - completely hide/show
-            body.classList.toggle("sidebar-collapsed");
-            localStorage.setItem("sidebarCollapsed", body.classList.contains("sidebar-collapsed"));
-        }
-    }
-
-    // Close sidebar function (mobile only)
-    function closeMobileSidebar() {
-        sidebar.classList.remove("mobile-visible");
-        overlay.classList.remove("active");
-        body.style.overflow = "";
-    }
-
-    // Initialize based on saved state (desktop only)
-    if (window.innerWidth > 768 && localStorage.getItem("sidebarCollapsed") === "true") {
-        body.classList.add("sidebar-collapsed");
-    }
-
-    // Toggle button click
-    toggleIcon.addEventListener("click", function(e) {
-        e.preventDefault();
-        toggleSidebar();
-    });
-
-    // Overlay click to close (mobile)
-    if (overlay) {
-        overlay.addEventListener("click", closeMobileSidebar);
-    }
-
-    // Close sidebar when clicking outside on mobile
-    document.addEventListener("click", function(e) {
-        if (window.innerWidth <= 768 && 
-            !sidebar.contains(e.target) && 
-            !toggleIcon.contains(e.target)) {
-            closeMobileSidebar();
-        }
-    });
-
-    // Handle window resize
-    window.addEventListener("resize", function() {
-        if (window.innerWidth > 768) {
-            // Reset mobile styles when switching to desktop
-            closeMobileSidebar();
-        } else {
-            // Reset desktop styles when switching to mobile
-            body.classList.remove("sidebar-collapsed");
-        }
-    });
-});
-</script>
-
-
-<style>
-/* Desktop collapsed - just hide with translateX if needed */
-/* Mobile styles (<= 768px) */
-@media (max-width: 768px) {
-    .sidebar-wrapper {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        width: 280px;
-        z-index: 1000;
-        background: #fff;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-    }
-    
-    .sidebar-wrapper.collapsed {
-        transform: translateX(0);
-    }
-    
-    /* Optional overlay for better UX */
-    .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-        display: none;
-    }
-    
-    .sidebar-wrapper.collapsed + .sidebar-overlay {
-        display: block;
-    }
-}
-
-/* Desktop styles (> 768px) */
-@media (min-width: 769px) {
-    .sidebar-wrapper {
-        width: 250px; /* Default width */
-        transition: width 0.3s ease;
-    }
-    
-    .sidebar-wrapper.collapsed {
-        width: 80px; /* Collapsed width */
-    }
-    
-    /* This ensures the transform doesn't interfere on desktop */
-    .sidebar-collapsed .sidebar-wrapper {
-        transform: none !important;
-    }
-}
-
-</style>
+<!-- Sidebar Overlay for Mobile -->
+<div class="sidebar-overlay" aria-hidden="true"></div>
