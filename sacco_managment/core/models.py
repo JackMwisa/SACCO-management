@@ -220,14 +220,14 @@ class CreditCard(models.Model):
     name = models.CharField(max_length=100)  # Cardholder name
 
     # Store only last 4 digits for display purposes
-    last_four = models.CharField(max_length=4)
+    last_four = models.CharField(max_length=4, blank=True, default='')
 
     # Store a hash of the full card number for duplicate detection (optional)
     card_hash = models.CharField(max_length=64, blank=True, null=True)
 
-    # Expiry stored separately
-    expiry_month = models.PositiveSmallIntegerField()
-    expiry_year = models.PositiveSmallIntegerField()
+    # Expiry stored separately (nullable for migration, will be populated from legacy fields)
+    expiry_month = models.PositiveSmallIntegerField(null=True, blank=True)
+    expiry_year = models.PositiveSmallIntegerField(null=True, blank=True)
 
     # CVV should NEVER be stored - only used at transaction time
     # Removed: cvv = models.IntegerField()
@@ -253,17 +253,22 @@ class CreditCard(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.user} - ****{self.last_four}"
+        last_digits = self.last_four or (str(self.number)[-4:] if self.number else '****')
+        return f"{self.user} - ****{last_digits}"
 
     @property
     def masked_number(self):
         """Return masked card number for display."""
-        return f"**** **** **** {self.last_four}"
+        last_digits = self.last_four or (str(self.number)[-4:] if self.number else '****')
+        return f"**** **** **** {last_digits}"
 
     @property
     def expiry_display(self):
         """Return formatted expiry date."""
-        return f"{self.expiry_month:02d}/{self.expiry_year % 100:02d}"
+        # Use new fields if available, fall back to legacy fields
+        month = self.expiry_month or self.month or 1
+        year = self.expiry_year or self.year or 2025
+        return f"{month:02d}/{year % 100:02d}"
 
     def set_card_number(self, full_number):
         """
