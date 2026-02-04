@@ -27,9 +27,7 @@
                         <div class="single-user">
                             <div class="left d-flex align-items-center">
                                 <div class="img-area">
-                                    <!-- <img src="{{ a.user.kyc.image.url }}" alt="image"> -->
-                                    <img src="{{ a.user.kyc.image.url }}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;"  alt="image">
-
+                                    <img src="{% if a.user.kyc.image %}{{ a.user.kyc.image.url }}{% else %}{% static 'assets1/images/default-avatar.png' %}{% endif %}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" alt="Profile photo of {{ a.user.kyc.full_name|default:'User' }}">
                                 </div>
                                 <div class="text-area">
                                     <p>{{ a.user.kyc.full_name|title }}</p>
@@ -38,12 +36,8 @@
                                 </div>
                             </div>
                             <div class="right">
-                                <a href="{% url 'core:amount-request' a.account_number  %}">Choose</a>
+                                <a href="{% url 'core:amount-request' a.account_number %}" class="cmn-btn">Choose</a>
                             </div>
-                        </div>
-                        <div class="footer-afrea mt-40">
-                            <a href="">Previous Step</a>
-                            <a href="" class="active">Next</a>
                         </div>
                         {% empty %}
                         <div>
