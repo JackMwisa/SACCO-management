@@ -5,8 +5,26 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
 from django.http.response import HttpResponseRedirect
 from django.contrib import messages
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from .models import LoanApplication, LoanRepayment, Notification, Transaction, CreditCard, LOAN_TYPES, LOAN_STATUS
+
+
+# Helper function for safe Decimal conversion with proper precision
+def safe_decimal(value, default=Decimal('0.00')):
+    """
+    Safely convert a value to Decimal with 2 decimal places.
+    Returns default if conversion fails.
+    """
+    try:
+        if value is None or value == '':
+            return default
+        # Convert to Decimal and quantize to 2 decimal places
+        amount = Decimal(str(value)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        if amount < 0:
+            return default
+        return amount
+    except (InvalidOperation, ValueError, TypeError):
+        return default
 from account.models import Account
 from .forms import LoanApplicationForm, MobileMoneyDepositForm, MobileMoneyWithdrawalForm
 from django.db.models import Sum
@@ -178,7 +196,7 @@ def loan_detail(request, loan_id):
 
     if request.method == 'POST':
         # Handle repayment form submission
-        amount = Decimal(request.POST.get('amount', 0))
+        amount = safe_decimal(request.POST.get('amount'))
         if amount <= 0:
             messages.error(request, "Amount must be greater than zero")
         elif amount > balance:
@@ -255,7 +273,7 @@ def repay_loan(request, loan_id):
 
     if request.method == 'POST':
         try:
-            amount = Decimal(request.POST.get('amount'))
+            amount = safe_decimal(request.POST.get('amount'))
             payment_method = request.POST.get('payment_method')
 
             if amount <= 0:
