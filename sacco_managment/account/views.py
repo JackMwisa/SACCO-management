@@ -748,24 +748,51 @@ def pending_withdrawals(request):
 @admin_required
 def approve_withdrawal(request, tx_id):
     tx = get_object_or_404(Transaction, id=tx_id)
-    account = tx.user.account
-    
-    # Process with mobile money API here (pseudo-code)
-    # if api_process_withdrawal(tx.mobile_money.phone_number, tx.amount):
-    
-    # Mark as completed
-    tx.status = 'completed'
-    tx.admin_approved = True
-    tx.admin_processed_by = request.user
-    tx.admin_processed_at = timezone.now()
-    tx.save()
-    
-    # Deduct from account (was previously locked)
-    account.account_balance -= tx.amount
-    account.locked_funds -= tx.amount
-    account.save()
-    
-    messages.success(request, f"Withdrawal of UGX {tx.amount} approved")
+
+    # Use atomic transaction for financial operations
+    from django.db import transaction as db_transaction
+
+    try:
+        with db_transaction.atomic():
+            # Lock account for update to prevent race conditions
+            account = Account.objects.select_for_update().get(user=tx.user)
+
+            # Verify funds are still locked
+            if account.locked_funds < tx.amount:
+                messages.error(request, "Insufficient locked funds. Transaction may have been modified.")
+                return redirect('account:pending_withdrawals')
+
+            # Process with mobile money API here (pseudo-code)
+            # if api_process_withdrawal(tx.mobile_money.phone_number, tx.amount):
+
+            # Mark as completed
+            tx.status = 'completed'
+            tx.admin_approved = True
+            tx.admin_processed_by = request.user
+            tx.admin_processed_at = timezone.now()
+            tx.save()
+
+            # Unlock funds and deduct from balance
+            # Note: Funds were locked but balance wasn't reduced yet
+            # Now we reduce balance and unlock
+            account.account_balance -= tx.amount
+            account.locked_funds -= tx.amount
+            account.save()
+
+            # Create notification for user
+            from core.models import Notification
+            Notification.objects.create(
+                user=tx.user,
+                notification_type="Withdrawal Approved",
+                amount=tx.amount,
+                message=f"Your withdrawal of UGX {tx.amount:,} has been approved and processed"
+            )
+
+        messages.success(request, f"Withdrawal of UGX {tx.amount:,} approved")
+
+    except Exception as e:
+        messages.error(request, f"Error processing withdrawal: {str(e)}")
+
     return redirect('account:pending_withdrawals')
 
 @admin_required

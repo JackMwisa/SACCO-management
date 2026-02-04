@@ -1,10 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from account.models import Account
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib import messages
 from decimal import Decimal, InvalidOperation
 from core.models import Transaction, Notification
+from django.db import transaction as db_transaction
 
 
 @login_required
@@ -26,23 +27,31 @@ def search_users_account_number(request):
     return render(request, "transfer/search-user-by-account-number.html", context)
 
 
+@login_required
 def AmountTransfer(request, account_number):
     try:
         account = Account.objects.get(account_number=account_number)
-    except:
-        messages.warning(request, "Account does not exist.")
+    except Account.DoesNotExist:
+        messages.warning(request, "Invalid account details.")
         return redirect("core:search-account")
+
+    # Prevent self-transfer
+    if account.user == request.user:
+        messages.warning(request, "You cannot transfer to your own account.")
+        return redirect("core:search-account")
+
     context = {
         "account": account,
     }
     return render(request, "transfer/amount-transfer.html", context)
 
 
+@login_required
 def AmountTransferProcess(request, account_number):
     try:
         account = Account.objects.get(account_number=account_number)
     except Account.DoesNotExist:
-        messages.warning(request, "Account does not exist.")
+        messages.warning(request, "Invalid account details.")
         return redirect("core:search-account")
 
     sender = request.user
@@ -91,13 +100,19 @@ def AmountTransferProcess(request, account_number):
     return redirect("account:account")
 
 
+@login_required
 def TransferConfirmation(request, account_number, transaction_id):
     try:
         account = Account.objects.get(account_number=account_number)
-        transaction = Transaction.objects.get(transaction_id=transaction_id)
-    except:
-        messages.warning(request, "Transaction does not exist.")
+        # Verify the transaction belongs to the current user (IDOR fix)
+        transaction = Transaction.objects.get(
+            transaction_id=transaction_id,
+            sender=request.user  # Ownership verification
+        )
+    except (Account.DoesNotExist, Transaction.DoesNotExist):
+        messages.warning(request, "Transaction not found.")
         return redirect("account:account")
+
     context = {
         "account": account,
         "transaction": transaction
@@ -105,64 +120,88 @@ def TransferConfirmation(request, account_number, transaction_id):
     return render(request, "transfer/transfer-confirmation.html", context)
 
 
+@login_required
 def TransferProcess(request, account_number, transaction_id):
-    account = Account.objects.get(account_number=account_number)
-    transaction = Transaction.objects.get(transaction_id=transaction_id)
-
-    sender = request.user
-    receiver = account.user
+    # Verify ownership - user can only process their own transactions
+    try:
+        receiver_account = Account.objects.get(account_number=account_number)
+        transaction = Transaction.objects.get(
+            transaction_id=transaction_id,
+            sender=request.user  # IDOR protection
+        )
+    except (Account.DoesNotExist, Transaction.DoesNotExist):
+        messages.warning(request, "Transaction not found.")
+        return redirect("account:account")
 
     sender_account = request.user.account
-    receiver_account = account
-
-    completed = False
 
     if request.method == "POST":
         pin_number = request.POST.get("pin-number")
-        print(pin_number)
 
         if pin_number == sender_account.pin_number:
-            transaction.status = "completed"
-            transaction.save()
+            # Use atomic transaction to prevent partial failures
+            try:
+                with db_transaction.atomic():
+                    # Lock both accounts to prevent race conditions
+                    sender_acc = Account.objects.select_for_update().get(id=sender_account.id)
+                    receiver_acc = Account.objects.select_for_update().get(id=receiver_account.id)
 
-            # Remove the amount that i am sending from my account balance and update my account
-            sender_account.account_balance -= transaction.amount
-            sender_account.save()
+                    # Verify sufficient balance (re-check inside transaction)
+                    if sender_acc.account_balance < transaction.amount:
+                        messages.warning(request, "Insufficient funds.")
+                        return redirect('core:transfer-confirmation', receiver_account.account_number, transaction.transaction_id)
 
-            # Add the amount that vas removed from my account to the person that i am sending the money too
-            account.account_balance += transaction.amount
-            account.save()
+                    # Update balances atomically
+                    sender_acc.account_balance -= transaction.amount
+                    sender_acc.save()
 
-            # Create Notification Object
-            Notification.objects.create(
-                amount=transaction.amount,
-                user=account.user,
-                notification_type="Credit Alert"
-            )
+                    receiver_acc.account_balance += transaction.amount
+                    receiver_acc.save()
 
-            Notification.objects.create(
-                user=sender,
-                notification_type="Debit Alert",
-                amount=transaction.amount
-            )
+                    # Update transaction status
+                    transaction.status = "completed"
+                    transaction.save()
 
-            messages.success(request, "Transfer Successfull.")
-            return redirect("core:transfer-completed", account.account_number, transaction.transaction_id)
+                    # Create notifications
+                    Notification.objects.create(
+                        amount=transaction.amount,
+                        user=receiver_account.user,
+                        notification_type="Credit Alert"
+                    )
+
+                    Notification.objects.create(
+                        user=request.user,
+                        notification_type="Debit Alert",
+                        amount=transaction.amount
+                    )
+
+                messages.success(request, "Transfer successful.")
+                return redirect("core:transfer-completed", receiver_account.account_number, transaction.transaction_id)
+
+            except Exception as e:
+                messages.error(request, "Transfer failed. Please try again.")
+                return redirect('core:transfer-confirmation', receiver_account.account_number, transaction.transaction_id)
         else:
-            messages.warning(request, "Incorrect Pin.")
-            return redirect('core:transfer-confirmation', account.account_number, transaction.transaction_id)
+            messages.warning(request, "Incorrect PIN.")
+            return redirect('core:transfer-confirmation', receiver_account.account_number, transaction.transaction_id)
     else:
-        messages.warning(request, "An error occured, Try again later.")
+        messages.warning(request, "Invalid request method.")
         return redirect('account:account')
 
 
+@login_required
 def TransferCompleted(request, account_number, transaction_id):
     try:
         account = Account.objects.get(account_number=account_number)
-        transaction = Transaction.objects.get(transaction_id=transaction_id)
-    except:
-        messages.warning(request, "Transfer does not exist.")
+        # Verify user owns this transaction
+        transaction = Transaction.objects.get(
+            transaction_id=transaction_id,
+            sender=request.user  # IDOR protection
+        )
+    except (Account.DoesNotExist, Transaction.DoesNotExist):
+        messages.warning(request, "Transaction not found.")
         return redirect("account:account")
+
     context = {
         "account": account,
         "transaction": transaction

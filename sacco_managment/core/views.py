@@ -1,25 +1,18 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
 from django.http.response import HttpResponseRedirect
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from decimal import Decimal
-from .models import LoanApplication, LoanRepayment, Notification, Transaction, LOAN_TYPES, LOAN_STATUS
+from .models import LoanApplication, LoanRepayment, Notification, Transaction, CreditCard, LOAN_TYPES, LOAN_STATUS
 from account.models import Account
-from .forms import LoanApplicationForm
+from .forms import LoanApplicationForm, MobileMoneyDepositForm, MobileMoneyWithdrawalForm
 from django.db.models import Sum
 from django.views.decorators.csrf import csrf_exempt
 from .models import MobileMoneyTransaction
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import JsonResponse
-import json
-from .forms import MobileMoneyDepositForm, MobileMoneyWithdrawalForm
-from core.models import MobileMoneyTransaction
-from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.utils import timezone
 from django import forms
@@ -27,6 +20,30 @@ from django.urls import reverse
 from django.core.exceptions import ValidationError
 from dateutil.relativedelta import relativedelta
 from django.db import transaction
+import json
+import hmac
+import hashlib
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def verify_webhook_signature(request):
+    """Verify the webhook signature from payment provider."""
+    signature = request.headers.get('X-Signature', '')
+    if not signature:
+        return False
+
+    payload = request.body
+    webhook_secret = getattr(settings, 'WEBHOOK_SECRET', '').encode()
+
+    expected_signature = hmac.new(
+        webhook_secret,
+        payload,
+        hashlib.sha256
+    ).hexdigest()
+
+    return hmac.compare_digest(signature, expected_signature)
 
 
 def index(request):
@@ -536,63 +553,79 @@ def mobile_money_deposit(request):
 @csrf_exempt
 def mobile_money_callback(request):
     """
-    This would be the endpoint that the payment provider calls with payment status
+    Endpoint that the payment provider calls with payment status.
+    Includes signature verification for security.
     """
-    if request.method == 'POST':
-        try:
-            payload = json.loads(request.body)
-            ref = payload.get('tx_ref')
-            status = payload.get('status')
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=405)
 
-            if not ref or not status:
-                return JsonResponse({'status': 'error', 'message': 'Invalid payload'}, status=400)
+    # Verify webhook signature to prevent fraud
+    if not verify_webhook_signature(request):
+        logger.warning(f"Invalid webhook signature from IP: {request.META.get('REMOTE_ADDR')}")
+        return JsonResponse({'status': 'error', 'message': 'Invalid signature'}, status=403)
 
-            mm_transaction = MobileMoneyTransaction.objects.get(transaction_ref=ref)
-            transaction = mm_transaction.transaction
+    try:
+        payload = json.loads(request.body)
+        ref = payload.get('tx_ref')
+        status = payload.get('status')
 
+        if not ref or not status:
+            return JsonResponse({'status': 'error', 'message': 'Invalid payload'}, status=400)
+
+        mm_transaction = MobileMoneyTransaction.objects.get(transaction_ref=ref)
+        tx = mm_transaction.transaction
+
+        # Use atomic transaction for financial operations
+        with transaction.atomic():
             if status.lower() == 'successful':
+                # Lock account for update to prevent race conditions
+                account = Account.objects.select_for_update().get(user=tx.user)
+
                 # Update transaction status
-                transaction.status = 'completed'
-                transaction.save()
+                tx.status = 'completed'
+                tx.save()
 
                 # Credit user's account
-                account = transaction.user.account
-                account.account_balance += transaction.amount
+                account.account_balance += tx.amount
                 account.save()
 
                 # Create notification
                 Notification.objects.create(
-                    user=transaction.user,
+                    user=tx.user,
                     notification_type="Mobile Money Deposit",
-                    amount=transaction.amount,
-                    message=f"Mobile Money deposit of UGX {transaction.amount} from {mm_transaction.phone_number} received"
+                    amount=tx.amount,
+                    message=f"Mobile Money deposit of UGX {tx.amount} from {mm_transaction.phone_number} received"
                 )
 
                 mm_transaction.is_reconciled = True
                 mm_transaction.save()
 
+                logger.info(f"Successful deposit: {ref} - UGX {tx.amount}")
                 return JsonResponse({'status': 'success'})
 
             else:
                 # Payment failed
-                transaction.status = 'failed'
-                transaction.save()
+                tx.status = 'failed'
+                tx.save()
 
                 Notification.objects.create(
-                    user=transaction.user,
+                    user=tx.user,
                     notification_type="Mobile Money Deposit Failed",
-                    amount=transaction.amount,
-                    message=f"Mobile Money deposit of UGX {transaction.amount} failed"
+                    amount=tx.amount,
+                    message=f"Mobile Money deposit of UGX {tx.amount} failed"
                 )
 
+                logger.info(f"Failed deposit: {ref}")
                 return JsonResponse({'status': 'failed', 'message': 'Payment failed'})
 
-        except MobileMoneyTransaction.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Transaction not found'}, status=404)
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-
-    return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=405)
+    except MobileMoneyTransaction.DoesNotExist:
+        logger.warning(f"Webhook for unknown transaction: {ref}")
+        return JsonResponse({'status': 'error', 'message': 'Transaction not found'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        logger.exception(f"Webhook error: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': 'Internal error'}, status=500)
 
 
 @login_required
@@ -650,49 +683,75 @@ def mobile_money_withdrawal(request):
 
 @csrf_exempt
 def mobile_money_webhook(request):
-    # This would be called by Flutterwave/MTN/Airtel API
-    payload = json.loads(request.body)
-    ref = payload['tx_ref']
+    """
+    Webhook endpoint called by Flutterwave/MTN/Airtel API.
+    Includes signature verification for security.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=405)
+
+    # Verify webhook signature to prevent fraud
+    if not verify_webhook_signature(request):
+        logger.warning(f"Invalid webhook signature from IP: {request.META.get('REMOTE_ADDR')}")
+        return JsonResponse({'status': 'error', 'message': 'Invalid signature'}, status=403)
 
     try:
+        payload = json.loads(request.body)
+        ref = payload.get('tx_ref')
+
+        if not ref:
+            return JsonResponse({'status': 'error', 'message': 'Missing tx_ref'}, status=400)
+
         mm_transaction = MobileMoneyTransaction.objects.get(transaction_ref=ref)
-        transaction = mm_transaction.transaction
+        tx = mm_transaction.transaction
 
-        if payload['status'] == 'successful':
-            # Update transaction status
-            transaction.status = 'completed'
-            transaction.save()
+        with transaction.atomic():
+            if payload.get('status') == 'successful':
+                # Lock account for update
+                account = Account.objects.select_for_update().get(user=tx.user)
 
-            # Update account balance
-            account = transaction.user.account
+                # Update transaction status
+                tx.status = 'completed'
+                tx.save()
 
-            if transaction.transaction_type == 'mobile_money_deposit':
-                account.mobile_money_balance += transaction.amount
-                Notification.objects.create(
-                    user=transaction.user,
-                    notification_type="Mobile Money Deposit",
-                    amount=transaction.amount,
-                    message=f"Mobile Money deposit of UGX {transaction.amount} received"
-                )
-            elif transaction.transaction_type == 'mobile_money_withdrawal':
-                account.locked_funds -= transaction.amount
-                Notification.objects.create(
-                    user=transaction.user,
-                    notification_type="Mobile Money Withdrawal",
-                    amount=transaction.amount,
-                    message=f"Mobile Money withdrawal of UGX {transaction.amount} processed"
-                )
+                # Update account balance based on transaction type
+                if tx.transaction_type == 'mobile_money_deposit':
+                    account.mobile_money_balance += tx.amount
+                    Notification.objects.create(
+                        user=tx.user,
+                        notification_type="Mobile Money Deposit",
+                        amount=tx.amount,
+                        message=f"Mobile Money deposit of UGX {tx.amount} received"
+                    )
+                elif tx.transaction_type == 'mobile_money_withdrawal':
+                    account.locked_funds -= tx.amount
+                    Notification.objects.create(
+                        user=tx.user,
+                        notification_type="Mobile Money Withdrawal",
+                        amount=tx.amount,
+                        message=f"Mobile Money withdrawal of UGX {tx.amount} processed"
+                    )
 
-            account.save()
-            mm_transaction.is_reconciled = True
-            mm_transaction.save()
+                account.save()
+                mm_transaction.is_reconciled = True
+                mm_transaction.save()
 
-            return JsonResponse({'status': 'success'})
+                logger.info(f"Webhook processed successfully: {ref}")
+                return JsonResponse({'status': 'success'})
+            else:
+                tx.status = 'failed'
+                tx.save()
+                logger.info(f"Webhook reported failure: {ref}")
+                return JsonResponse({'status': 'failed'})
 
     except MobileMoneyTransaction.DoesNotExist:
-        pass
-
-    return JsonResponse({'status': 'failed'}, status=400)
+        logger.warning(f"Webhook for unknown transaction: {ref}")
+        return JsonResponse({'status': 'error', 'message': 'Transaction not found'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        logger.exception(f"Webhook error: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': 'Internal error'}, status=500)
 
 @login_required
 def verify_mobile_number(request):
