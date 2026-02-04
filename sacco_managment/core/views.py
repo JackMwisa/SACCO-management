@@ -25,6 +25,8 @@ import hmac
 import hashlib
 import logging
 
+from core.utils.momo import MTNMomoAPI
+
 logger = logging.getLogger(__name__)
 
 
@@ -61,15 +63,21 @@ def about(request):
 def apply_for_loan(request):
     account = request.user.account
 
-    # Check eligibility
+    # Check eligibility - all values must be boolean for all() to work correctly
+    active_loans_count = LoanApplication.objects.filter(
+        user=request.user, status__in=['approved', 'disbursed']
+    ).count()
+
     eligibility = {
         'has_min_savings': account.account_balance >= 50000,
         'is_member_long_enough': (timezone.now() - request.user.date_joined).days > 90,
         'has_no_defaulted_loans': not LoanApplication.objects.filter(
             user=request.user, status='defaulted').exists(),
-        'active_loans': LoanApplication.objects.filter(
-            user=request.user, status__in=['approved', 'disbursed']).count()
+        'has_no_active_loans': active_loans_count == 0,  # Boolean: True if no active loans
     }
+
+    # Store count separately for template display
+    eligibility['active_loans_count'] = active_loans_count
 
     if request.method == 'POST':
         form = LoanApplicationForm(request.POST)
@@ -83,7 +91,14 @@ def apply_for_loan(request):
                     # Removed: loan.calculate_repayments()
 
                     # Auto-approve small loans (up to 3x savings)
-                    if loan.amount <= account.account_balance * 3 and all(eligibility.values()):
+                    # Check only boolean eligibility criteria (exclude active_loans_count)
+                    is_eligible = all([
+                        eligibility['has_min_savings'],
+                        eligibility['is_member_long_enough'],
+                        eligibility['has_no_defaulted_loans'],
+                        eligibility['has_no_active_loans'],
+                    ])
+                    if loan.amount <= account.account_balance * 3 and is_eligible:
                         loan.status = 'approved'
                         loan.date_approved = timezone.now()
                         messages.success(request, "Loan pre-approved pending final review!")

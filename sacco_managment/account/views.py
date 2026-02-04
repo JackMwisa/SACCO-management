@@ -657,19 +657,37 @@ def approve_withdrawal(request, tx_id):
 @admin_required
 def reject_withdrawal(request, tx_id):
     tx = get_object_or_404(Transaction, id=tx_id)
-    account = tx.user.account
-    
-    # Return locked funds
-    account.locked_funds -= tx.amount
-    account.save()
-    
-    # Mark as rejected
-    tx.status = 'rejected'
-    tx.admin_processed_by = request.user
-    tx.admin_processed_at = timezone.now()
-    tx.save()
-    
-    messages.warning(request, f"Withdrawal of UGX {tx.amount} rejected")
+
+    from django.db import transaction as db_transaction
+
+    try:
+        with db_transaction.atomic():
+            # Lock account for update to prevent race conditions
+            account = Account.objects.select_for_update().get(user=tx.user)
+
+            # Return locked funds
+            account.locked_funds -= tx.amount
+            account.save()
+
+            # Mark as rejected
+            tx.status = 'rejected'
+            tx.admin_processed_by = request.user
+            tx.admin_processed_at = timezone.now()
+            tx.save()
+
+            # Notify user
+            Notification.objects.create(
+                user=tx.user,
+                notification_type="Withdrawal Rejected",
+                amount=tx.amount,
+                message=f"Your withdrawal request of UGX {tx.amount:,} has been rejected"
+            )
+
+        messages.warning(request, f"Withdrawal of UGX {tx.amount:,} rejected")
+
+    except Exception as e:
+        messages.error(request, f"Error rejecting withdrawal: {str(e)}")
+
     return redirect('account:pending_withdrawals')
 
 @admin_required

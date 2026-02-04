@@ -98,6 +98,14 @@ class LoanApplication(models.Model):
     total_interest = models.DecimalField(
         max_digits=12, decimal_places=2, default=0.00)
 
+    class Meta:
+        ordering = ['-date_applied']
+        indexes = [
+            models.Index(fields=['user', 'status']),
+            models.Index(fields=['status']),
+            models.Index(fields=['date_applied']),
+        ]
+
     def __str__(self):
         return f"{self.user.username} - {self.loan_type} - {self.amount}"
 
@@ -182,11 +190,22 @@ class Transaction(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now_add=False, null=True, blank=True)
 
+    class Meta:
+        ordering = ['-date']
+        indexes = [
+            models.Index(fields=['user', 'transaction_type']),
+            models.Index(fields=['user', 'status']),
+            models.Index(fields=['sender', 'transaction_type']),
+            models.Index(fields=['receiver', 'transaction_type']),
+            models.Index(fields=['status', 'transaction_type']),
+            models.Index(fields=['date']),
+        ]
+
     def __str__(self):
         try:
             return f"{self.user}"
-        except:
-            return f"Transaction"
+        except Exception:
+            return "Transaction"
 
 
 class CreditCard(models.Model):

@@ -138,7 +138,8 @@ def TransferProcess(request, account_number, transaction_id):
     if request.method == "POST":
         pin_number = request.POST.get("pin-number")
 
-        if pin_number == sender_account.pin_number:
+        # Use secure PIN verification
+        if sender_account.verify_pin(pin_number):
             # Use atomic transaction to prevent partial failures
             try:
                 with db_transaction.atomic():

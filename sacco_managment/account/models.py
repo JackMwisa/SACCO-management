@@ -47,6 +47,7 @@ class Account(models.Model):
     account_number = ShortUUIDField(unique=True, length=10, prefix="217", alphabet="1234567890")
     account_id = ShortUUIDField(unique=True, length=7, prefix="DEX", alphabet="1234567890")
     pin_number = ShortUUIDField(unique=True, length=4, alphabet="1234567890")
+    pin_hash = models.CharField(max_length=128, blank=True, null=True)  # Hashed PIN storage
     red_code = ShortUUIDField(unique=True, length=10, alphabet="abcdefgh1234567890")
     account_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     mobile_money_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
@@ -68,6 +69,27 @@ class Account(models.Model):
     @property
     def available_balance(self):
         return self.account_balance + self.mobile_money_balance - self.locked_funds
+
+    def set_pin(self, raw_pin):
+        """Hash and store a PIN securely."""
+        from django.contrib.auth.hashers import make_password
+        self.pin_hash = make_password(raw_pin)
+        self.save(update_fields=['pin_hash'])
+
+    def verify_pin(self, raw_pin):
+        """
+        Verify a PIN against the stored hash.
+        Falls back to plain-text comparison for backwards compatibility.
+        """
+        from django.contrib.auth.hashers import check_password
+
+        # If pin_hash exists, use secure verification
+        if self.pin_hash:
+            return check_password(raw_pin, self.pin_hash)
+
+        # Backwards compatibility: plain-text comparison (legacy accounts)
+        # TODO: Migrate all accounts to hashed PINs
+        return raw_pin == self.pin_number
 
 class KYC(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
