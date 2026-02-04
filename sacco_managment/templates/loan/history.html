@@ -97,7 +97,7 @@
                                                         <li><a class="dropdown-item" href="{% url 'core:repay-loan' loan.id %}"><i class="fas fa-money-bill-wave me-2"></i> Make Payment</a></li>
                                                         {% endif %}
                                                         <li><hr class="dropdown-divider"></li>
-                                                        <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-file-pdf me-2"></i> Download Statement</a></li>
+                                                        <li><button type="button" class="dropdown-item text-danger" onclick="window.print()"><i class="fas fa-file-pdf me-2" aria-hidden="true"></i> Download Statement</button></li>
                                                     </ul>
                                                 </div>
                                             </td>

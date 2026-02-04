@@ -75,6 +75,57 @@
     }
 }
 
+/* Submenu Styles */
+.sidebar-submenu {
+    display: none;
+    padding-left: 20px;
+}
+
+.sidebar-list.active .sidebar-submenu {
+    display: block;
+}
+
+.sidebar-link {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-decoration: none;
+    color: inherit;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    padding: inherit;
+    font: inherit;
+}
+
+.sidebar-link .toggle-icon {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+    margin-left: 8px;
+}
+
+.sidebar-list.active > .sidebar-link .toggle-icon {
+    transform: rotate(180deg);
+}
+
+/* Desktop Collapsed State - sidebar hidden */
+.sidebar-collapsed .sidebar-wrapper {
+    width: 0;
+}
+
+/* Mobile Behavior */
+@media (max-width: 768px) {
+    .sidebar-wrapper {
+        width: 280px;
+    }
+
+    .sidebar-wrapper.mobile-collapsed {
+        transform: translateX(0);
+    }
+}
+
 /* ==========================================================================
    Loader Styles
    ========================================================================== */
