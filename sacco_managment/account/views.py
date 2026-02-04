@@ -209,52 +209,6 @@ def calendar(request):
     return render(request, 'calendar/calendar-basic.html', context)
 
 
-@admin_required
-def admin_dashboard(request):
-    # Calculate time periods
-    today = timezone.now().date()
-    month_ago = today - timedelta(days=30)
-    
-    # Staff statistics
-    total_staff = StaffPermission.objects.count()
-    active_staff = StaffPermission.objects.filter(
-        user__is_active=True
-    ).count()
-    
-    # Financial statistics
-    total_deposits = Account.objects.aggregate(
-        total=Sum('account_balance') + Sum('mobile_money_balance')
-    )['total'] or 0
-    
-    # Member growth
-    member_growth = User.objects.filter(
-        role='MEMBER',
-        date_joined__gte=month_ago
-    ).count()
-    
-    # System activities
-    admin_actions = AuditLog.objects.filter(
-        action__in=['USER_CREATE', 'USER_EDIT', 'KYC_APPROVE'],
-        timestamp__gte=month_ago
-    ).order_by('-timestamp')[:10]
-
-    context = {
-        'title': 'Admin Dashboard',
-        'breadcrumb': {
-            'parent': 'Dashboard',
-            'child': 'Admin Portal'
-        },
-        'stats': {
-            'total_staff': total_staff,
-            'active_staff': active_staff,
-            'total_deposits': total_deposits,
-            'member_growth': member_growth,
-        },
-        'admin_actions': admin_actions,
-        'current_date': today.strftime("%B %d, %Y"),
-    }
-    return render(request, 'account/admin/dashboard.html', context)
-
 # STAFF
 @staff_required
 def staff_dashboard(request):
@@ -345,89 +299,6 @@ def kyc_review(request):
     
     
 
-# staff functions
-@admin_required
-def add_staff(request):
-    if request.method == 'POST':
-        form = StaffCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            
-            # Create StaffPermission entry
-            StaffPermission.objects.create(
-                user=user,
-                role=form.cleaned_data['role'],
-                can_view_balances=form.cleaned_data['can_view_balances'],
-                can_reset_passwords=form.cleaned_data['can_reset_passwords'],
-                can_approve_loans=form.cleaned_data['can_approve_loans'],
-                can_edit_kyc=form.cleaned_data['can_edit_kyc']
-            )
-            
-            return redirect('account:manage_staff')
-    else:
-        form = StaffCreationForm()
-    
-    return render(request, 'account/admin/add_staff.html', {'form': form})
-
-@admin_required
-def edit_staff(request, staff_id):
-    staff_permission = get_object_or_404(StaffPermission, id=staff_id)
-    
-    if request.method == 'POST':
-        form = StaffEditForm(request.POST, instance=staff_permission.user)
-        if form.is_valid():
-            form.save()
-            
-            # Update StaffPermission
-            staff_permission.role = form.cleaned_data['role']
-            staff_permission.can_view_balances = form.cleaned_data['can_view_balances']
-            staff_permission.can_reset_passwords = form.cleaned_data['can_reset_passwords']
-            staff_permission.can_approve_loans = form.cleaned_data['can_approve_loans']
-            staff_permission.can_edit_kyc = form.cleaned_data['can_edit_kyc']
-            staff_permission.save()
-            
-            return redirect('account:manage_staff')
-    else:
-        # Initialize form with existing data
-        initial_data = {
-            'role': staff_permission.role,
-            'can_view_balances': staff_permission.can_view_balances,
-            'can_reset_passwords': staff_permission.can_reset_passwords,
-            'can_approve_loans': staff_permission.can_approve_loans,
-            'can_edit_kyc': staff_permission.can_edit_kyc,
-        }
-        form = StaffEditForm(instance=staff_permission.user, initial=initial_data)
-    
-    return render(request, 'account/admin/edit_staff.html', {
-        'form': form,
-        'staff': staff_permission
-    })
-
-@admin_required
-def activate_staff(request, staff_id):
-    staff_permission = get_object_or_404(StaffPermission, id=staff_id)
-    staff_permission.user.is_active = True
-    staff_permission.user.save()
-    return redirect('account:manage_staff')
-
-@admin_required
-def deactivate_staff(request, staff_id):
-    staff_permission = get_object_or_404(StaffPermission, id=staff_id)
-    staff_permission.user.is_active = False
-    staff_permission.user.save()
-    return redirect('account:manage_staff')
-
-
-
-#manage staff
-@admin_required
-def manage_staff(request):
-    staff_members = StaffPermission.objects.select_related('user').all()
-    return render(request, 'account/admin/manage_staff.html', {
-        'staff_members': staff_members
-    })
-
-
 # staff login
 class StaffLoginView(FormView):
     template_name = 'registration/staff_login.html'
@@ -484,25 +355,59 @@ def staff_login(request):
 
 @admin_required
 def admin_dashboard(request):
+    # Calculate time periods
+    today = timezone.now().date()
+    month_ago = today - timedelta(days=30)
+
+    # Staff statistics
     total_staff = StaffPermission.objects.count()
-    
-    # Placeholder values - integrate with actual models
-    active_loans = 0
+    active_staff = StaffPermission.objects.filter(user__is_active=True).count()
+
+    # Financial statistics
     total_deposits = Account.objects.aggregate(
         total=Sum('account_balance') + Sum('mobile_money_balance')
     )['total'] or 0
-    
+
+    # Member growth
+    member_growth = User.objects.filter(
+        role='MEMBER',
+        date_joined__gte=month_ago
+    ).count()
+
+    # Active loans count
+    from core.models import LoanApplication
+    active_loans = LoanApplication.objects.filter(
+        status__in=['approved', 'disbursed']
+    ).count()
+
+    # System activities
+    admin_actions = AuditLog.objects.filter(
+        timestamp__gte=month_ago
+    ).order_by('-timestamp')[:10]
+
     # Staff activity (last active within 24 hours)
     staff_activity = StaffPermission.objects.filter(
         user__last_login__gte=timezone.now() - timedelta(days=1)
     ).order_by('-user__last_login')
-    
-    return render(request, 'account/admin/dashboard.html', {
-        'total_staff': total_staff,
-        'active_loans': active_loans,
-        'total_deposits': total_deposits,
-        'staff_activity': staff_activity
-    })
+
+    context = {
+        'title': 'Admin Dashboard',
+        'breadcrumb': {
+            'parent': 'Dashboard',
+            'child': 'Admin Portal'
+        },
+        'stats': {
+            'total_staff': total_staff,
+            'active_staff': active_staff,
+            'total_deposits': total_deposits,
+            'member_growth': member_growth,
+            'active_loans': active_loans,
+        },
+        'admin_actions': admin_actions,
+        'staff_activity': staff_activity,
+        'current_date': today.strftime("%B %d, %Y"),
+    }
+    return render(request, 'account/admin/dashboard.html', context)
 
 @admin_required
 def manage_staff(request):
