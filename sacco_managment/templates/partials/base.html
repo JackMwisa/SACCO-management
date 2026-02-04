@@ -1,20 +1,31 @@
 {% load static %}
 {% load sass_tags %}
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>SACCO Management - Gems</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <!-- Font Awesome CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Gems SACCO - Secure Savings and Credit Cooperative Organization. Save, borrow, and grow with us.">
+    <meta name="keywords" content="SACCO, savings, loans, cooperative, Uganda, financial services">
+    <meta name="author" content="Gems SACCO">
+
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <title>{% block title %}Gems SACCO - Savings & Credit Cooperative{% endblock %}</title>
+
+    <!-- Favicon -->
     <link rel="shortcut icon" href="{% static 'assets/images/favicon-32x32.png' %}" type="image/x-icon">
+    <link rel="apple-touch-icon" href="{% static 'assets/images/apple-touch-icon.png' %}">
+
+    <!-- CSS Files -->
     <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/fontawesome.min.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo16qeRV/Xhp0jP9ZZJLty7hS6RZRQ4dRVLGO1HQ==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="{% static 'assets/css/jquery-ui.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/plugin/nice-select.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/plugin/magnific-popup.css' %}">
@@ -22,153 +33,134 @@
     <link rel="stylesheet" href="{% static 'assets/css/arafat-font.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/plugin/animate.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
 
-
-
-    <!-- Custom CSS -->
-
-    <!-- Web App Manifest -->
+    <!-- PWA -->
     <link rel="manifest" href="{% static 'manifest.json' %}">
-
-
-
-    <!-- Theme Color -->
     <meta name="theme-color" content="#4a90e2">
-    <link rel="apple-touch-icon" href="{% static 'assets/images/apple-touch-icon.png' %}">
 
-    <script src="https://unpkg.com/pwacompat" async></script>
+    {% block extra_css %}{% endblock %}
 
     <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('{% static "serviceworker.js" %}')
-                .then((registration) => {
-                    console.log('Service Worker registered with scope:', registration.scope);
-                })
-                .catch((error) => {
-                    console.error('Service Worker registration failed:', error);
-                });
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('{% static "serviceworker.js" %}')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registered');
+                    })
+                    .catch(function(error) {
+                        console.log('ServiceWorker registration failed');
+                    });
+            });
         }
     </script>
-
-
-    <style>
-        .whatsapp-float {
-            position: fixed;
-            bottom: 80px;
-            right: 30px;
-            background-color: #25d366;
-            color: white;
-            border-radius: 50%;
-            padding: 15px;
-            z-index: 1000;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            transition: background 0.3s;
-        }
-
-        .whatsapp-float:hover {
-            background-color: #1ebea5;
-            color: white;
-            text-decoration: none;
-        }
-
-        .whatsapp-icon {
-            font-size: 24px;
-        }
-    </style>
-
 </head>
 
-
-
 <body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
 
-    <a href="javascript:void(0)" class="scrollToTop"><i class="fas fa-angle-double-up"></i></a>
+    <!-- Scroll to Top Button -->
+    <button type="button" class="scrollToTop" aria-label="Scroll to top" title="Back to top">
+        <i class="fas fa-angle-double-up" aria-hidden="true"></i>
+    </button>
 
+    <!-- Header Section -->
     <header class="header-section">
         <div class="overlay">
             <div class="container">
                 <div class="row d-flex header-area">
-                    <nav class="navbar navbar-expand-lg navbar-light">
+                    <nav class="navbar navbar-expand-lg navbar-light" aria-label="Main navigation">
                         <a class="navbar-brand" href="{% url 'core:index' %}">
-                            <!-- <img src="{% static 'assets1/images/gemlogo3.png' %}" class="logo" alt="logo"> -->
-
-                            <img src="{% static 'assets1/images/logogem1.png' %}" class="logo" alt="logo" style="height: 60px; width: auto;">
-
-
-                            <!-- <h2>SACCO</h2> -->
+                            <img src="{% static 'assets1/images/logogem1.png' %}" class="logo navbar-logo" alt="Gems SACCO Logo">
                         </a>
                         <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#navbar-content">
-                            <i class="fas fa-bars"></i>
+                            data-bs-target="#navbar-content" aria-controls="navbar-content"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                            <i class="fas fa-bars" aria-hidden="true"></i>
                         </button>
                         <div class="collapse navbar-collapse justify-content-end" id="navbar-content">
                             <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
-                                <li class="nav-item dropdown main-navbar">
-                                    <a class="nav-link" href="#howitwork" data-bs-auto-close="outside">How It Works</a>
-
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'core:index' %}#howitwork">How It Works</a>
                                 </li>
-                                <li class="nav-item dropdown main-navbar">
-                                    <a class="nav-link" href="javascript:void(0)" data-bs-toggle="dropdown"
-                                        data-bs-auto-close="outside">Our Team</a>
-
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'core:about' %}">About Us</a>
                                 </li>
-                                <li class="nav-item dropdown main-navbar">
-                                    <a class="nav-link" href="#testimonials"
-                                        data-bs-auto-close="outside">Testimonials</a>
-
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'core:index' %}#testimonials">Testimonials</a>
                                 </li>
-                                <li class="nav-item   main-navbar">
-                                    <a class="nav-link" href="#faqs" data-bs-auto-close="outside">FAQs</a>
-
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'core:index' %}#faqs">FAQs</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'core:contact' %}">Contact</a>
                                 </li>
                             </ul>
                             <div class="right-area header-action d-flex align-items-center max-un">
                                 {% if request.user.is_authenticated %}
-                                <a href="/admin" class="login cmdn-btn">Admin</a>
-                                <a href="{% url 'user_auths:logout' %}" class="login cmn-btn">Sign Out</a>
+                                    <a href="{% url 'account:account' %}" class="login">Dashboard</a>
+                                    {% if request.user.is_staff %}
+                                    <a href="{% url 'admin:index' %}" class="login">Admin</a>
+                                    {% endif %}
+                                    <a href="{% url 'user_auths:logout' %}" class="cmn-btn">
+                                        Sign Out <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                                    </a>
                                 {% else %}
-                                <a href="{% url 'user_auths:login' %}" class="login">Login</a>
-                                <a href="{% url 'user_auths:register' %}" class="cmn-btn">Sign Up
-                                    <i class="fas fa-caret-right"></i>
-                                </a>
+                                    <a href="{% url 'user_auths:login' %}" class="login">Login</a>
+                                    <a href="{% url 'user_auths:register' %}" class="cmn-btn">
+                                        Sign Up <i class="fas fa-caret-right" aria-hidden="true"></i>
+                                    </a>
                                 {% endif %}
-
                             </div>
                         </div>
                     </nav>
                 </div>
-                <!-- alert start -->
+
+                <!-- Flash Messages -->
                 {% if messages %}
-                {% for message in messages %}
-                <div class="alert alert-{{message.tags}}">
-                    <strong>{{ message }}</strong>
+                <div class="messages-container mt-3" role="alert" aria-live="polite">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
                 {% endif %}
-                <script>
-                    setTimeout(() => {
-                        $(".alert").alert("close");
-                    }, 4000)
-                </script>
-                <!-- alert end -->
             </div>
         </div>
     </header>
-    <!-- header-section end -->
 
-    {% block content %}
+    <!-- Main Content -->
+    <main id="main-content">
+        {% block content %}{% endblock %}
+    </main>
 
-    {% endblock content %}
+    <!-- Footer -->
+    {% block footer %}
+    <footer class="footer-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center py-4">
+                    <p class="mb-0">&copy; {% now "Y" %} Gems SACCO. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
 
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/256705756582" class="whatsapp-float" target="_blank" rel="noopener noreferrer"
+       aria-label="Chat with us on WhatsApp" title="Chat with Gems SACCO on WhatsApp">
+        <i class="fab fa-whatsapp" aria-hidden="true"></i>
+    </a>
 
-
-    <!--==================================================================-->
+    <!-- JavaScript -->
     <script src="{% static 'assets/js/jquery.min.js' %}"></script>
     <script src="{% static 'assets/js/jquery-ui.js' %}"></script>
     <script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'assets/js/fontawesome.js' %}"></script>
     <script src="{% static 'assets/js/plugin/slick.js' %}"></script>
     <script src="{% static 'assets/js/plugin/jquery.nice-select.min.js' %}"></script>
     <script src="{% static 'assets/js/plugin/counter.js' %}"></script>
@@ -177,21 +169,21 @@
     <script src="{% static 'assets/js/plugin/wow.min.js' %}"></script>
     <script src="{% static 'assets/js/plugin/plugin.js' %}"></script>
     <script src="{% static 'assets/js/main.js' %}"></script>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/js/all.min.js"></script> -->
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-r3aTJp5DoE9VGZAEFZVYcU6H5nF3Khj58i6X8JgoegStFELT1tTh+CD6iwC9BQ6R7cTQPSyK0ro1r5n7Ibc5hA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="{% static 'js/form-utils.js' %}"></script>
 
+    <!-- Auto-dismiss alerts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
+                alerts.forEach(function(alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+    </script>
 
-
-
-
-
-
-
-    <!-- WhatsApp Floating Button -->
-    <a href="https://wa.me/256705756582" class="whatsapp-float" target="_blank" title="Chat with The SACCO Team On WhatsApp">
-        <i class="fab fa-whatsapp whatsapp-icon"></i>
-    </a>
-
+    {% block extra_js %}{% endblock %}
 </body>
-
 </html>

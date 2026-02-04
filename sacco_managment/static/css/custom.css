@@ -1,0 +1,244 @@
+/**
+ * Custom CSS for Gems SACCO Management System
+ * Contains styles extracted from inline templates
+ */
+
+/* ==========================================================================
+   Navigation Styles
+   ========================================================================== */
+
+.navbar-logo {
+    height: 60px;
+    width: auto;
+}
+
+/* ==========================================================================
+   WhatsApp Floating Button
+   ========================================================================== */
+
+.whatsapp-float {
+    position: fixed;
+    bottom: 80px;
+    right: 30px;
+    background-color: #25d366;
+    color: white;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.whatsapp-float:hover {
+    background-color: #1ebea5;
+    color: white;
+    transform: scale(1.1);
+}
+
+.whatsapp-float i {
+    font-size: 28px;
+}
+
+/* ==========================================================================
+   Profile Images
+   ========================================================================== */
+
+.profile-img-round {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-img-sm {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-img-lg {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* ==========================================================================
+   Document Images (KYC, ID Cards)
+   ========================================================================== */
+
+.document-img {
+    width: 100%;
+    height: 200px;
+    border-radius: 10px;
+    object-fit: cover;
+    padding-top: 10px;
+}
+
+/* ==========================================================================
+   Form Enhancements
+   ========================================================================== */
+
+.form-loading .btn-text {
+    display: none;
+}
+
+.form-loading .btn-loading {
+    display: inline-block !important;
+}
+
+/* Password strength indicator */
+.password-strength {
+    font-size: 0.85rem;
+}
+
+/* PIN Input styling */
+.pin-input {
+    letter-spacing: 10px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* ==========================================================================
+   Alert Enhancements
+   ========================================================================== */
+
+.messages-container {
+    position: relative;
+    z-index: 100;
+}
+
+/* ==========================================================================
+   Scroll to Top Button
+   ========================================================================== */
+
+.scrollToTop {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: var(--primary-color, #4a90e2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 999;
+}
+
+.scrollToTop.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.scrollToTop:hover {
+    background: var(--primary-dark, #357abd);
+    transform: translateY(-3px);
+}
+
+/* ==========================================================================
+   Dashboard Sidebar Enhancements
+   ========================================================================== */
+
+.sidebar-link.active {
+    background-color: rgba(74, 144, 226, 0.1);
+    border-left: 3px solid var(--primary-color, #4a90e2);
+}
+
+/* ==========================================================================
+   Card Masking (Security)
+   ========================================================================== */
+
+.card-number-masked {
+    letter-spacing: 3px;
+    font-family: monospace;
+}
+
+/* ==========================================================================
+   Transaction Status Colors
+   ========================================================================== */
+
+.status-completed {
+    color: #28a745;
+}
+
+.status-pending {
+    color: #ffc107;
+}
+
+.status-failed {
+    color: #dc3545;
+}
+
+.status-processing {
+    color: #17a2b8;
+}
+
+/* ==========================================================================
+   Accessibility Improvements
+   ========================================================================== */
+
+/* Skip link for keyboard navigation */
+.visually-hidden-focusable:not(:focus):not(:focus-within) {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Focus states for better visibility */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid var(--primary-color, #4a90e2);
+    outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .navbar-logo {
+        height: 45px;
+    }
+
+    .whatsapp-float {
+        bottom: 70px;
+        right: 15px;
+        width: 50px;
+        height: 50px;
+    }
+
+    .whatsapp-float i {
+        font-size: 24px;
+    }
+
+    .profile-img-round {
+        width: 80px;
+        height: 80px;
+    }
+}
+
+@media (max-width: 576px) {
+    .document-img {
+        height: 150px;
+    }
+}
