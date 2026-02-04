@@ -76,12 +76,12 @@
                                     
                                     <!-- Quick payment buttons -->
                                     <div class="d-flex justify-content-between mt-3">
-                                        <button class="btn btn-sm btn-outline-primary" 
-                                                onclick="document.querySelector('input[name=amount]').value='{{ loan.monthly_repayment|floatformat:2 }}'">
+                                        <button type="button" class="btn btn-sm btn-outline-primary quick-pay-btn"
+                                                data-amount="{{ loan.monthly_repayment|floatformat:2 }}">
                                             Pay Monthly (UGX {{ loan.monthly_repayment|floatformat:2|intcomma }})
                                         </button>
-                                        <button class="btn btn-sm btn-outline-success" 
-                                                onclick="document.querySelector('input[name=amount]').value='{{ remaining_balance|floatformat:2 }}'">
+                                        <button type="button" class="btn btn-sm btn-outline-success quick-pay-btn"
+                                                data-amount="{{ remaining_balance|floatformat:2 }}">
                                             Pay Full Balance
                                         </button>
                                     </div>

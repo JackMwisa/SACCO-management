@@ -16,8 +16,8 @@
                                         <p class="mdr">#{{ loan.id }} - {{ loan.get_loan_type_display }}</p>
                                     </div>
                                     <div>
-                                        <button onclick="window.print()" class="cmn-btn small-btn me-2">
-                                            <i class="fas fa-print me-2"></i>Print
+                                        <button type="button" class="cmn-btn small-btn me-2" id="printBtn" aria-label="Print loan details">
+                                            <i class="fas fa-print me-2" aria-hidden="true"></i>Print
                                         </button>
                                     </div>
                                 </div>
@@ -83,12 +83,12 @@
                                     
                                     <!-- Quick payment buttons -->
                                     <div class="d-flex justify-content-between mt-3">
-                                        <button class="btn btn-sm btn-outline-primary" 
-                                                onclick="document.querySelector('input[name=amount]').value='{{ loan.monthly_repayment|floatformat:2 }}'">
+                                        <button type="button" class="btn btn-sm btn-outline-primary quick-pay-btn"
+                                                data-amount="{{ loan.monthly_repayment|floatformat:2 }}">
                                             Pay Monthly (UGX {{ loan.monthly_repayment|floatformat:2|intcomma }})
                                         </button>
-                                        <button class="btn btn-sm btn-outline-success" 
-                                                onclick="document.querySelector('input[name=amount]').value='{{ balance|floatformat:2 }}'">
+                                        <button type="button" class="btn btn-sm btn-outline-success quick-pay-btn"
+                                                data-amount="{{ balance|floatformat:2 }}">
                                             Pay Full Balance
                                         </button>
                                     </div>
@@ -320,17 +320,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Quick payment buttons functionality
-    const quickPayButtons = document.querySelectorAll('.btn-outline-primary, .btn-outline-success');
-    quickPayButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (this.classList.contains('btn-outline-primary')) {
-                amountInput.value = '{{ loan.monthly_repayment|floatformat:2 }}';
-            } else {
-                amountInput.value = '{{ balance|floatformat:2 }}';
+    document.querySelectorAll('.quick-pay-btn').forEach(function(button) {
+        button.addEventListener('click', function() {
+            if (amountInput) {
+                amountInput.value = this.getAttribute('data-amount');
+                amountInput.focus();
             }
         });
     });
+
+    // Print button
+    var printBtn = document.getElementById('printBtn');
+    if (printBtn) {
+        printBtn.addEventListener('click', function() {
+            window.print();
+        });
+    }
 });
 </script>
 {% endblock %}

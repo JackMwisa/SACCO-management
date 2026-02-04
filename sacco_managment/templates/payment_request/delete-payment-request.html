@@ -1,1 +1,30 @@
-delete
+{% extends "partials/dashboard-base.html" %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+<section class="dashboard-section body-collapse pay step step-2 step-3 receive-3">
+    <div class="overlay pt-120">
+        <div class="container-fruid">
+            <div class="main-content">
+                <div class="head-area d-flex align-items-center justify-content-between">
+                    <h4>Delete Payment Request</h4>
+                </div>
+                <div class="request-submitted pb-120 text-center">
+                    <div class="top-area">
+                        <div class="icon-area">
+                            <i class="fas fa-check-circle fa-4x text-success mb-3" aria-hidden="true"></i>
+                        </div>
+                        <h3>Request Deleted</h3>
+                        <p>The payment request has been successfully deleted.</p>
+                        <div class="mt-4">
+                            <a href="{% url 'account:dashboard' %}" class="btn btn-primary">
+                                <i class="fas fa-home me-1" aria-hidden="true"></i> Return to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
