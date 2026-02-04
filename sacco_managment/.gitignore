@@ -1,11 +1,56 @@
-#.env
+# Environment and secrets
 .env
+.env.local
+.env.production
+*.pem
+*.key
+secrets.json
+credentials.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+*.sqlite3
 
 # Ignore node_modules
 node_modules/
-# Ignore build output
+
+# Build output
 dist/
-# Ignore logs
+build/
+staticfiles/
+
+# Logs
 logs/
-# Ignore coverage reports
+*.log
+
+# Coverage reports
 coverage/
+htmlcov/
+.coverage
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
