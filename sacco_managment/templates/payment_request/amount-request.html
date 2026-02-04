@@ -23,7 +23,7 @@
                                 <div class="left d-flex align-items-center">
                                     <div class="img-area">
                                         <!-- <img src="{{ a.user.kyc.image.url }}" alt="image"> -->
-                                        <img src="{{ account.user.kyc.image.url }}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;"  alt="image">
+                                        <img src="{{ account.user.kyc.image.url }}" class="profile-img-round" alt="Profile photo of {{ account.user.kyc.full_name }}">
     
                                     </div>
                                     <div class="text-area">
@@ -67,7 +67,7 @@
                         </div>
                         <div class="footer-area mt-40">
                             <a href="{% url 'core:request-search-account' %}">Previous Step</a>
-                            <button type="submit" style="padding: 10px 30px; border-radius: 10px; background: rgb(98, 0, 255); color: #fff;" class="active">Next</button>
+                            <button type="submit" class="btn btn-primary">Next <i class="fas fa-arrow-right ms-1" aria-hidden="true"></i></button>
                         </div>
                     </form>
                 </div>

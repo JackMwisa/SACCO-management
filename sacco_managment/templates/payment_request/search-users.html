@@ -27,7 +27,7 @@
                         <div class="single-user">
                             <div class="left d-flex align-items-center">
                                 <div class="img-area">
-                                    <img src="{% if a.user.kyc.image %}{{ a.user.kyc.image.url }}{% else %}{% static 'assets1/images/default-avatar.png' %}{% endif %}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" alt="Profile photo of {{ a.user.kyc.full_name|default:'User' }}">
+                                    <img src="{% if a.user.kyc.image %}{{ a.user.kyc.image.url }}{% else %}{% static 'assets1/images/default-avatar.png' %}{% endif %}" class="profile-img-round" alt="Profile photo of {{ a.user.kyc.full_name|default:'User' }}">
                                 </div>
                                 <div class="text-area">
                                     <p>{{ a.user.kyc.full_name|title }}</p>
