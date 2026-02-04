@@ -1,33 +1,24 @@
-from django.shortcuts import render, redirect
-from account.models import KYC, Account, AuditLog
-from account.forms import KYCForm
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from core.forms import CreditCardForm
-from core.models import CreditCard, Notification, Transaction
-from django.contrib.auth import authenticate, login
-from core.decorators import staff_required, admin_required
-from .models import StaffPermission
-from django.utils import timezone
-from datetime import timedelta
-from user_auths.models import User
-from django.views.generic import FormView
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login
-from django.urls import reverse_lazy
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.views import LoginView
-from django.shortcuts import redirect
-from django.db.models import Count, Sum, Q
-from datetime import datetime, timedelta
 from django.shortcuts import render, redirect, get_object_or_404
-from core.models import Transaction, MobileMoneyTransaction
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.views import LoginView
+from django.views.generic import FormView
+from django.urls import reverse_lazy
 from django.utils import timezone
-from .models import LoginHistory  # Add this import
-from django.core.paginator import Paginator
-# from django.db.models import Count, Q 
+from django.db.models import Count, Sum, Q
 from django.db import models
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+from datetime import timedelta
+
+from account.models import KYC, Account, AuditLog, StaffPermission, LoginHistory
+from account.forms import KYCForm, StaffCreationForm, StaffEditForm
+from core.forms import CreditCardForm
+from core.models import CreditCard, Notification, Transaction, MobileMoneyTransaction
+from core.decorators import staff_required, admin_required
+from user_auths.models import User
 
 
 @login_required
@@ -576,43 +567,6 @@ def staff_action_logs(request):
     })
 
 @admin_required
-def user_login_history(request):
-    login_history = LoginHistory.objects.select_related('user').order_by('-login_time')
-    
-    return render(request, 'account/admin/user_login_history.html', {
-        'login_history': login_history,
-        'section': 'user_monitoring'
-    })
-
-@admin_required
-def daily_logins(request):
-    today = timezone.now().date()
-    week_ago = today - timedelta(days=7)
-    
-    daily_counts = LoginHistory.objects.filter(
-        timestamp__gte=week_ago
-    ).extra({
-        'date': "date(timestamp)"
-    }).values('date').annotate(
-        count=Count('id'),
-        success=Count('id', filter=Q(successful=True)),
-        failed=Count('id', filter=Q(successful=False))
-    ).order_by('date')
-
-    # Calculate login_change with absolute value
-    login_change = -5  # Example negative value - replace with your actual calculation
-    abs_login_change = abs(login_change)  # Calculate absolute value in Python
-
-    context = {
-        'daily_counts': daily_counts,
-        'section': 'user_monitoring',
-        'login_change': login_change,
-        'abs_login_change': abs_login_change,  # Send both original and absolute values
-        'total_logins': sum(item['count'] for item in daily_counts),
-    }
-    return render(request, 'account/admin/daily_logins.html', context)
-
-@admin_required
 def financial_reports(request):
     # Placeholder - integrate with financial models
     return render(request, 'account/admin/financial_reports.html', {
@@ -756,21 +710,40 @@ def user_login_history(request):
 
 @admin_required
 def daily_logins(request):
+    from django.db.models.functions import TruncDate
+
     today = timezone.now().date()
     week_ago = today - timedelta(days=7)
-    
+    two_weeks_ago = today - timedelta(days=14)
+
+    # Use TruncDate instead of deprecated .extra()
     daily_counts = LoginHistory.objects.filter(
         timestamp__gte=week_ago
-    ).extra({
-        'date': "date(timestamp)"
-    }).values('date').annotate(
+    ).annotate(
+        date=TruncDate('timestamp')
+    ).values('date').annotate(
         count=Count('id'),
         success=Count('id', filter=models.Q(successful=True)),
         failed=Count('id', filter=models.Q(successful=False))
     ).order_by('date')
-    
+
+    # Calculate login change compared to previous week
+    current_week_total = sum(item['count'] for item in daily_counts)
+    previous_week_total = LoginHistory.objects.filter(
+        timestamp__gte=two_weeks_ago,
+        timestamp__lt=week_ago
+    ).count()
+
+    if previous_week_total > 0:
+        login_change = int(((current_week_total - previous_week_total) / previous_week_total) * 100)
+    else:
+        login_change = 100 if current_week_total > 0 else 0
+
     context = {
         'daily_counts': daily_counts,
-        'section': 'user_monitoring'
+        'section': 'user_monitoring',
+        'login_change': login_change,
+        'abs_login_change': abs(login_change),
+        'total_logins': current_week_total,
     }
     return render(request, 'account/admin/daily_logins.html', context)

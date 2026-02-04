@@ -33,28 +33,38 @@ def RegisterView(request):
 
 
 def LoginView(request):
+    # Check if already logged in first
+    if request.user.is_authenticated:
+        messages.warning(request, "You are already logged in")
+        return redirect("account:account")
+
     if request.method == "POST":
-        email = request.POST.get("email")
-        password = request.POST.get("password")
+        email = request.POST.get("email", "").strip()
+        password = request.POST.get("password", "")
+
+        if not email or not password:
+            messages.warning(request, "Please provide both email and password")
+            return redirect("user_auths:login")
 
         try:
+            # Check if user exists
             user = User.objects.get(email=email)
+            # Authenticate with credentials
             user = authenticate(request, email=email, password=password)
 
-            if user is not None: # if there is a user
+            if user is not None:
                 login(request, user)
-                messages.success(request, "You are logged.")
+                messages.success(request, "You are logged in.")
                 return redirect("account:account")
             else:
-                messages.warning(request, "Username or password does not exist")
+                # Generic message to prevent user enumeration
+                messages.warning(request, "Invalid email or password")
                 return redirect("user_auths:login")
-        except:
-            messages.warning(request, "User does not exist")
+        except User.DoesNotExist:
+            # Use same generic message to prevent user enumeration
+            messages.warning(request, "Invalid email or password")
+            return redirect("user_auths:login")
 
-    if request.user.is_authenticated:
-        messages.warning(request, "You are already logged In")
-        return redirect("account:account")
-        
     return render(request, "user_auths/login.html")
 
 def LogoutView(request):

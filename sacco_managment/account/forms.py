@@ -1,9 +1,10 @@
 from django import forms
-from account.models import KYC
+from django.contrib.auth import get_user_model
 from django.forms import ImageField, FileInput, DateInput, TextInput
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
-from django.contrib.auth.models import User
-from .models import StaffPermission
+from account.models import KYC, StaffPermission
+
+User = get_user_model()  # Use the custom user model
 
 
 class DateInput(forms.DateInput):
