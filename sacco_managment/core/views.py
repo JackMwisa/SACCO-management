@@ -78,6 +78,13 @@ def about(request):
     return render(request, "core/about.html")
 
 @login_required
+def notifications(request):
+    notifications = Notification.objects.filter(user=request.user).order_by('-date')
+    # Mark all as read
+    notifications.filter(is_read=False).update(is_read=True)
+    return render(request, "core/notifications.html", {"notifications": notifications})
+
+@login_required
 def apply_for_loan(request):
     account = request.user.account
 

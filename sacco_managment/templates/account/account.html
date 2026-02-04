@@ -16,13 +16,13 @@
                                 <div class="name-area">
                                     <h6>{{kyc.full_name|title}}</h6>
                                     {% if account.account_status == "in-active" %}
-                                        <p class="active-stadtus text-danger">{{account.account_status|title}}</p>
+                                        <p class="active-status text-danger">{{account.account_status|title}}</p>
                                     {% endif %}
                                     {% if account.account_status == "active" %}
                                         <p class="active-status">{{account.account_status|title}}</p>
                                     {% endif %}
                                     {% if account.account_status == "pending" %}
-                                        <p class="actidve-status text-warning">{{account.account_status|title}}</p>
+                                        <p class="active-status text-warning">{{account.account_status|title}}</p>
                                     {% endif %}
                                 </div>
                             </div>

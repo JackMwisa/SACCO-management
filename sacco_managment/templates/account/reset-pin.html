@@ -1,0 +1,43 @@
+{% extends "partials/dashboard-base.html" %}
+{% load static %}
+{% block content %}
+<section class="dashboard-section body-collapse">
+    <div class="overlay pt-120">
+        <div class="container-fruid">
+            <div class="main-content">
+                <div class="head-area d-flex align-items-center justify-content-between">
+                    <h4>Reset PIN</h4>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-lg-6">
+                        <div class="card dashboard-card p-4">
+                            <form method="POST" action="{% url 'account:reset-pin' %}">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="current_pin" class="form-label">Current PIN</label>
+                                    <input type="password" class="form-control" id="current_pin" name="current_pin"
+                                           minlength="4" maxlength="4" inputmode="numeric" pattern="[0-9]{4}"
+                                           placeholder="****" required autocomplete="current-password">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="new_pin" class="form-label">New PIN</label>
+                                    <input type="password" class="form-control" id="new_pin" name="new_pin"
+                                           minlength="4" maxlength="4" inputmode="numeric" pattern="[0-9]{4}"
+                                           placeholder="****" required autocomplete="new-password">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="confirm_pin" class="form-label">Confirm New PIN</label>
+                                    <input type="password" class="form-control" id="confirm_pin" name="confirm_pin"
+                                           minlength="4" maxlength="4" inputmode="numeric" pattern="[0-9]{4}"
+                                           placeholder="****" required autocomplete="new-password">
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Reset PIN</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

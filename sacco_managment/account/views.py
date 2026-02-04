@@ -73,6 +73,28 @@ def kyc_registration(request):
 
 
 @login_required
+def reset_pin(request):
+    account = Account.objects.get(user=request.user)
+    if request.method == "POST":
+        current_pin = request.POST.get("current_pin", "")
+        new_pin = request.POST.get("new_pin", "")
+        confirm_pin = request.POST.get("confirm_pin", "")
+
+        if not account.verify_pin(current_pin):
+            messages.error(request, "Current PIN is incorrect.")
+        elif len(new_pin) != 4 or not new_pin.isdigit():
+            messages.error(request, "New PIN must be exactly 4 digits.")
+        elif new_pin != confirm_pin:
+            messages.error(request, "New PINs do not match.")
+        else:
+            account.set_pin(new_pin)
+            messages.success(request, "PIN has been reset successfully.")
+            return redirect("account:dashboard")
+
+    return render(request, "account/reset-pin.html")
+
+
+@login_required
 def dashboard(request):
     if request.user.is_authenticated:
         try:

@@ -14,6 +14,7 @@ urlpatterns = [
     path("dashboard/", views.dashboard, name="dashboard"),
     path("", views.account, name="account"),
     path("kyc-reg/", views.kyc_registration, name="kyc-reg"),
+    path("reset-pin/", views.reset_pin, name="reset-pin"),
     path('credit-cards/', all_credit_cards, name='all-credit-cards'),
     path("calendar/", calendar, name="calendar"),
 

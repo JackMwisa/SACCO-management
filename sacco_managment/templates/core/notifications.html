@@ -1,0 +1,71 @@
+{% extends "partials/dashboard-base.html" %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+<section class="dashboard-section body-collapse">
+    <div class="overlay pt-120">
+        <div class="container-fruid">
+            <div class="main-content">
+                <div class="head-area d-flex align-items-center justify-content-between">
+                    <h4>Notifications</h4>
+                </div>
+                <div class="table-area">
+                    {% if notifications %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Message</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for n in notifications %}
+                                <tr>
+                                    <td>
+                                        {% if n.notification_type == "Transfer" %}
+                                            <span class="badge bg-primary">Transfer</span>
+                                        {% elif n.notification_type == "Recieved Payment Request" %}
+                                            <span class="badge bg-warning text-dark">Payment Request</span>
+                                        {% elif n.notification_type == "Request Settled" %}
+                                            <span class="badge bg-success">Settled</span>
+                                        {% elif n.notification_type == "Added Credit Card" %}
+                                            <span class="badge bg-info">Card Added</span>
+                                        {% elif n.notification_type == "Withdrew Credit Card Funds" %}
+                                            <span class="badge bg-danger">Withdrawal</span>
+                                        {% elif n.notification_type == "Funded Credit Card" %}
+                                            <span class="badge bg-success">Card Funded</span>
+                                        {% elif n.notification_type == "Deleted Credit Card" %}
+                                            <span class="badge bg-secondary">Card Deleted</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ n.notification_type }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ n.message|default:"—" }}</td>
+                                    <td>
+                                        {% if n.amount > 0 %}
+                                            {{ n.amount|intcomma }} UGX
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ n.date|naturaltime }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-bell-slash" aria-hidden="true"></i>
+                        <p>No notifications yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
