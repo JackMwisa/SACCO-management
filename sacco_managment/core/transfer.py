@@ -1,11 +1,61 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from account.models import Account
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.contrib import messages
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from core.models import Transaction, Notification
 from django.db import transaction as db_transaction
+from django.conf import settings
+from django.utils import timezone
+
+
+def safe_decimal(value, default=Decimal('0.00')):
+    """Safely convert value to Decimal with 2 decimal places."""
+    try:
+        if value is None or value == '':
+            return default
+        amount = Decimal(str(value)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        if amount < 0:
+            return default
+        return amount
+    except (InvalidOperation, ValueError, TypeError):
+        return default
+
+
+def check_transfer_limits(user, amount):
+    """
+    Check if transfer amount is within allowed limits.
+    Returns (is_valid, error_message)
+    """
+    limits = getattr(settings, 'TRANSFER_LIMITS', {
+        'min': 1000,
+        'single': 10000000,
+        'daily': 50000000,
+    })
+
+    # Check minimum
+    if amount < limits['min']:
+        return False, f"Minimum transfer amount is UGX {limits['min']:,}"
+
+    # Check single transaction limit
+    if amount > limits['single']:
+        return False, f"Maximum single transfer is UGX {limits['single']:,}"
+
+    # Check daily limit
+    today = timezone.now().date()
+    today_transfers = Transaction.objects.filter(
+        sender=user,
+        transaction_type='transfer',
+        status='completed',
+        date__date=today
+    ).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+
+    if today_transfers + amount > limits['daily']:
+        remaining = limits['daily'] - today_transfers
+        return False, f"Daily transfer limit exceeded. Remaining limit: UGX {remaining:,.2f}"
+
+    return True, None
 
 
 @login_required
@@ -69,14 +119,17 @@ def AmountTransferProcess(request, account_number):
             messages.error(request, "Please enter an amount.")
             return redirect("core:amount-transfer", account.account_number)
 
-        try:
-            amount = Decimal(amount_str)
-        except InvalidOperation:
-            messages.error(request, "Invalid amount. Please enter a valid number.")
-            return redirect("core:amount-transfer", account.account_number)
+        # Use safe decimal conversion
+        amount = safe_decimal(amount_str)
 
         if amount <= 0:
-            messages.error(request, "Amount must be greater than zero.")
+            messages.error(request, "Invalid amount. Please enter a valid positive number.")
+            return redirect("core:amount-transfer", account.account_number)
+
+        # Check transfer limits
+        is_valid, error_msg = check_transfer_limits(request.user, amount)
+        if not is_valid:
+            messages.error(request, error_msg)
             return redirect("core:amount-transfer", account.account_number)
 
         if sender_account.account_balance >= amount:

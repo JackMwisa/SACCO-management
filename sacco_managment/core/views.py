@@ -788,12 +788,27 @@ def mobile_money_webhook(request):
 
 @login_required
 def verify_mobile_number(request):
+    """Verify mobile money number - requires authentication."""
     if request.method == 'POST':
-        phone_number = request.POST.get('phone_number')
-        provider = request.POST.get('provider')
-        
+        phone_number = request.POST.get('phone_number', '').strip()
+        provider = request.POST.get('provider', '').strip()
+
+        # Validate input
+        if not phone_number or not provider:
+            return JsonResponse({
+                'valid': False,
+                'message': 'Phone number and provider are required'
+            }, status=400)
+
+        # Basic phone number validation
+        if not phone_number.replace('+', '').isdigit() or len(phone_number) < 10:
+            return JsonResponse({
+                'valid': False,
+                'message': 'Invalid phone number format'
+            }, status=400)
+
         momo_api = MTNMomoAPI()
-        
+
         if provider == 'MTN':
             user_info = momo_api.verify_user(phone_number)
             if user_info:
@@ -814,10 +829,11 @@ def verify_mobile_number(request):
                 'name': 'Verified User',
                 'provider': provider
             })
-    
-    return JsonResponse({'valid': False, 'message': 'Invalid request'})
-    
-# In views.py
+
+    return JsonResponse({'valid': False, 'message': 'Invalid request'}, status=405)
+
+
+@login_required
 def all_credit_cards(request):
     credit_cards = CreditCard.objects.filter(user=request.user)
     return render(request, 'credit_card/all_credit_cards.html', {'credit_cards': credit_cards})

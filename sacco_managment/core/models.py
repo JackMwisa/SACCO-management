@@ -209,16 +209,30 @@ class Transaction(models.Model):
 
 
 class CreditCard(models.Model):
+    """
+    Credit card model with PCI-DSS compliant storage.
+    NEVER store full card numbers or CVV.
+    """
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     card_id = ShortUUIDField(
         unique=True, length=5, max_length=20, prefix="CARD", alphabet="1234567890")
 
-    name = models.CharField(max_length=100)
-    number = models.IntegerField()
-    month = models.IntegerField()
-    year = models.IntegerField()
-    cvv = models.IntegerField()
+    name = models.CharField(max_length=100)  # Cardholder name
 
+    # Store only last 4 digits for display purposes
+    last_four = models.CharField(max_length=4)
+
+    # Store a hash of the full card number for duplicate detection (optional)
+    card_hash = models.CharField(max_length=64, blank=True, null=True)
+
+    # Expiry stored separately
+    expiry_month = models.PositiveSmallIntegerField()
+    expiry_year = models.PositiveSmallIntegerField()
+
+    # CVV should NEVER be stored - only used at transaction time
+    # Removed: cvv = models.IntegerField()
+
+    # Card balance for prepaid/virtual cards
     amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
 
     card_type = models.CharField(
@@ -227,8 +241,52 @@ class CreditCard(models.Model):
 
     date = models.DateTimeField(auto_now_add=True)
 
+    # Legacy fields - kept for migration compatibility but deprecated
+    number = models.IntegerField(null=True, blank=True)  # DEPRECATED
+    month = models.IntegerField(null=True, blank=True)  # DEPRECATED
+    year = models.IntegerField(null=True, blank=True)  # DEPRECATED
+    cvv = models.IntegerField(null=True, blank=True)  # DEPRECATED - NEVER USE
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'card_status']),
+        ]
+
     def __str__(self):
-        return f"{self.user}"
+        return f"{self.user} - ****{self.last_four}"
+
+    @property
+    def masked_number(self):
+        """Return masked card number for display."""
+        return f"**** **** **** {self.last_four}"
+
+    @property
+    def expiry_display(self):
+        """Return formatted expiry date."""
+        return f"{self.expiry_month:02d}/{self.expiry_year % 100:02d}"
+
+    def set_card_number(self, full_number):
+        """
+        Securely set card number - stores only last 4 digits and a hash.
+        Call this method instead of directly setting the number.
+        """
+        import hashlib
+        # Store only last 4 digits
+        self.last_four = str(full_number)[-4:]
+        # Store hash for duplicate detection
+        self.card_hash = hashlib.sha256(str(full_number).encode()).hexdigest()
+
+    @staticmethod
+    def detect_card_type(number):
+        """Detect card type from card number."""
+        number_str = str(number)
+        if number_str.startswith('4'):
+            return 'visa'
+        elif number_str.startswith(('51', '52', '53', '54', '55')):
+            return 'master'
+        elif number_str.startswith('506'):
+            return 'verve'
+        return 'master'  # Default
 
 
 class Notification(models.Model):

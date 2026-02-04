@@ -122,6 +122,12 @@ CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = not DEBUG  # True in production
 CSRF_TRUSTED_ORIGINS = ['https://sacco-management.onrender.com']
 
+# Session settings (apply in both dev and prod)
+SESSION_COOKIE_AGE = 3600  # 1 hour session timeout
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Session expires when browser closes
+SESSION_SAVE_EVERY_REQUEST = True  # Refresh session on every request (sliding expiration)
+SESSION_COOKIE_SAMESITE = 'Lax'  # Prevent CSRF via cross-site requests
+
 # Production security settings (only apply when DEBUG=False)
 if not DEBUG:
     # HTTPS settings
@@ -136,12 +142,15 @@ if not DEBUG:
     # Cookie security
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_AGE = 3600  # 1 hour session timeout
+    SESSION_COOKIE_SAMESITE = 'Strict'  # Stricter in production
 
     # Content security
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_BROWSER_XSS_FILTER = True
     X_FRAME_OPTIONS = 'DENY'
+
+    # Additional production security
+    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 
 STATICFILES_FINDERS = [
@@ -336,6 +345,20 @@ MOBILE_MONEY_CONFIG = {
         'daily': 5000000,
     },
     'PROVIDERS': ['MTN', 'Airtel', 'Africell', 'UTL']
+}
+
+# Transfer Limits
+TRANSFER_LIMITS = {
+    'min': 1000,  # Minimum transfer amount (UGX)
+    'single': 10000000,  # Maximum single transfer (10 million UGX)
+    'daily': 50000000,  # Maximum daily transfers (50 million UGX)
+}
+
+# Payment Request Limits
+PAYMENT_REQUEST_LIMITS = {
+    'min': 1000,
+    'single': 10000000,
+    'daily': 50000000,
 }
 
 
