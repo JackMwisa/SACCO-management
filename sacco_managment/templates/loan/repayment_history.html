@@ -3,10 +3,10 @@
 {% load humanize %}
 {% block content %}
 <section class="dashboard-section body-collapse">
-    <div class="overlay pt-120">
-        <div class="container-fruid">
+    <div class="overlay">
+        <div class="container-fluid">
             <div class="row justify-content-center">
-                <div class="col-xl-10">
+                <div class="col-12">
                     <div class="section-content">
                         <div class="transactions-area">
                             <div class="section-header d-flex justify-content-between align-items-center mb-4">
@@ -216,30 +216,6 @@
 </section>
 {% endblock %}
 
-{% block styles %}
-<style>
-    .summary-card {
-        padding: 10px 15px;
-        border-radius: 8px;
-        color: white;
-    }
-    .summary-card small {
-        opacity: 0.8;
-        font-size: 0.8rem;
-    }
-    .summary-card h4 {
-        margin: 5px 0 0;
-        font-weight: bold;
-    }
-    .table th {
-        white-space: nowrap;
-    }
-    .table td {
-        vertical-align: middle;
-    }
-    .badge {
-        padding: 6px 10px;
-        font-weight: 500;
-    }
-</style>
-{% endblock %}
+{% block css %}
+{# Styles handled by dashboard.css — .summary-card, .table, .badge scoped to .page-body #}
+{% endblock css %}

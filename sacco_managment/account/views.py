@@ -95,6 +95,43 @@ def reset_pin(request):
 
 
 @login_required
+def change_password(request):
+    if request.method == "POST":
+        current_password = request.POST.get("current_password", "")
+        new_password = request.POST.get("new_password", "")
+        confirm_password = request.POST.get("confirm_password", "")
+
+        if not request.user.check_password(current_password):
+            messages.error(request, "Current password is incorrect.")
+        elif len(new_password) < 8:
+            messages.error(request, "New password must be at least 8 characters.")
+        elif new_password != confirm_password:
+            messages.error(request, "New passwords do not match.")
+        else:
+            request.user.set_password(new_password)
+            request.user.save()
+            from django.contrib.auth import update_session_auth_hash
+            update_session_auth_hash(request, request.user)
+            messages.success(request, "Password changed successfully.")
+            return redirect("account:account")
+
+    return redirect("account:account")
+
+
+@login_required
+def search(request):
+    from core.models import Transaction
+    query = request.GET.get("q", "").strip()
+    results = []
+    if query:
+        results = Transaction.objects.filter(
+            models.Q(sender=request.user) | models.Q(receiver=request.user),
+            models.Q(transaction_id__icontains=query) | models.Q(description__icontains=query)
+        ).order_by("-date")[:20]
+    return render(request, "account/search-results.html", {"query": query, "results": results})
+
+
+@login_required
 def dashboard(request):
     if request.user.is_authenticated:
         try:

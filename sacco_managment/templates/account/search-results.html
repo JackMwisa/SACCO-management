@@ -1,0 +1,70 @@
+{% extends "partials/dashboard-base.html" %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+<section class="dashboard-section body-collapse">
+    <div class="overlay pt-120">
+        <div class="container-fruid">
+            <div class="main-content">
+                <div class="head-area d-flex align-items-center justify-content-between">
+                    <h4>Search Results</h4>
+                </div>
+                {% if query %}
+                <p class="mb-3">Results for "<strong>{{ query }}</strong>"</p>
+                {% endif %}
+                <div class="table-area">
+                    {% if results %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Transaction ID</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for t in results %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'core:transaction-detail' t.transaction_id %}">
+                                            {{ t.transaction_id }}
+                                        </a>
+                                    </td>
+                                    <td>{{ t.transaction_type|title }}</td>
+                                    <td>{{ t.amount|intcomma }} UGX</td>
+                                    <td>
+                                        {% if t.status == "completed" %}
+                                            <span class="badge bg-success">Completed</span>
+                                        {% elif t.status == "pending" %}
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        {% elif t.status == "failed" %}
+                                            <span class="badge bg-danger">Failed</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ t.status|title }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ t.date|naturaltime }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                        {% if query %}
+                            <p>No transactions found matching "{{ query }}".</p>
+                        {% else %}
+                            <p>Enter a search term to find transactions.</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
